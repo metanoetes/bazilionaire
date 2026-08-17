@@ -74,4 +74,19 @@ describe('boundary honesty', () => {
   it('2000-01-01 year pillar is 己卯 (pre-立春, exact boundary logic)', () => {
     expect(computeChart(2000, 1, 1).year).toBe('己卯');
   });
+  // Reviewer regressions (sprint-1 review, fail-closed findings — now fixed by
+  // exact 节 boundaries; pinned so the old approximation bugs cannot return):
+  it('Feb 1-3 month pillar is 丑月, never silent 子 (reviewer regression)', () => {
+    for (const d of [1, 2, 3]) {
+      const c = computeChart(2024, 2, d);
+      expect(c.month).toBe('乙丑');
+      expect(c.warnings).toHaveLength(0); // far from any boundary — no warning
+    }
+  });
+  it('Feb 4 pre-立春: year = previous (癸卯), warning only within ±1 min of the true term', () => {
+    const c = computeChart(2024, 2, 4); // 12:00, hours before 立春 16:27 local
+    expect(c.year).toBe('癸卯');
+    expect(c.month).toBe('乙丑');
+    expect(c.warnings).toHaveLength(0);
+  });
 });
