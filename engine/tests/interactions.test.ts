@@ -10,7 +10,7 @@ describe('六合 pairs', () => {
     expect(branchInteraction('巳', '申')?.type).toBe('六合');
   });
   it('non-pairs return null', () => {
-    expect(branchInteraction('子', '辰')).toBeNull();
+    expect(branchInteraction('子', '寅')).toBeNull();
   });
 });
 
@@ -65,14 +65,14 @@ describe('流年', () => {
   it('2024 = 甲辰, 甲 vs 己土 day master = 正官', () => {
     const natal = {
       dayStem: '己',
-      branches: ['未', '丑', '亥', '巳'] as [string, string, string, string],
+      branches: ['酉', '戌', '卯', '子'] as [string, string, string, string],
       monthBranch: '丑',
       dayXunKong: '辰巳',
     };
     const r = liunian(2024, natal);
     expect(r.ganzhi).toBe('甲辰');
     expect(r.shishen).toBe('正官');
-    expect(r.interactions.length).toBeGreaterThan(0); // 辰 has relations with these branches
+    expect(r.interactions.map((i) => i.type)).toEqual(expect.arrayContaining(['六合', '冲', '害', '半合']));
   });
   it('甲辰 year supplies fire? no — 辰 is earth; winter chart not fed by 辰', () => {
     const natal = {
