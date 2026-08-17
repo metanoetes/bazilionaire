@@ -1,5 +1,6 @@
 {
-  "anchor-1949": { "datetime": [1949, 10, 1, 12, 0], "location": { "name": "Beijing", "lon": 116.391, "tzHours": 8 } },
-  "anchor-2000": { "datetime": [2000, 1, 1, 12, 0], "location": { "name": "UTC reference", "lon": 0.0, "tzHours": 0 } },
-  "anchor-2024": { "datetime": [2024, 2, 10, 12, 0], "location": { "name": "Beijing", "lon": 116.391, "tzHours": 8 } }
+  "anchor-1949": { "datetime": [1949, 10, 1, 12, 0], "gender": 1, "location": { "name": "Beijing", "lon": 116.391, "tzHours": 8 } },
+  "anchor-2000": { "datetime": [2000, 1, 1, 12, 0], "gender": 1, "location": { "name": "UTC reference", "lon": 0.0, "tzHours": 0 } },
+  "anchor-2024": { "datetime": [2024, 2, 10, 12, 0], "gender": 0, "location": { "name": "Beijing", "lon": 116.391, "tzHours": 8 } }
 }
+

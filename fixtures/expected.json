@@ -8,6 +8,7 @@
         12,
         0
       ],
+      "gender": 1,
       "location": {
         "name": "Beijing",
         "lon": 116.391,
@@ -126,6 +127,91 @@
           "冬至": "1950-12-22T10:13:04Z"
         }
       }
+    },
+    "doctrine": {
+      "shishenGan": [
+        "正财",
+        "正印",
+        "日主",
+        "七杀"
+      ],
+      "shishenZhi": [
+        [
+          "正财",
+          "正印",
+          "正官"
+        ],
+        [
+          "正官"
+        ],
+        [
+          "正印"
+        ],
+        [
+          "伤官",
+          "正财"
+        ]
+      ],
+      "dayXun": "甲子",
+      "dayXunKong": "戌亥",
+      "yun": {
+        "gender": 1,
+        "start": 7,
+        "startMonth": 8,
+        "startDay": 20,
+        "dayun": [
+          {
+            "ganzhi": "",
+            "startAge": 1,
+            "startYear": 1949
+          },
+          {
+            "ganzhi": "壬申",
+            "startAge": 9,
+            "startYear": 1957
+          },
+          {
+            "ganzhi": "辛未",
+            "startAge": 19,
+            "startYear": 1967
+          },
+          {
+            "ganzhi": "庚午",
+            "startAge": 29,
+            "startYear": 1977
+          },
+          {
+            "ganzhi": "己巳",
+            "startAge": 39,
+            "startYear": 1987
+          },
+          {
+            "ganzhi": "戊辰",
+            "startAge": 49,
+            "startYear": 1997
+          },
+          {
+            "ganzhi": "丁卯",
+            "startAge": 59,
+            "startYear": 2007
+          },
+          {
+            "ganzhi": "丙寅",
+            "startAge": 69,
+            "startYear": 2017
+          },
+          {
+            "ganzhi": "乙丑",
+            "startAge": 79,
+            "startYear": 2027
+          },
+          {
+            "ganzhi": "甲子",
+            "startAge": 89,
+            "startYear": 2037
+          }
+        ]
+      }
     }
   },
   "anchor-2000": {
@@ -137,6 +223,7 @@
         12,
         0
       ],
+      "gender": 1,
       "location": {
         "name": "UTC reference",
         "lon": 0.0,
@@ -254,6 +341,90 @@
           "冬至": "2001-12-21T19:21:29Z"
         }
       }
+    },
+    "doctrine": {
+      "shishenGan": [
+        "劫财",
+        "偏印",
+        "日主",
+        "比肩"
+      ],
+      "shishenZhi": [
+        [
+          "正官"
+        ],
+        [
+          "正财"
+        ],
+        [
+          "正印",
+          "劫财"
+        ],
+        [
+          "正印",
+          "劫财"
+        ]
+      ],
+      "dayXun": "甲寅",
+      "dayXunKong": "子丑",
+      "yun": {
+        "gender": 1,
+        "start": 8,
+        "startMonth": 2,
+        "startDay": 10,
+        "dayun": [
+          {
+            "ganzhi": "",
+            "startAge": 1,
+            "startYear": 2000
+          },
+          {
+            "ganzhi": "乙亥",
+            "startAge": 9,
+            "startYear": 2008
+          },
+          {
+            "ganzhi": "甲戌",
+            "startAge": 19,
+            "startYear": 2018
+          },
+          {
+            "ganzhi": "癸酉",
+            "startAge": 29,
+            "startYear": 2028
+          },
+          {
+            "ganzhi": "壬申",
+            "startAge": 39,
+            "startYear": 2038
+          },
+          {
+            "ganzhi": "辛未",
+            "startAge": 49,
+            "startYear": 2048
+          },
+          {
+            "ganzhi": "庚午",
+            "startAge": 59,
+            "startYear": 2058
+          },
+          {
+            "ganzhi": "己巳",
+            "startAge": 69,
+            "startYear": 2068
+          },
+          {
+            "ganzhi": "戊辰",
+            "startAge": 79,
+            "startYear": 2078
+          },
+          {
+            "ganzhi": "丁卯",
+            "startAge": 89,
+            "startYear": 2088
+          }
+        ]
+      }
     }
   },
   "anchor-2024": {
@@ -265,6 +436,7 @@
         12,
         0
       ],
+      "gender": 0,
       "location": {
         "name": "Beijing",
         "lon": 116.391,
@@ -386,6 +558,95 @@
           "大雪": "2025-12-06T21:04:34Z",
           "冬至": "2025-12-21T15:03:05Z"
         }
+      }
+    },
+    "doctrine": {
+      "shishenGan": [
+        "比肩",
+        "食神",
+        "日主",
+        "七杀"
+      ],
+      "shishenZhi": [
+        [
+          "偏财",
+          "劫财",
+          "正印"
+        ],
+        [
+          "比肩",
+          "食神",
+          "偏财"
+        ],
+        [
+          "偏财",
+          "劫财",
+          "正印"
+        ],
+        [
+          "伤官",
+          "正财"
+        ]
+      ],
+      "dayXun": "甲辰",
+      "dayXunKong": "寅卯",
+      "yun": {
+        "gender": 0,
+        "start": 1,
+        "startMonth": 11,
+        "startDay": 10,
+        "dayun": [
+          {
+            "ganzhi": "",
+            "startAge": 1,
+            "startYear": 2024
+          },
+          {
+            "ganzhi": "乙丑",
+            "startAge": 3,
+            "startYear": 2026
+          },
+          {
+            "ganzhi": "甲子",
+            "startAge": 13,
+            "startYear": 2036
+          },
+          {
+            "ganzhi": "癸亥",
+            "startAge": 23,
+            "startYear": 2046
+          },
+          {
+            "ganzhi": "壬戌",
+            "startAge": 33,
+            "startYear": 2056
+          },
+          {
+            "ganzhi": "辛酉",
+            "startAge": 43,
+            "startYear": 2066
+          },
+          {
+            "ganzhi": "庚申",
+            "startAge": 53,
+            "startYear": 2076
+          },
+          {
+            "ganzhi": "己未",
+            "startAge": 63,
+            "startYear": 2086
+          },
+          {
+            "ganzhi": "戊午",
+            "startAge": 73,
+            "startYear": 2096
+          },
+          {
+            "ganzhi": "丁巳",
+            "startAge": 83,
+            "startYear": 2106
+          }
+        ]
       }
     }
   }

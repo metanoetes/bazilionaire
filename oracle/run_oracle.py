@@ -149,6 +149,27 @@ def main():
                 for year in (y - 1, y, y + 1)
             },
         }
+        # Doctrine block (lunar_python pinned): 十神, 空亡, 大运
+        gender = case.get("gender", 1)
+        yun = ec.getYun(gender)
+        entry["doctrine"] = {
+            "shishenGan": [ec.getYearShiShenGan(), ec.getMonthShiShenGan(),
+                           ec.getDayShiShenGan(), ec.getTimeShiShenGan()],
+            "shishenZhi": [ec.getYearShiShenZhi(), ec.getMonthShiShenZhi(),
+                           ec.getDayShiShenZhi(), ec.getTimeShiShenZhi()],
+            "dayXun": ec.getDayXun(),
+            "dayXunKong": ec.getDayXunKong(),
+            "yun": {
+                "gender": gender,
+                "start": yun.getStartYear(),
+                "startMonth": yun.getStartMonth(),
+                "startDay": yun.getStartDay(),
+                "dayun": [
+                    {"ganzhi": d.getGanZhi(), "startAge": d.getStartAge(), "startYear": d.getStartYear()}
+                    for d in yun.getDaYun()
+                ],
+            },
+        }
         out[name] = entry
 
     json.dump(out, sys.stdout, ensure_ascii=False, indent=2)

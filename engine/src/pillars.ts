@@ -14,16 +14,17 @@ import { BRANCHES, STEMS, ZODIAC, ganzhiOf, ganzhiIndexOf, yearGanzhiIndex } fro
 import { dayPillarIndex } from './julian.js';
 import { HIDDEN_STEMS, HOUR_STEM_START, MONTH_STEM_START, NAYIN } from './tables.js';
 import {
-  SOLAR_TERM_DEG,
   julianTT,
   julianUT,
   solarOffsetMinutes,
   solarTermLocal,
   type Location,
 } from './astronomy.js';
+import { shishenOf } from './tenGods.js';
 
-/** The 12 节 (branch-changing terms), in month order from 寅. */
-const JIE_TERMS: Array<[number, string]> = [
+/** The 12 节 (branch-changing terms), in solar-year order starting 小寒. */
+const JIE_ALL: Array<[number, string]> = [
+  [285.0, '丑'], // 小寒
   [315.0, '寅'], // 立春
   [345.0, '卯'], // 惊蛰
   [15.0, '辰'],  // 清明
@@ -35,8 +36,17 @@ const JIE_TERMS: Array<[number, string]> = [
   [195.0, '戌'], // 寒露
   [225.0, '亥'], // 立冬
   [255.0, '子'], // 大雪
-  [285.0, '丑'], // 小寒
 ];
+
+/** All 节s spanning year−1 大雪 … year 大雪 … year+1 小寒, in local pseudo-JD order. */
+function jieWindow(year: number, tz: number): Array<[number, string]> {
+  const rows: Array<[number, string]> = [
+    [solarTermLocal(year - 1, 255.0, tz), '子'], // 大雪 of the previous year
+    ...JIE_ALL.map(([deg, b]) => [solarTermLocal(year, deg, tz), b] as [number, string]),
+    [solarTermLocal(year + 1, 285.0, tz), '丑'], // 小寒 of the next year
+  ];
+  return rows.sort((a, b) => a[0] - b[0]);
+}
 
 const BOUNDARY_EPS_DAYS = 60 / 86400; // ±1 minute around a boundary
 
@@ -50,6 +60,19 @@ export interface Chart {
   zodiac: string;
   hourSchool: 'clock' | 'solar';
   warnings: string[];
+  /** 十神 of each pillar stem vs the day master (day pillar itself = 日主). */
+  shishenGan: [string, string, string, string];
+  /** 十神 of each pillar's hidden stems vs the day master. */
+  shishenZhi: [string[], string[], string[], string[]];
+  /** 空亡 of the day pillar: the 旬 name and its two void branches. */
+  dayXun: string;
+  dayXunKong: string;
+  /** 大运 (decade luck), present when gender is provided. */
+  yun?: {
+    gender: 1 | 0;
+    startYearOffset: number;
+    dayun: Array<{ ganzhi: string; startAge: number; startYear: number }>;
+  };
 }
 
 export function computeChart(
@@ -59,6 +82,7 @@ export function computeChart(
   hour = 12,
   minute = 0,
   location?: Location,
+  gender?: 1 | 0,
 ): Chart {
   const warnings: string[] = [];
   const tz = location?.tzHours ?? 8; // lunar_python convention: 节 boundaries in Beijing time
@@ -80,11 +104,7 @@ export function computeChart(
   const yearGanzhi = ganzhiOf(yearIdx);
 
   // ---- Month pillar: latest 节 ≤ birth, in local time ----
-  const jieTimes: Array<[number, string]> = [
-    [solarTermLocal(year, 285.0, tz), '丑'], // 小寒 this year (for Jan births)
-    ...JIE_TERMS.filter(([deg]) => deg !== 285.0).map(([deg, b]) => [solarTermLocal(year, deg, tz), b] as [number, string]),
-    [solarTermLocal(year + 1, 285.0, tz), '丑'], // 小寒 next year (for late-Dec births)
-  ];
+  const jieTimes = jieWindow(year, tz);
   let monthBranchStr = '子';
   let monthBoundaryJD = -Infinity;
   for (const [jd, b] of jieTimes) {
@@ -129,6 +149,57 @@ export function computeChart(
   const monthGanzhiIdx = ganzhiIndexOf(monthStemIdx, monthBranchIdx);
   const hourGanzhiIdx = ganzhiIndexOf(hourStemIdx, hourBranchIdx);
 
+  // ---- 十神 ----
+  const dayStemIdx = STEMS.indexOf(dayGanzhi.stem as (typeof STEMS)[number]);
+  const yearStemIdx = STEMS.indexOf(yearGanzhi.stem as (typeof STEMS)[number]);
+  const hourStemIdxVal = hourStemIdx;
+  const shishenGan: [string, string, string, string] = [
+    shishenOf(dayStemIdx, yearStemIdx),
+    shishenOf(dayStemIdx, monthStemIdx),
+    '日主',
+    shishenOf(dayStemIdx, hourStemIdxVal),
+  ];
+  const shishenZhi: [string[], string[], string[], string[]] = [
+    hideGan[0].map((g) => shishenOf(dayStemIdx, STEMS.indexOf(g as (typeof STEMS)[number]))),
+    hideGan[1].map((g) => shishenOf(dayStemIdx, STEMS.indexOf(g as (typeof STEMS)[number]))),
+    hideGan[2].map((g) => shishenOf(dayStemIdx, STEMS.indexOf(g as (typeof STEMS)[number]))),
+    hideGan[3].map((g) => shishenOf(dayStemIdx, STEMS.indexOf(g as (typeof STEMS)[number]))),
+  ];
+
+  // ---- 空亡 (day pillar's 旬) ----
+  const xunStartIdx = Math.floor(dayIdx / 10) * 10;
+  const dayXun = ganzhiOf(xunStartIdx).name;
+  const dayXunKong = BRANCHES[(xunStartIdx + 10) % 12] + BRANCHES[(xunStartIdx + 11) % 12];
+
+  // ---- 大运 ----
+  let yun: Chart['yun'];
+  if (gender !== undefined) {
+    const yearStemYang = yearStemIdx % 2 === 0; // 甲丙戊庚壬 = yang
+    const forward = yearStemYang === (gender === 1);
+    const jieCandidates = jieWindow(year, tz);
+    let targetJD: number | undefined;
+    if (forward) {
+      targetJD = jieCandidates.find(([jd]) => jd > birthLocalJD)?.[0];
+    } else {
+      const prev = jieCandidates.filter(([jd]) => jd < birthLocalJD);
+      targetJD = prev.length ? prev[prev.length - 1][0] : undefined;
+    }
+    if (targetJD === undefined) targetJD = birthLocalJD; // degenerate: treat as same instant
+    const daysToJie = Math.abs(birthLocalJD - targetJD);
+    const qiyunYears = daysToJie / 3;
+    const startYearOffset = Math.floor(qiyunYears + 0.5);
+    const dir = forward ? 1 : -1;
+    const dayun: Array<{ ganzhi: string; startAge: number; startYear: number }> = [
+      { ganzhi: '', startAge: 1, startYear: year },
+    ];
+    for (let k = 1; k <= 9; k++) {
+      const g = ganzhiOf(monthGanzhiIdx + k * dir);
+      const startYearVal = year + startYearOffset + 10 * (k - 1);
+      dayun.push({ ganzhi: g.name, startAge: startYearVal - year + 1, startYear: startYearVal });
+    }
+    yun = { gender, startYearOffset, dayun };
+  }
+
   return {
     year: yearGanzhi.name,
     month: monthGanzhiName,
@@ -139,5 +210,10 @@ export function computeChart(
     zodiac: ZODIAC[BRANCHES.indexOf(yearGanzhi.branch as (typeof BRANCHES)[number])],
     hourSchool,
     warnings,
+    shishenGan,
+    shishenZhi,
+    dayXun,
+    dayXunKong,
+    yun,
   };
 }
