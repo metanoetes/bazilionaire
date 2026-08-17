@@ -3,13 +3,14 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { computeChart } from '../src/index.js';
+import { solarTermUTC } from '../src/astronomy.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..', '..');
 const expected = JSON.parse(readFileSync(join(root, 'fixtures', 'expected.json'), 'utf-8')) as Record<
   string,
   {
-    input: [number, number, number, number, number];
+    input: { datetime: [number, number, number, number, number]; location: { lon: number; tzHours: number } };
     year: string;
     month: string;
     day: string;
@@ -22,8 +23,11 @@ const expected = JSON.parse(readFileSync(join(root, 'fixtures', 'expected.json')
 
 describe('anchor chain — TS vs lunar_python oracle', () => {
   for (const [name, exp] of Object.entries(expected)) {
-    it(`${name} (${exp.input.slice(0, 3).join('-')})`, () => {
-      const chart = computeChart(...exp.input);
+    it(`${name} (${exp.input.datetime.slice(0, 3).join('-')})`, () => {
+      const chart = computeChart(...exp.input.datetime, {
+        lonDeg: exp.input.location.lon,
+        tzHours: exp.input.location.tzHours,
+      });
       expect(chart.year).toBe(exp.year);
       expect(chart.month).toBe(exp.month);
       expect(chart.day).toBe(exp.day);
@@ -48,12 +52,26 @@ describe('anchor chain — known published values', () => {
 });
 
 describe('boundary honesty', () => {
-  it('flags the 立春 window', () => {
-    expect(computeChart(2024, 2, 4).warnings).toContain(
-      'year: 立春 boundary ±1 day — exact term time required',
+  it('flags birth within ±1 min of 立春 (at the computed local boundary, Beijing)', () => {
+    const lichun = solarTermUTC(2024, 315); // UTC ISO of TS's own boundary
+    const local = new Date(lichun);
+    local.setUTCHours(local.getUTCHours() + 8); // to Beijing local wall-clock
+    const birth = computeChart(
+      local.getUTCFullYear(),
+      local.getUTCMonth() + 1,
+      local.getUTCDate(),
+      local.getUTCHours(),
+      local.getUTCMinutes(),
+      { lonDeg: 116.391, tzHours: 8 },
+    );
+    expect(birth.warnings).toContain(
+      'year: birth within ±1 min of 立春 — pillars may split across schools',
     );
   });
   it('does not flag mid-segment dates', () => {
     expect(computeChart(2024, 2, 10).warnings).toHaveLength(0);
+  });
+  it('2000-01-01 year pillar is 己卯 (pre-立春, exact boundary logic)', () => {
+    expect(computeChart(2000, 1, 1).year).toBe('己卯');
   });
 });
