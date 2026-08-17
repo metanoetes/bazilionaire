@@ -1,0 +1,35 @@
+name: verify
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  oracle:
+    name: Oracle regression (fixtures pinned)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r oracle/requirements.txt
+      - name: Regenerate oracle output
+        run: python oracle/run_oracle.py > /tmp/regen.json
+      - name: Gate — oracle must byte-match fixtures/expected.json
+        run: cmp /tmp/regen.json fixtures/expected.json
+
+  engine:
+    name: TS engine tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install
+        working-directory: engine
+      - run: bun run test
+        working-directory: engine
+      - run: bun run typecheck
+        working-directory: engine
