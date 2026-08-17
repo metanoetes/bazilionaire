@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #faf6ef;
+  --ink: #2b2118;
+  --accent: #9b2c2c;
+  --gold: #b8860b;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: ui-serif, Georgia, "Songti SC", "Noto Serif CJK SC", serif;
+}
+
+.card {
+  background: #fffdf8;
+  border: 1px solid #e8e0d0;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(43, 33, 24, 0.06);
+}

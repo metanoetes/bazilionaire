@@ -1,0 +1,11 @@
+{
+  "name": "bazilionaire",
+  "private": true,
+  "workspaces": ["engine", "app"],
+  "scripts": {
+    "test": "bun run --cwd engine test",
+    "typecheck": "bun run --cwd engine typecheck",
+    "dev": "bun run --cwd app dev",
+    "build": "bun run --cwd app build"
+  }
+}
