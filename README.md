@@ -23,11 +23,16 @@ Every push runs two gates:
 
 The green badge is the trust artifact.
 
-## Current state (sprint 1)
+## Current state
 
-Implemented: day pillar (JDN), year pillar (立春 boundary, approximated ±1 day with honest warnings), month pillar (节 boundaries approximated, 五虎遁), hour pillar (clock school, 五鼠遁), 藏干, 纳音, zodiac.
+Sprints 1–3 shipped (verified in CI against the Python oracle):
 
-Not yet: exact 节气 times, 真太阳时 (solar-time school), 起运/大运, 十神, 神煞, 空亡.
+- **Pillars**: year (立春 exact, local time), month (节 exact, 五虎遁), day (JDN), hour (clock + 真太阳时 solar schools, 五鼠遁).
+- **Astronomy**: VSOP87D solar terms (±120 s vs skyfield), equation of time (±30 s), true-solar-time offsets, ΔT, nutation, obliquity. Generated tables in `engine/src/vsop87-earth-l.ts` (provenance: `tools/gen_vsop87.py` + `fixtures/VSOP87D.ear`).
+- **Doctrine**: 十神 (Ten Gods), 空亡 (void branches), 起运/大运 (decade luck, pinned against lunar_python including 虚岁 start ages), 神煞 tables (驿马/羊刃/华盖/天乙/文昌/桃花/禄).
+- **Boundary honesty**: ±1 min around every 节 gets an explicit school-split warning.
+
+Not yet: 流年 (annual transits), 合婚 pair analysis, the web app, LLM tutor layer.
 
 ## Mission boundaries
 
