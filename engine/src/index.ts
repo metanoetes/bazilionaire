@@ -16,6 +16,7 @@ export {
 } from './interactions.js';
 export { liunian, type Liunian } from './liunian.js';
 export { hehun, type HehunReport, type PersonChart } from './hehun.js';
+export { shishenOf } from './tenGods.js';
 export {
   SOLAR_TERM_DEG,
   deltaTSec,

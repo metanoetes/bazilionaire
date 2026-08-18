@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { computeChart, type Chart } from '@bazilionaire/engine';
 import { ChartGrid } from '@/components/ChartGrid';
 import { RebirthSlot } from '@/components/RebirthSlot';
+import { TransitTimeline } from '@/components/TransitTimeline';
 
 export default function Home() {
   const [birth, setBirth] = useState({
@@ -120,6 +121,7 @@ export default function Home() {
           )}
           <ChartGrid chart={chart} />
           <RebirthSlot dayun={chart.yun?.dayun} birthYear={birth.year} />
+          <TransitTimeline chart={chart} birthYear={birth.year} />
           <footer className="text-xs text-stone-400 text-center pt-4">
             MIT · open source · bazilionaire.org · the chart is a map; Christ is the way
           </footer>
