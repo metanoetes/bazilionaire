@@ -31,7 +31,7 @@ for line in src.read_text().splitlines():
         m = re.search(r"VARIABLE (\d).*?\*T\*\*(\d)\s+(\d+) TERMS", line)
         cur_ic, cur_it = int(m.group(1)), int(m.group(2))
         continue
-    if cur_ic != 1 or len(line) < 131:
+    if cur_ic != 1 or len(line) < 132:
         continue
     if not line[:5].strip().isdigit():
         continue

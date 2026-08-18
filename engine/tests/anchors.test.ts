@@ -90,3 +90,35 @@ describe('boundary honesty', () => {
     expect(c.warnings).toHaveLength(0);
   });
 });
+
+describe('month-boundary and hour-school coverage (sprint-2 reviewer suggestions)', () => {
+  const beijing = { lonDeg: 116.391, tzHours: 8 };
+  it('late-December birth: month = 子 from 大雪 of the same year', () => {
+    const c = computeChart(2023, 12, 25, 12, 0, beijing);
+    expect(c.year).toBe('癸卯');
+    expect(c.month).toBe('甲子');
+  });
+  it('early-January birth before 小寒: month = 子 from the previous year\'s 大雪', () => {
+    const c = computeChart(2024, 1, 3, 12, 0, beijing);
+    expect(c.year).toBe('癸卯');
+    expect(c.month).toBe('甲子');
+  });
+  it('solar school flips the hour branch far west of the tz meridian (lon 75, tz +8)', () => {
+    // 2024-02-10 EoT ≈ −14.2 min; offset = EoT + 4·(75 − 120) ≈ −194 min → solar ≈ 08:46 → 辰
+    const c = computeChart(2024, 2, 10, 12, 0, { lonDeg: 75, tzHours: 8 });
+    expect(c.hourSchool).toBe('solar');
+    expect(c.time.slice(1)).toBe('辰');
+  });
+  it('solar school does not flip mid-branch hours (Beijing, 12:00 → 午)', () => {
+    const c = computeChart(2024, 2, 10, 12, 0, beijing);
+    expect(c.hourSchool).toBe('solar');
+    expect(c.time.slice(1)).toBe('午');
+  });
+  it('起运 sect-1 convention: near-节 birth starts in the birth year (age 1)', () => {
+    // 2.7 days to 小寒 → 0 years 10 months 20 days → first decade 2024, 虚岁 1
+    const c = computeChart(2024, 1, 3, 12, 0, beijing, 0);
+    expect(c.yun?.qiyun).toEqual({ years: 0, months: 10, days: 20 });
+    expect(c.yun?.startSolarYear).toBe(2024);
+    expect(c.yun?.dayun[1]).toEqual({ ganzhi: '乙丑', startAge: 1, startYear: 2024 });
+  });
+});

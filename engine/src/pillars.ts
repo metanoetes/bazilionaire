@@ -11,7 +11,7 @@
  * TODO (sprint 3): 十神, 神煞, 空亡, 起运/大运.
  */
 import { BRANCHES, STEMS, ZODIAC, ganzhiOf, ganzhiIndexOf, yearGanzhiIndex } from './sexagenary.js';
-import { dayPillarIndex } from './julian.js';
+import { dayPillarIndex, jdn, jdnToDate } from './julian.js';
 import { HIDDEN_STEMS, HOUR_STEM_START, MONTH_STEM_START, NAYIN } from './tables.js';
 import {
   julianTT,
@@ -45,10 +45,20 @@ function jieWindow(year: number, tz: number): Array<[number, string]> {
     ...JIE_ALL.map(([deg, b]) => [solarTermLocal(year, deg, tz), b] as [number, string]),
     [solarTermLocal(year + 1, 285.0, tz), '丑'], // 小寒 of the next year
   ];
+  // Every row is live for some birth in `year`:
+  //  - year−1 大雪: January births' month pillar (子 month) and backward 起运;
+  //  - year+1 小寒: late-December births' FORWARD 起运 target (next 节 after 大雪).
   return rows.sort((a, b) => a[0] - b[0]);
 }
 
 const BOUNDARY_EPS_DAYS = 60 / 86400; // ±1 minute around a boundary
+
+/** 时辰 index of a local pseudo-JD instant, pinned to lunar_python sect-1. */
+function zhiIndexAt(jd: number): number {
+  const hour = Math.floor(((jd + 0.5) - Math.floor(jd + 0.5)) * 24);
+  if (hour === 23) return 11; // 晚子时: 23:xx counts as the day's last 时辰 (亥) for 起运
+  return Math.floor((((hour + 1) % 24) + 24) % 24 / 2);
+}
 
 export interface Chart {
   year: string;
@@ -70,7 +80,10 @@ export interface Chart {
   /** 大运 (decade luck), present when gender is provided. */
   yun?: {
     gender: 1 | 0;
-    startYearOffset: number;
+    /** 起运 remainders — lunar_python sect-1: 3 days = 1 year, 1 day = 4 months, 1 时辰 = 10 days. */
+    qiyun: { years: number; months: number; days: number };
+    /** Gregorian year the first 大运 decade begins (birth date + qiyun remainders). */
+    startSolarYear: number;
     dayun: Array<{ ganzhi: string; startAge: number; startYear: number }>;
   };
 }
@@ -172,6 +185,9 @@ export function computeChart(
   const dayXunKong = BRANCHES[(xunStartIdx + 10) % 12] + BRANCHES[(xunStartIdx + 11) % 12];
 
   // ---- 大运 ----
+  // 起运 pinned to lunar_python sect-1: time to the governing 节 measured in
+  // whole days + 时辰 (2-hour branches): 3 days = 1 year, 1 day = 4 months,
+  // 1 时辰 = 10 days. (NOT days/3 rounding — that diverges for births near 节.)
   let yun: Chart['yun'];
   if (gender !== undefined) {
     const yearStemYang = yearStemIdx % 2 === 0; // 甲丙戊庚壬 = yang
@@ -185,19 +201,39 @@ export function computeChart(
       targetJD = prev.length ? prev[prev.length - 1][0] : undefined;
     }
     if (targetJD === undefined) targetJD = birthLocalJD; // degenerate: treat as same instant
-    const daysToJie = Math.abs(birthLocalJD - targetJD);
-    const qiyunYears = daysToJie / 3;
-    const startYearOffset = Math.floor(qiyunYears + 0.5);
+    const startJD = forward ? birthLocalJD : targetJD;
+    const endJD = forward ? targetJD : birthLocalJD;
+    let hourDiff = zhiIndexAt(endJD) - zhiIndexAt(startJD);
+    let dayDiff = Math.floor(endJD + 0.5) - Math.floor(startJD + 0.5);
+    if (hourDiff < 0) {
+      hourDiff += 12;
+      dayDiff -= 1;
+    }
+    const monthDiff = Math.floor((hourDiff * 10) / 30);
+    const monthTotal = dayDiff * 4 + monthDiff;
+    const dayRem = hourDiff * 10 - monthDiff * 30;
+    const yearsOff = Math.floor(monthTotal / 12);
+    const monthsRem = monthTotal - yearsOff * 12;
+    // Calendar-add the remainders to the birth date; keep only the resulting year.
+    let y2 = year + yearsOff;
+    let m2 = month + monthsRem;
+    if (m2 > 12) {
+      y2 += 1;
+      m2 -= 12;
+    }
+    const dim = jdn(y2, m2 + 1, 1) - jdn(y2, m2, 1); // FVF handles month 13 = next January
+    const d2 = Math.min(day, dim);
+    const startSolarYear = jdnToDate(jdn(y2, m2, d2) + dayRem).year;
     const dir = forward ? 1 : -1;
     const dayun: Array<{ ganzhi: string; startAge: number; startYear: number }> = [
       { ganzhi: '', startAge: 1, startYear: year },
     ];
     for (let k = 1; k <= 9; k++) {
       const g = ganzhiOf(monthGanzhiIdx + k * dir);
-      const startYearVal = year + startYearOffset + 10 * (k - 1);
+      const startYearVal = startSolarYear + 10 * (k - 1);
       dayun.push({ ganzhi: g.name, startAge: startYearVal - year + 1, startYear: startYearVal });
     }
-    yun = { gender, startYearOffset, dayun };
+    yun = { gender, qiyun: { years: yearsOff, months: monthsRem, days: dayRem }, startSolarYear, dayun };
   }
 
   return {

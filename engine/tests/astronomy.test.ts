@@ -54,14 +54,16 @@ describe('equation of time — TS vs skyfield oracle (±30 s)', () => {
   for (const [name, exp] of Object.entries(expected)) {
     it(`${name} EoT`, () => {
       const [y, m, d, h, mi] = exp.input.datetime;
-      const tt = julianTT(julianUT(y, m, d, h, mi));
+      const tzHours = exp.input.location.tzHours;
+      // Same instant as the oracle (true UTC) and the engine (pillars.ts): wall − tz.
+      const tt = julianTT(julianUT(y, m, d, h, mi) - tzHours / 24);
       const got = eotMinutes(tt);
       expect(Math.abs(got - exp.astronomy.eotMin)).toBeLessThanOrEqual(EOT_TOLERANCE_MIN);
     });
     it(`${name} solar offset`, () => {
       const [y, m, d, h, mi] = exp.input.datetime;
       const { lon, tzHours } = exp.input.location;
-      const tt = julianTT(julianUT(y, m, d, h, mi));
+      const tt = julianTT(julianUT(y, m, d, h, mi) - tzHours / 24);
       const got = solarOffsetMinutes(tt, { lonDeg: lon, tzHours });
       expect(Math.abs(got - exp.astronomy.solarOffsetMin)).toBeLessThanOrEqual(EOT_TOLERANCE_MIN);
     });
