@@ -6,7 +6,7 @@
  */
 import { ganzhiOf, yearGanzhiIndex } from './sexagenary.js';
 import { shishenOf } from './tenGods.js';
-import { branchMatrix, isChongKong, tiaohouNeed, type Interaction } from './interactions.js';
+import { branchMatrix, isChongKong, sanHeCompletion, tiaohouNeed, type Interaction } from './interactions.js';
 import { STEMS } from './sexagenary.js';
 
 export interface Liunian {
@@ -43,6 +43,10 @@ export function liunian(
   const dayIdx = STEMS.indexOf(natal.dayStem as (typeof STEMS)[number]);
   const yearStemIdx = STEMS.indexOf(g.stem as (typeof STEMS)[number]);
   const interactions = branchMatrix(g.branch, natal.branches);
+  const completion = sanHeCompletion(g.branch, natal.branches);
+  if (completion) {
+    interactions.push({ type: '三合', detail: `${g.branch} completes ${completion} (三合局)` });
+  }
   const need = tiaohouNeed(natal.monthBranch);
   const chongKong: string[] = [];
   for (const nb of natal.branches) {

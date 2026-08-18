@@ -5,6 +5,7 @@ export {
   branchInteraction,
   branchMatrix,
   isChongKong,
+  sanHeCompletion,
   tiaohouNeed,
   LIU_HE,
   SAN_HE,

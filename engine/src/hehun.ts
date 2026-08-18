@@ -57,8 +57,7 @@ export function hehun(a: PersonChart, b: PersonChart): HehunReport {
   const interactions: Interaction[] = [];
   for (const ba of a.branches) {
     for (const bb of b.branches) {
-      const rel = branchInteraction(ba, bb);
-      if (rel) interactions.push(rel);
+      interactions.push(...branchInteraction(ba, bb));
     }
   }
 
