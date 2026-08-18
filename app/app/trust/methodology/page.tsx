@@ -87,12 +87,18 @@ export default function MethodologyPage() {
         </section>
 
         <section className="card p-4">
-          <h2 className="text-base font-semibold text-amber-950">privacy by architecture</h2>
+          <h2 className="text-base font-semibold text-amber-950">privacy by architecture, with a door you open</h2>
           <p className="mt-2 text-sm text-stone-700 leading-relaxed">
             All computation happens <span className="font-medium">in your browser</span>. Birth data never
-            leaves your device — not by policy, by construction. Share links encode derived facts (the pillars
-            and their relations), never the birth data itself. There is no server that could leak what the
+            leaves your device — not by policy, by construction. There is no server that could leak what the
             server never receives.
+          </p>
+          <p className="mt-2 text-sm text-stone-700 leading-relaxed">
+            The research commons is an explicit, opt-in door: if you choose to contribute, only{' '}
+            <span className="font-medium">derived features</span> — the pillars, relations, and tables the
+            chart computes — are queued for the commons. Never birth date, time, or place; never name or
+            email; nothing that identifies anyone. Contributions are deletable and held under covenant, and
+            nothing is transmitted until the commons endpoint ships.
           </p>
         </section>
 

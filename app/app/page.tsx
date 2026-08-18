@@ -7,6 +7,7 @@ import { ChartGrid } from '@/components/ChartGrid';
 import { RebirthSlot } from '@/components/RebirthSlot';
 import { TransitTimeline } from '@/components/TransitTimeline';
 import { HehunPanel } from '@/components/HehunPanel';
+import { queueContribution, queuedContributions, tier0Payload } from '@/lib/research';
 
 export default function Home() {
   const [birth, setBirth] = useState({
@@ -15,6 +16,8 @@ export default function Home() {
     hourSchool: 'clock' as 'clock' | 'solar',
   });
   const [submitted, setSubmitted] = useState(false);
+  const [contribute, setContribute] = useState(false);
+  const [contributed, setContributed] = useState(0);
 
   const chart: Chart | null = useMemo(() => {
     if (!submitted) return null;
@@ -43,6 +46,15 @@ export default function Home() {
         onSubmit={(e) => {
           e.preventDefault();
           setSubmitted(true);
+          const c = computeChart(
+            birth.year, birth.month, birth.day, birth.hour, birth.minute,
+            birth.hourSchool === 'solar' ? { lonDeg: birth.lon, tzHours: birth.tz } : undefined,
+            birth.gender === 'male' ? 1 : 0,
+          );
+          if (contribute) {
+            queueContribution(tier0Payload(c));
+            setContributed(queuedContributions().length);
+          }
         }}
       >
         {(
@@ -111,9 +123,42 @@ export default function Home() {
           type="submit"
           className="col-span-2 sm:col-span-4 bg-amber-900 text-amber-50 rounded py-2 font-medium"
         >
-          Compute — all computation happens in your browser; nothing is sent anywhere
+          Compute — all computation happens in your browser
         </button>
+        <label className="col-span-2 sm:col-span-4 flex items-start gap-2 text-xs text-stone-600">
+          <input
+            type="checkbox"
+            checked={contribute}
+            onChange={(e) => setContribute(e.target.checked)}
+            className="mt-0.5"
+          />
+          <span>
+            Contribute this chart&apos;s <span className="font-medium">derived features only</span> to the
+            research commons (pillars, relations, tables —{' '}
+            <span className="font-medium">never birth data, never name or email</span>). Opt-in, deletable,
+            held under covenant.
+          </span>
+        </label>
       </form>
+
+      {contributed > 0 && (
+        <div className="card p-3 mt-3 text-xs text-stone-600 flex items-center justify-between gap-3">
+          <span>
+            {contributed} chart{contributed === 1 ? '' : 's'} contributed (derived features only). Submission
+            to the commons activates when its endpoint opens; your contributions live only in this
+            browser&apos;s local queue until then.
+          </span>
+          <button
+            onClick={() => {
+              localStorage.removeItem('bazilionaire.contributions.v1');
+              setContributed(0);
+            }}
+            className="text-stone-500 underline hover:text-amber-900 shrink-0"
+          >
+            clear my contributions
+          </button>
+        </div>
+      )}
 
       {chart && (
         <div className="mt-6 space-y-4">
