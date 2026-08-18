@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { computeChart, type Chart } from '@bazilionaire/engine';
 import { ChartGrid } from '@/components/ChartGrid';
@@ -9,15 +9,47 @@ import { TransitTimeline } from '@/components/TransitTimeline';
 import { HehunPanel } from '@/components/HehunPanel';
 import { queueContribution, queuedContributions, tier0Payload } from '@/lib/research';
 
+type BirthState = {
+  year: number;
+  month: number;
+  day: number;
+  hour: number;
+  minute: number;
+  lon: number;
+  tz: number;
+  gender: 'male' | 'female';
+  hourSchool: 'clock' | 'solar';
+};
+
+/** A plausible, non-personal random birth for the intake defaults. */
+function randomBirth(): BirthState {
+  const year = 1940 + Math.floor(Math.random() * 81); // 1940–2020
+  const month = 1 + Math.floor(Math.random() * 12);
+  const day = 1 + Math.floor(Math.random() * 28);
+  const hour = Math.floor(Math.random() * 24);
+  const minute = Math.floor(Math.random() * 60);
+  const lon = Math.round((Math.random() * 360 - 180) * 100) / 100;
+  const tz = Math.max(-12, Math.min(12, Math.round(lon / 15))); // plausible tz for the longitude
+  const gender = Math.random() < 0.5 ? ('male' as const) : ('female' as const);
+  return { year, month, day, hour, minute, lon, tz, gender, hourSchool: 'clock' as const };
+}
+
+// Hydration-safe: SSR renders this neutral sentinel; the random intake is
+// swapped in once on the client, so the prerendered HTML and the client DOM agree.
+const SENTINEL: BirthState = {
+  year: 2000, month: 1, day: 1, hour: 12, minute: 0,
+  lon: 0, tz: 0, gender: 'male', hourSchool: 'clock',
+};
+
 export default function Home() {
-  const [birth, setBirth] = useState({
-    year: 1992, month: 1, day: 24, hour: 10, minute: 0,
-    lon: -95.36, tz: -6, gender: 'male' as 'male' | 'female',
-    hourSchool: 'clock' as 'clock' | 'solar',
-  });
+  const [birth, setBirth] = useState<BirthState>(SENTINEL);
   const [submitted, setSubmitted] = useState(false);
   const [contribute, setContribute] = useState(false);
   const [contributed, setContributed] = useState(0);
+
+  useEffect(() => {
+    setBirth(randomBirth());
+  }, []);
 
   const chart: Chart | null = useMemo(() => {
     if (!submitted) return null;
