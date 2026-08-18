@@ -50,6 +50,24 @@
       "regex": "^/curriculum(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/curriculum(?:/)?$"
+    },
+    {
+      "page": "/trust/cosmology",
+      "regex": "^/trust/cosmology(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/trust/cosmology(?:/)?$"
+    },
+    {
+      "page": "/trust/methodology",
+      "regex": "^/trust/methodology(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/trust/methodology(?:/)?$"
+    },
+    {
+      "page": "/trust/theology",
+      "regex": "^/trust/theology(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/trust/theology(?:/)?$"
     }
   ],
   "dataRoutes": [],

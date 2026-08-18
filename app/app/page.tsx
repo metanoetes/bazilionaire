@@ -128,8 +128,15 @@ export default function Home() {
           <RebirthSlot dayun={chart.yun?.dayun} birthYear={birth.year} />
           <TransitTimeline chart={chart} birthYear={birth.year} />
           <HehunPanel chartA={chart} genderA={birth.gender} birthYearA={birth.year} />
-          <footer className="text-xs text-stone-400 text-center pt-4">
-            MIT · open source · bazilionaire.org · the chart is a map; Christ is the way
+          <footer className="text-xs text-stone-400 text-center pt-4 space-y-1">
+            <div>
+              <Link href="/trust/methodology" className="underline hover:text-amber-900">methodology</Link>
+              {' · '}
+              <Link href="/trust/theology" className="underline hover:text-amber-900">theology</Link>
+              {' · '}
+              <Link href="/trust/cosmology" className="underline hover:text-amber-900">cosmology</Link>
+            </div>
+            <div>MIT · open source · bazilionaire.org · the chart is a map; Christ is the way</div>
           </footer>
         </div>
       )}

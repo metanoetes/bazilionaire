@@ -54,6 +54,33 @@ type LayoutConfig<Route extends LayoutRoutes = LayoutRoutes> = {
   type __Unused = __Check
 }
 
+// Validate ../../app/trust/cosmology/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/trust/cosmology">> = Specific
+  const handler = {} as typeof import("../../app/trust/cosmology/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../app/trust/methodology/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/trust/methodology">> = Specific
+  const handler = {} as typeof import("../../app/trust/methodology/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../app/trust/theology/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/trust/theology">> = Specific
+  const handler = {} as typeof import("../../app/trust/theology/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 
 
 
