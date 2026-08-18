@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { computeChart, type Chart } from '@bazilionaire/engine';
 import { ChartGrid } from '@/components/ChartGrid';
 import { RebirthSlot } from '@/components/RebirthSlot';
@@ -29,8 +30,11 @@ export default function Home() {
       <header className="mb-6">
         <h1 className="text-2xl font-bold text-amber-950">bazilionaire</h1>
         <p className="text-sm text-stone-500 mt-1">
-          八字 bā zì — eight characters · a free, open-source learning center ·
-          <span className="italic"> read the map, follow the Lion</span> (Rev 5:5)
+          八字 bā zì — eight characters · a free, open-source learning center ·{' '}
+          <Link href="/curriculum" className="underline hover:text-amber-900">
+            课程 curriculum
+          </Link>{' '}
+          · <span className="italic">read the map, follow the Lion</span> (Rev 5:5)
         </p>
       </header>
 
