@@ -14,11 +14,11 @@
  *
  * isSelf is the doctrine hinge the merge depends on: exactly the profiles
  * you enter about YOURSELF may feed the research commons (lib/research.ts)
- * and the validation study (lib/validation.ts) — that's the "entering your
- * OWN birth data is consent" doctrine, unchanged. Every other profile (a
+ * — that's the "entering your OWN birth data is consent" doctrine,
+ * unchanged. Every other profile (a
  * sister, a friend) is exactly what the old standalone Atlas already was:
  * fully local, never queued, never sent anywhere. The chart page checks
- * this flag before ever touching research.ts/validation.ts — it does not
+ * this flag before ever touching research.ts — it does not
  * ask a second time.
  *
  * NOT the research commons by default: saving a profile here never

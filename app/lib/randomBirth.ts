@@ -1,9 +1,11 @@
 /**
- * Shared random-birth generator. Originally intake-defaults-only (chart/page.tsx);
- * now also used to generate the blinded comparison chart for the research
- * validation control condition (lib/claims.ts / ValidationStep), and as the
+ * Shared random-birth generator: intake defaults (chart/page.tsx) and the
  * Atlas profile-form default. One implementation, one range, one place to
  * change the plausible-birth window.
+ *
+ * It also used to generate the blinded comparison chart for the claim-rating
+ * control condition; that instrument was removed 2026-08-27, so this is back
+ * to being a defaults generator only.
  */
 export interface BirthState {
   year: number;

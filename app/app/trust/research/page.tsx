@@ -5,7 +5,7 @@ import { COMMONS_DISCLOSURE } from '@/lib/research';
 export const metadata = {
   title: 'Research — computation vs. interpretation | bazilionaire',
   description:
-    'Bazilionaire computes charts from astronomy-grade math in your browser — that part is verified. Whether the interpretations correspond to anything real is an open, preregistered question. Entering birth data is consent to the research commons.',
+    'Bazilionaire computes charts from astronomy-grade math in your browser — that part is verified. Whether the interpretations correspond to anything real is an open question this project refuses to paper over. Entering birth data is consent to the research commons.',
 };
 
 export default function ResearchPage() {
@@ -19,7 +19,7 @@ export default function ResearchPage() {
           research <span className="text-muted text-lg font-normal">what&apos;s verified, and what isn&apos;t</span>
         </h1>
         <p className="text-sm text-muted mt-1">
-          the math is checked; the interpretations are an open, preregistered question
+          the math is checked; the interpretations are an open question
         </p>
       </header>
 
@@ -126,66 +126,23 @@ export default function ResearchPage() {
             <span className="font-medium">The trap to avoid:</span> simply asking &quot;does this feel true to
             you?&quot; and publishing the acceptance rate would not be evidence of anything. Flattering,
             general-sounding personality language gets accepted at high rates regardless of whose chart it
-            came from — the Forer/Barnum effect. A validation study that doesn&apos;t control for this isn&apos;t
-            measuring accuracy; it&apos;s measuring how agreeable the prose is. §3 describes the control this
-            project actually runs.
+            came from — the Forer/Barnum effect. <span className="font-medium">So this app does not ask you to
+            rate claims.</span> A rating with no blind control measures how agreeable the prose is, not
+            whether it is true — and a number like that is worse than no number, because it looks like
+            evidence.
+          </p>
+          <p className="mt-2 text-sm text-body leading-relaxed">
+            <span className="font-medium">What it does instead:</span> keeps the unverified layer visibly
+            separate from the checked one, and makes the machine show its work. The{' '}
+            <Link href="/reading" className="underline hover:text-accent">解盘 reading</Link> is composed by
+            template with no model involved — the same chart yields the same words, every time. Anything a
+            model adds on top is fenced in its own voice, cites the computed fact behind each sentence, and
+            is cross-checked against the engine, which flags contradictions instead of hiding them. The
+            temperament vocabulary stays labelled as tradition, not as measurement.
           </p>
         </section>
 
-        {/* ---- §3: the study design ---- */}
-        <section className="card p-4">
-          <h2 className="text-lg font-bold text-ink">3 · the study design</h2>
-          <p className="mt-2 text-sm text-body leading-relaxed">
-            <span className="font-medium">What&apos;s tested:</span> not the pillars (already verified) and
-            not the raw structural labels (十神/格局 names are deterministic engine output — rating them for
-            &quot;accuracy&quot; is a category error). What&apos;s tested is the <span className="font-medium">
-            temperament prose</span> the curriculum attaches to those labels — one short, second-person claim
-            per computed trigger (a 十神 on a naked stem, a 强弱 verdict, a 格局 name, a 神煞 hit).
-          </p>
-          <p className="mt-2 text-sm text-body leading-relaxed">
-            <span className="font-medium">The control:</span> a within-subject blind comparison. When you
-            compute your chart and opt into the study, you rate a shuffled mix of claims — some drawn from
-            your own chart, some from a freshly-generated, unrelated random comparison chart — without being
-            told which is which. Only after you submit do you see the split: your acceptance rate on your own
-            chart&apos;s claims, against your acceptance rate on the comparison chart&apos;s claims.
-          </p>
-          <p className="mt-2 text-sm text-body leading-relaxed">
-            <span className="font-medium">The preregistered hypothesis:</span> if Bazi&apos;s temperament
-            readings carry real signal beyond generic agreeable prose, the own-chart acceptance rate should
-            run measurably higher than the comparison-chart rate, aggregated across many respondents. If the
-            two rates converge, that is the honest null — and it will be published with the same ceremony as
-            a hit, not buried.
-          </p>
-          <p className="mt-2 text-sm text-body leading-relaxed">
-            <span className="font-medium">What&apos;s held:</span> per rating — which claim, which chart it
-            truly came from, and resonates/doesn&apos;t/unsure. An optional free-text note (&quot;in what
-            way&quot;) is a separate, explicit opt-in — free text is more identifying than a rating alone.
-            Ratings link to a chart&apos;s derived features, never to birth time or place.
-          </p>
-          <p className="mt-2 text-sm text-body leading-relaxed">
-            <span className="font-medium">Where it runs:</span> the rating step appears on{' '}
-            <Link href="/chart" className="underline hover:text-accent">the chart page</Link> after your
-            chart computes. Responses are queued in this browser until the commons endpoint (Cloudflare
-            Workers + D1) ships — nothing is transmitted today.
-          </p>
-        </section>
-
-        {/* ---- §4: results so far ---- */}
-        <section className="card p-4">
-          <h2 className="text-lg font-bold text-ink">4 · results so far</h2>
-          <p className="mt-2 text-sm text-body leading-relaxed">
-            No aggregate exists yet — the commons endpoint hasn&apos;t shipped, and responses are still
-            local-only per browser. This section will report, honestly, whatever the data actually shows:
-            own-chart vs. comparison-chart acceptance rates, broken down by claim category (十神/强弱/格局/神煞),
-            with sample sizes shown next to every number. A null result gets the same headline treatment as a
-            positive one — that is the whole point of preregistering §3 before any data exists.
-          </p>
-          <p className="mt-2 text-sm font-medium text-accent-strong">
-            N = 0. Be the first — compute your chart and opt into the study.
-          </p>
-        </section>
-
-        {/* ---- §5: data, plainly + boundary honesty on data, ported unchanged ---- */}
+        {/* ---- §3: data, plainly + boundary honesty on data ---- */}
         <section className="card p-4">
           <h2 className="text-base font-semibold text-ink">data, plainly</h2>
           <p className="mt-2 text-sm text-body leading-relaxed">
@@ -218,10 +175,7 @@ export default function ResearchPage() {
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-sm text-body leading-relaxed">
-            Rating claims in the study (§3) is a separate consent step from computing a chart — opting in or
-            out there never affects whether your chart computes or whether its research record is held.
-          </p>
+
           <p className="mt-2 text-sm text-body leading-relaxed">
             If that trade is not for you, close the tab — the engine is MIT-licensed and can be run
             offline from source, no data kept by anyone.

@@ -29,8 +29,8 @@ const isRealDate = (y: number, mo: number, d: number) => {
  *
  * isSelf is the doctrine hinge: self profiles skip the minors gate (you
  * cannot consent-gate yourself as a minor about yourself) and, on submit,
- * are the only profiles the chart page may offer to the research commons
- * and the validation study. A profile flagged as a minor (never possible
+ * are the only profiles the chart page may offer to the research commons.
+ * A profile flagged as a minor (never possible
  * when isSelf) cannot save until the one-time acknowledgment checkbox is
  * checked: this is a public app, not a private notebook, so a minor's data
  * (even stored only locally, never in the research corpus) gets one
@@ -187,8 +187,8 @@ export function ProfileForm({
       {isSelf ? (
         <p className="text-xs text-muted leading-relaxed">
           Entering your own birth data is consent: this chart becomes part of the research
-          commons (birth inputs + derived features, held under covenant), and you&apos;ll be
-          offered the blind validation study once it computes.
+          commons — birth inputs plus derived features, held under covenant, and listed field by
+          field on the research page.
         </p>
       ) : (
         <>

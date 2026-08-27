@@ -8,7 +8,7 @@ import { StrengthPanel } from '@/components/StrengthPanel';
 import { RebirthSlot } from '@/components/RebirthSlot';
 import { TransitTimeline } from '@/components/TransitTimeline';
 import { HehunPanel } from '@/components/HehunPanel';
-import { ValidationStep } from '@/components/ValidationStep';
+
 import { ProfileForm } from '@/components/ProfileForm';
 import { ClickableCJK } from '@/components/ClickableCJK';
 import {
@@ -52,12 +52,17 @@ function downloadJSON(data: unknown, filename: string) {
  *
  * isSelf (set on the intake form: "this is me" / "someone else") is the
  * doctrine hinge the merge depends on: only profiles you mark as yourself
- * queue into the research commons (lib/research.ts) and unlock the blind
- * validation study (ValidationStep) — every other profile behaves exactly
- * like the old standalone Atlas already promised: fully local, never
- * queued, never sent anywhere. Minors can only be flagged on non-self
- * profiles (ProfileForm/atlas.ts enforce this) and require a one-time
- * acknowledgment before saving.
+ * queue into the research commons (lib/research.ts) — every other profile
+ * behaves exactly like the old standalone Atlas already promised: fully
+ * local, never queued, never sent anywhere. Minors can only be flagged on
+ * non-self profiles (ProfileForm/atlas.ts enforce this) and require a
+ * one-time acknowledgment before saving.
+ *
+ * The blind claim-rating step (ValidationStep + lib/claims + lib/validation)
+ * was REMOVED 2026-08-27 at Peter's direction: the focus is model-written
+ * readings, not a Forer-controlled rating instrument. Don't reintroduce a
+ * rating UI without its blind control — a bare "does this feel true?" scores
+ * the prose's agreeableness, not the chart.
  */
 export default function ChartPage() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -454,7 +459,7 @@ export default function ChartPage() {
           <RebirthSlot dayun={chart.yun?.dayun} birthYear={selected.birth.year} />
           <TransitTimeline chart={chart} birthYear={selected.birth.year} events={selected.events} />
           <HehunPanel chartA={chart} genderA={selected.birth.gender} birthYearA={selected.birth.year} />
-          {selected.isSelf && <ValidationStep chart={chart} />}
+
 
           <div className="max-w-3xl card p-4">
             <div className="text-sm text-muted mb-2">life events — plotted on the timeline above</div>

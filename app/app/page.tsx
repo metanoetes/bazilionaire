@@ -106,10 +106,10 @@ export default function LandingPage() {
           It also makes the system testable — a thousand years of practice, almost no record of
           anyone checking whether it works. Every chart is computed deterministically
           (VSOP87D solar terms, a pinned Python oracle, byte-matched in CI), so the same birth
-          data gives the same chart anywhere. Entering yours joins the study: each chart becomes
-          a research record, held under covenant, deletable, feeding preregistered outcome
-          surveys. Nulls get published like hits. If Bazi carries real signal a public commons is
-          how anyone finds out; if it doesn&apos;t, it should say so plainly.
+          data gives the same chart anywhere. Entering yours joins the commons: each chart becomes
+          a research record, held under covenant, deletable, and disclosed field by field on the
+          research page. If Bazi carries real signal a public commons is how anyone finds out; if
+          it doesn&apos;t, it should say so plainly.
         </p>
         <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm">
           <Link href="/trust/research" className="underline hover:text-accent">
