@@ -4,12 +4,13 @@ import type { CurriculumModule } from './types';
 export const FOUNDATIONS: CurriculumModule[] = [
   {
     id: 1,
+    slug: 'yinyang',
     title: '阴阳',
     pinyin: 'yīn yáng',
     subtitle: 'polarity — the first distinction',
     intro: [
       'Everything in 八字 begins with one cut: the world divides into 阳 yáng and 阴 yīn. The characters themselves draw the picture. 陽 (traditional form) is a hill 阝 with the sun 日 shining on it — the lit side, the exposed slope. 陰 is the same hill under a cloud — the shaded side, the hidden slope. Same hill, two faces. That is the whole doctrine in one image: polarity is not a ranking of things, it is the two faces of one thing.',
-      'In the chart, polarity is a grammar of rhythm. Every one of the ten stems and twelve branches is either yang or yin — they alternate, the way day alternates with night. Polarity decides nothing by itself, but it tunes everything else: it splits the 十神 into 正 and 偏 (module 7), it sets the direction of your 大运 (module 9), and it gives each character its texture.',
+      'In the chart, polarity is a grammar of rhythm. Every one of the ten stems and twelve branches is either yang or yin — they alternate, the way day alternates with night. Polarity decides nothing by itself, but it tunes everything else: it splits the 十神 into 正 and 偏 (module 7), it sets the direction of your 大运 (module 14), and it gives each character its texture.',
     ],
     sections: [
       {
@@ -33,6 +34,12 @@ export const FOUNDATIONS: CurriculumModule[] = [
         paragraphs: [
           'The tradition does not stop at two. Each pole splits again: 太阳 tài yáng (great yang, midday), 少阴 shào yīn (young yin, evening), 太阴 tài yīn (great yin, midnight), 少阳 shào yáng (young yang, dawn). These four degrees are the ancestor of the 五行 phases — the day understood as a circle, not a line. In the chart they appear indirectly: the twelve branches are the four degrees folded three times over.',
         ],
+        terms: [
+          { term: '太阳', pinyin: 'tài yáng', gloss: 'great yang — midday, the pole of full expansion' },
+          { term: '少阴', pinyin: 'shào yīn', gloss: 'young yin — evening, expansion beginning to turn inward' },
+          { term: '太阴', pinyin: 'tài yīn', gloss: 'great yin — midnight, the pole of full contraction' },
+          { term: '少阳', pinyin: 'shào yáng', gloss: 'young yang — dawn, contraction beginning to turn outward' },
+        ],
       },
       {
         heading: 'polarity in your chart',
@@ -44,6 +51,7 @@ export const FOUNDATIONS: CurriculumModule[] = [
   },
   {
     id: 2,
+    slug: 'wuxing',
     title: '五行',
     pinyin: 'wǔ xíng',
     subtitle: 'five phases — verbs, not substances',
@@ -53,21 +61,16 @@ export const FOUNDATIONS: CurriculumModule[] = [
     ],
     sections: [
       {
-        heading: 'the five, one by one',
+        heading: 'the five, and where each one sits',
         paragraphs: [
-          'Each phase gets one paragraph — the traditional picture, read as process.',
-          '木 wood: the beginning. Spring, dawn, the east wind. Wood plans before it acts — the seed knows the tree. In a chart, wood marks growth, direction, ideals, the long arc.',
-          '火 fire: the climax. Summer, noon, the south. Fire gives light without keeping anything — the most expressive, least storing phase. In a chart, fire marks warmth, speech, brightness, the visible self.',
-          '土 earth: the pivot. Late summer, the turning of seasons, the center. Earth transforms — the compost that turns one season into the next. In a chart, earth marks steadiness, reliability, the middle of things.',
-          '金 metal: the harvest. Autumn, evening, the west. Metal condenses what was scattered and cuts away what does not belong. In a chart, metal marks discernment, finish, judgment, the clean edge.',
-          '水 water: the deep. Winter, night, the north. Water descends to the lowest place and stores. In a chart, water marks depth, memory, wisdom, the hidden self.',
+          'Each phase owns a season, an hour, and a direction — and those three are one circle read at three scales. That is why spring, dawn, and east name a single position without strain: a year, a day, and a compass are the same shape at different sizes (module 1\'s four degrees are this same circle, cut in four instead of five). Read the correspondences as positions on that circle, never as causes: being born in spring does not make a person wood; it means the wood position was the one the season occupied.',
         ],
         terms: [
-          { term: '木', pinyin: 'mù', gloss: 'wood — growth, direction, the spring push' },
-          { term: '火', pinyin: 'huǒ', gloss: 'fire — light, expression, summer at height' },
-          { term: '土', pinyin: 'tǔ', gloss: 'earth — center, stability, the turning of seasons' },
-          { term: '金', pinyin: 'jīn', gloss: 'metal — consolidation, discernment, autumn harvest' },
-          { term: '水', pinyin: 'shuǐ', gloss: 'water — depth, flow, winter storage' },
+          { term: '木', pinyin: 'mù', gloss: 'wood · spring · dawn · east — the beginning: plans before it acts, the way a seed already knows the tree' },
+          { term: '火', pinyin: 'huǒ', gloss: 'fire · summer · noon · south — the climax: gives light without keeping any of it, the least storing phase' },
+          { term: '土', pinyin: 'tǔ', gloss: 'earth · late summer · the turn between seasons · center — the pivot: the compost that makes one season into the next' },
+          { term: '金', pinyin: 'jīn', gloss: 'metal · autumn · evening · west — the harvest: condenses what was scattered, cuts away what does not belong' },
+          { term: '水', pinyin: 'shuǐ', gloss: 'water · winter · night · north — the deep: descends to the lowest place and stores what it finds' },
         ],
       },
       {
@@ -110,6 +113,7 @@ export const FOUNDATIONS: CurriculumModule[] = [
   },
   {
     id: 3,
+    slug: 'tiangan',
     title: '天干',
     pinyin: 'tiān gān',
     subtitle: 'ten heavenly stems — the visible layer',
@@ -145,7 +149,7 @@ export const FOUNDATIONS: CurriculumModule[] = [
         pinyin: 'tiān gān wǔ hé',
         paragraphs: [
           'Beyond the ten, the stems pair across the two polarities in five classical combinations: 甲己合 (wood-earth), 乙庚合 (wood-metal), 丙辛合 (fire-metal), 丁壬合 (fire-water), 戊癸合 (earth-water). The tradition reads each as a fusion that transforms into a phase — 甲己合化土, 乙庚合化金, 丙辛合化水, 丁壬合化木, 戊癸合化火. This is classic doctrine: an attraction across the cycle, a yang stem meeting its yin counterpart five places away.',
-          'Honest note: the app\'s engine computes branch interactions (module 8) and 十神 relations (module 7); stem combinations are taught here as doctrine and marked for a future engine release. The curriculum teaches the system; the engine computes the part of it that is pinned and verified — and we would rather under-compute than fake-compute.',
+          'The engine computes this pair-and-transform table exactly, and uses it for one specific job: checking whether the DAY MASTER itself combines with an adjacent stem (year-month or day-hour position — the classical 合绊 tether condition) as the first gate of module 10\'s 化气格 (transformed-qi pattern). It is a candidacy check, not an assertion — module 10 shows the evidence (which pair, which element, how much of the rest of the chart supports the transformation) and lets you weigh it, because 化气格 is the single most disputed pattern classification in the whole system.',
         ],
       },
       {

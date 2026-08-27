@@ -20,6 +20,8 @@ export interface CurriculumSection {
 
 export interface CurriculumModule {
   id: number;
+  /** URL-safe slug for the module's own page: /curriculum/[slug]/. */
+  slug: string;
   title: string;
   pinyin: string;
   subtitle: string;

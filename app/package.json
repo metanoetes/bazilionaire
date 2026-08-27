@@ -3,7 +3,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build"
+    "build": "next build",
+    "check:nayin": "bun run scripts/check-nayin.ts",
+    "check:reading": "bun run scripts/check-reading.ts",
+    "check:tutor": "bun run scripts/check-tutor.ts",
+    "check:verify": "bun run scripts/check-verify.ts"
   },
   "dependencies": {
     "@bazilionaire/engine": "workspace:*",
@@ -15,6 +19,7 @@
     "@tailwindcss/postcss": "^4.1.0",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "tailwindcss": "^4.1.0",
     "typescript": "^5.5.0"
   }

@@ -3,3 +3,8 @@ dist/
 .DS_Store
 __pycache__/
 *.pyc
+.next-dev/
+.next/
+.next-local/
+out/
+*.tsbuildinfo

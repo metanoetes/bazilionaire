@@ -1,18 +1,28 @@
 import type { Chart } from '@bazilionaire/engine';
 
 /**
- * Tier-0 research payload — the ONLY thing a contribution contains.
- * Derived features exclusively: pillars, relations, and computed tables.
- * NEVER: birth date/time/place, name, email, gender, or anything identifying.
- * The covenant: opt-in, pseudonymous (no identity fields exist to hash),
- * deletable (local queue only until the commons endpoint ships).
+ * Research record v2 — entry is consent.
+ * Computing a chart IS agreeing to contribute it to the research commons:
+ * the birth inputs you entered and everything the engine derived from them.
+ * Queued locally until the commons endpoint ships; "clear my contributions"
+ * stays as the exit door.
  */
-export interface Tier0Payload {
-  schema: 'bazilionaire.tier0.v1';
-  year: string;
-  month: string;
-  day: string;
-  time: string;
+export interface ResearchRecord {
+  schema: 'bazilionaire.research.v2';
+  birth: {
+    year: number;
+    month: number;
+    day: number;
+    hour: number;
+    minute: number;
+    lon: number | null;
+    tz: number | null;
+    /** City name as picked (GeoNames name); null when no city was selected. */
+    city: string | null;
+    gender: 'male' | 'female';
+    hourSchool: 'clock' | 'solar';
+  };
+  pillars: { year: string; month: string; day: string; time: string };
   shishenGan: [string, string, string, string];
   shishenZhi: [string[], string[], string[], string[]];
   hideGan: [string[], string[], string[], string[]];
@@ -20,18 +30,19 @@ export interface Tier0Payload {
   dayXun: string;
   dayXunKong: string;
   zodiac: string;
-  hourSchool: 'clock' | 'solar';
-  /** Decade-pillar ganzhi SEQUENCE only — start years would leak the birth year. */
-  dayun: string[];
+  /** Full decade sequence with start ages/years (entry-as-consent: no leak to minimize). */
+  dayun: Array<{ ganzhi: string; startAge: number; startYear: number }>;
+  warnings: string[];
 }
 
-export function tier0Payload(chart: Chart): Tier0Payload {
+export function researchRecord(
+  birth: ResearchRecord['birth'],
+  chart: Chart,
+): ResearchRecord {
   return {
-    schema: 'bazilionaire.tier0.v1',
-    year: chart.year,
-    month: chart.month,
-    day: chart.day,
-    time: chart.time,
+    schema: 'bazilionaire.research.v2',
+    birth,
+    pillars: { year: chart.year, month: chart.month, day: chart.day, time: chart.time },
     shishenGan: chart.shishenGan,
     shishenZhi: chart.shishenZhi,
     hideGan: chart.hideGan,
@@ -39,33 +50,47 @@ export function tier0Payload(chart: Chart): Tier0Payload {
     dayXun: chart.dayXun,
     dayXunKong: chart.dayXunKong,
     zodiac: chart.zodiac,
-    hourSchool: chart.hourSchool,
-    dayun: (chart.yun?.dayun ?? []).map((d) => d.ganzhi),
+    dayun: chart.yun?.dayun ?? [],
+    warnings: chart.warnings,
   };
 }
 
-const QUEUE_KEY = 'bazilionaire.contributions.v1';
+export const QUEUE_KEY = 'bazilionaire.contributions.v2';
 
 /**
- * Local contribution queue: holds opt-in tier-0 payloads until the commons
+ * Local contribution queue: every computed chart lands here until the commons
  * endpoint ships (Cloudflare Workers + D1). Nothing is transmitted today.
+ * Returns false when the write failed (e.g. quota exceeded in private mode)
+ * so callers can surface an honest "not saved" signal instead of the page
+ * silently claiming the record is "held under covenant" when it wasn't.
  */
-export function queueContribution(payload: Tier0Payload): void {
+export function queueContribution(record: ResearchRecord): boolean {
   try {
     const raw = localStorage.getItem(QUEUE_KEY);
-    const queue: Tier0Payload[] = raw ? (JSON.parse(raw) as Tier0Payload[]) : [];
-    queue.push(payload);
+    const queue: ResearchRecord[] = raw ? (JSON.parse(raw) as ResearchRecord[]) : [];
+    queue.push(record);
     localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
+    return true;
   } catch {
-    // storage unavailable (private mode) — contribution is silently dropped
+    // storage unavailable or quota exceeded — contribution is dropped;
+    // caller is responsible for telling the user.
+    return false;
   }
 }
 
-export function queuedContributions(): Tier0Payload[] {
+export function queuedContributions(): ResearchRecord[] {
   try {
     const raw = localStorage.getItem(QUEUE_KEY);
-    return raw ? (JSON.parse(raw) as Tier0Payload[]) : [];
+    return raw ? (JSON.parse(raw) as ResearchRecord[]) : [];
   } catch {
     return [];
+  }
+}
+
+export function clearContributions(): void {
+  try {
+    localStorage.removeItem(QUEUE_KEY);
+  } catch {
+    // nothing to clear
   }
 }

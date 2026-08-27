@@ -122,3 +122,51 @@ describe('month-boundary and hour-school coverage (sprint-2 reviewer suggestions
     expect(c.yun?.dayun[1]).toEqual({ ganzhi: '乙丑', startAge: 1, startYear: 2024 });
   });
 });
+
+describe('hour school override (city-aware intake)', () => {
+  const manila = { lonDeg: 120.98, tzHours: 8 };
+  it('default with location stays solar (pinned oracle behavior)', () => {
+    const c = computeChart(1995, 7, 1, 20, 44, manila);
+    expect(c.hourSchool).toBe('solar');
+  });
+  it('clock override with a location: hour pillar from the wall clock, tz still orders 节', () => {
+    // 20:44 Manila wall clock: solar offset ≈ EoT + 4·(120.98−120) ≈ −13.6 min;
+    // 20:44 clock → 戌; solar 20:30 → still 戌. Pick a case where they differ:
+    // use 06:55: solar −13.6 min → 06:41 → 卯 vs clock 06:55 → 卯 (same).
+    // Instead assert the invariant: clock override computes from raw wall clock.
+    const c = computeChart(1995, 7, 1, 6, 55, manila, 1, 'clock');
+    expect(c.hourSchool).toBe('clock');
+    expect(c.time.slice(1)).toBe('卯'); // floor(((6+1)%24)/2) = 3
+  });
+  it('solar override without a location warns and falls back to clock', () => {
+    const c = computeChart(1995, 7, 1, 6, 55, undefined, 1, 'solar');
+    expect(c.hourSchool).toBe('clock');
+    expect(c.warnings.some((w) => w.includes('falling back'))).toBe(true);
+  });
+  it('clock override keeps the 节-timezone benefit: LA winter birth stays clock school', () => {
+    const la = { lonDeg: -118.24, tzHours: -8 };
+    const c = computeChart(1995, 1, 1, 12, 0, la, 1, 'clock');
+    expect(c.hourSchool).toBe('clock');
+    expect(c.time.slice(1)).toBe('午');
+  });
+});
+
+describe('trueSolarTime formatting never emits an invalid minute (HH:60 regression)', () => {
+  // Rounding total minutes-of-day (not the fractional minute in isolation)
+  // avoids the case where a fraction like .9999 rounds up to 60 instead of
+  // carrying into the hour. Sweep a day of minutes across a location whose
+  // solar offset is a large, non-round number of minutes, so many fractional
+  // seconds land near the rounding boundary.
+  const loc = { lonDeg: 75.3, tzHours: 8 };
+  it('every minute of a swept day formats as a valid HH:MM (MM in 00-59)', () => {
+    for (let m = 0; m < 24 * 60; m += 7) {
+      const hour = Math.floor(m / 60);
+      const minute = m % 60;
+      const c = computeChart(1995, 7, 1, hour, minute, loc);
+      expect(c.trueSolarTime).not.toBeNull();
+      const [, mm] = c.trueSolarTime!.split(':');
+      expect(Number(mm)).toBeLessThan(60);
+      expect(c.trueSolarTime).toMatch(/^\d{2}:\d{2}$/);
+    }
+  });
+});

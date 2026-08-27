@@ -1,0 +1,198 @@
+/**
+ * Gate: the tutor payload cannot carry birth data, and the audit actually
+ * catches a lying model.
+ *
+ *   bun run --cwd app check:tutor
+ *
+ * Two properties, both security-relevant, both cheap to check offline:
+ *
+ * 1. LEAK CHECK — for pinned births, in BOTH modes, the exact string that would
+ *    be POSTed must not contain the birth year, month, day, hour, minute, the
+ *    city name, the longitude, or the timezone. Minimized mode additionally
+ *    must not contain the eight characters as a pillar list, any calendar year,
+ *    or any clock time. This is asserted against the payload the UI builds, not
+ *    a description of it — the disclosure gate shows the same lines.
+ *
+ * 2. AUDIT CHECK — synthetic model output is graded: a sentence with no [F-ID]
+ *    must come back unanchored, a sentence citing a nonexistent id must come
+ *    back fabricated, a prediction must come back as a fence violation, and a
+ *    clean cited sentence must pass. If the audit can't catch these, the visible
+ *    flags on the page mean nothing.
+ */
+import { computeChart } from '@bazilionaire/engine';
+import { factsheet } from '../lib/factsheet';
+import { reading } from '../lib/reading';
+import { auditTutorText, redactFacts, tutorPayload, TUTOR_SYSTEM_PROMPT } from '../lib/tutor';
+
+const PINNED_YEAR = 2026;
+
+const CASES: Array<{
+  name: string;
+  args: Parameters<typeof computeChart>;
+  /** Strings that must never appear in the payload, whatever the mode. */
+  secrets: string[];
+}> = [
+  {
+    name: 'anchor-1949 Beijing male',
+    args: [1949, 10, 1, 12, 0, { lonDeg: 116.391, tzHours: 8 }, 1],
+    secrets: ['1949', '116.391', '1949-10-01', 'Beijing'],
+  },
+  {
+    name: '1990-07-15 03:30 no location, clock school',
+    args: [1990, 7, 15, 3, 30, undefined, 1, 'clock'],
+    secrets: ['1990', '03:30', '3:30', '1990-07-15'],
+  },
+  {
+    name: '2024-02-10 Beijing female, boundary month',
+    args: [2024, 2, 10, 12, 0, { lonDeg: 116.391, tzHours: 8 }, 0],
+    secrets: ['2024', '116.391', '2024-02-10'],
+  },
+];
+
+const problems: string[] = [];
+
+for (const c of CASES) {
+  const chart = computeChart(...c.args);
+  const facts = factsheet(chart, { year: PINNED_YEAR });
+  const movements = reading(chart, facts, { year: PINNED_YEAR });
+
+  for (const minimize of [true, false]) {
+    const payload = tutorPayload(facts, movements, { minimize });
+    const wire = `${payload.system}\n${payload.user}`;
+    const mode = minimize ? 'minimized' : 'full';
+
+    // Birth inputs must never be present in either mode.
+    for (const s of c.secrets) {
+      // A bare 4-digit birth year is only forbidden in minimized mode; the full
+      // sheet deliberately includes decade years (and says so on the gate).
+      const isYear = /^\d{4}$/.test(s);
+      if (!minimize && isYear) continue;
+      if (wire.includes(s)) {
+        problems.push(`${c.name} [${mode}]: payload contains "${s}"`);
+      }
+    }
+    if (/\b\d{1,2}:\d{2}\b/.test(payload.user) && minimize) {
+      problems.push(`${c.name} [minimized]: payload contains a clock time`);
+    }
+    if (minimize) {
+      if (/\b(1[6-9]\d{2}|20\d{2}|21\d{2})\b/.test(payload.user)) {
+        problems.push(`${c.name} [minimized]: payload contains a calendar year`);
+      }
+      if (/\b\d+\s*y\s*\d+\s*m\s*\d+\s*d\b/i.test(payload.user)) {
+        problems.push(`${c.name} [minimized]: payload contains a birth-relative 起运 offset`);
+      }
+      if (payload.allowedIds.includes('F-EIGHT')) {
+        problems.push(`${c.name} [minimized]: F-EIGHT survived redaction`);
+      }
+
+      /**
+       * RECOVERABILITY, not formatting.
+       *
+       * The previous version of this gate asserted only that the FORMATTED pillar
+       * list ("庚午 癸未 辛巳 庚寅") was absent — and passed while a reviewer
+       * reconstructed all eight characters field-by-field from F-DAYMASTER,
+       * F-DESHI's detail and the four F-XINGYUN-* values. A gate that certifies a
+       * privacy claim has to test the claim, not its punctuation. So: NO 干支
+       * character may appear anywhere in the minimized payload.
+       */
+      const ganzhi = payload.user.match(/[甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳午未申酉戌亥]/g) ?? [];
+      if (ganzhi.length > 0) {
+        const lines = payload.user
+          .split('\n')
+          .filter((l) => /[甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳午未申酉戌亥]/.test(l));
+        problems.push(
+          `${c.name} [minimized]: payload contains ${ganzhi.length} 干支 character(s) — ` +
+            `the eight characters are recoverable from: ${lines.slice(0, 3).join(' /// ')}`,
+        );
+      }
+      // Independent check: try to actually rebuild each pillar from the payload.
+      for (const [name, pillar] of [
+        ['year', chart.year],
+        ['month', chart.month],
+        ['day', chart.day],
+        ['hour', chart.time],
+      ] as const) {
+        const [stem, branch] = [pillar[0], pillar[1]];
+        if (payload.user.includes(stem) && payload.user.includes(branch)) {
+          problems.push(
+            `${c.name} [minimized]: the ${name} pillar's stem (${stem}) and branch (${branch}) are both present — pillar recoverable`,
+          );
+        }
+      }
+    } else {
+      // Full mode is allowed to carry 干支 and decade years — that is what the
+      // disclosure gate warns about — but never a clock time, in either mode.
+      if (/\b\d{1,2}:\d{2}\b/.test(payload.user)) {
+        problems.push(`${c.name} [full]: payload contains a clock time`);
+      }
+    }
+
+    // The contract itself must be in the system prompt, or the model was never told.
+    for (const rule of ['[F-DELING]', 'never invent an id', 'no predictions', 'second-person future']) {
+      if (!payload.system.toLowerCase().includes(rule.toLowerCase())) {
+        problems.push(`${c.name} [${mode}]: system prompt is missing the rule "${rule}"`);
+      }
+    }
+    if (payload.allowedIds.length === 0) problems.push(`${c.name} [${mode}]: no allowed ids`);
+    // The closing clause is never the model's to write.
+    if (payload.user.includes('善人不为命所缚')) {
+      problems.push(`${c.name} [${mode}]: the closing clause was sent to the model`);
+    }
+  }
+}
+
+// ---------------- audit behaviour ----------------
+{
+  const allowed = ['F-DELING', 'F-STRENGTH'];
+  const synthetic = [
+    'The month generates this chart’s day master, so the season supports it. [F-DELING]',
+    'This structure is weak overall and the engine says so plainly. [F-STRENGTH]',
+    'A fluent sentence with nothing behind it.',
+    'The chart is strong. [F-MADEUP]',
+    'You will find money in the coming decade. [F-STRENGTH]',
+  ].join('\n');
+  const a = auditTutorText(synthetic, allowed);
+
+  /**
+   * DeepSeek's blocking case: the model is TOLD to put [F-ID] after the period, so
+   * real output is space-separated with inline tags. The old splitter never fired
+   * there and merged whole paragraphs into one unit, hiding uncited sentences.
+   */
+  const inline =
+    'Blended, the plate lands 身强. [F-STRENGTH] A career in law would suit this structure well.';
+  const b = auditTutorText(inline, ['F-STRENGTH']);
+  if (b.sentences.length !== 2) {
+    problems.push(`inline-citation split: expected 2 sentences, got ${b.sentences.length}`);
+  }
+  if (b.unanchored !== 1) {
+    problems.push(`inline-citation split: the uncited advice sentence was not flagged (unanchored=${b.unanchored})`);
+  }
+
+  if (a.sentences.length !== 5) problems.push(`audit: expected 5 sentences, got ${a.sentences.length}`);
+  if (a.unanchored !== 1) problems.push(`audit: expected 1 unanchored sentence, got ${a.unanchored}`);
+  if (a.fabricated !== 1) problems.push(`audit: expected 1 fabricated citation, got ${a.fabricated}`);
+  if (a.violations !== 1) problems.push(`audit: expected 1 fence violation, got ${a.violations}`);
+  if (!a.sentences[0].ok) problems.push('audit: a clean cited sentence was marked not-ok');
+  if (a.sentences[3].ok) problems.push('audit: a fabricated citation was marked ok');
+  if (a.sentences[4].ok) problems.push('audit: a prediction was marked ok');
+  if (!a.sentences[3].unknownCites.includes('F-MADEUP')) {
+    problems.push('audit: fabricated id not reported');
+  }
+}
+
+// The prompt must not contain anything chart-specific: it is a constant.
+if (/\b(1[6-9]\d{2}|20\d{2})\b/.test(TUTOR_SYSTEM_PROMPT)) {
+  problems.push('system prompt contains a year — it must be chart-independent');
+}
+
+if (problems.length > 0) {
+  console.error('tutor payload/audit check FAILED:');
+  for (const p of problems) console.error(`  - ${p}`);
+  process.exit(1);
+}
+
+console.log(
+  `tutor check passed — ${CASES.length} charts × 2 modes: minimized payloads contain no 干支 at all ` +
+    `(no pillar is recoverable), no clock time leaves in either mode, the system prompt states the ` +
+    `contract, and the audit catches uncited, fabricated, and predictive sentences.`,
+);

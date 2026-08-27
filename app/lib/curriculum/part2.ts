@@ -1,9 +1,18 @@
 import type { CurriculumModule } from './types';
+import { NAYIN_LEXICON } from '../nayin';
+
+/** Module 5's 纳音 table, rendered from the shared lexicon (lib/nayin.ts) so
+ *  the curriculum and the chart grid can never disagree about a tone name. */
+const NAYIN_ROWS: Array<[string, string]> = NAYIN_LEXICON.map((e) => [
+  `${e.name} ${e.english}`,
+  e.pairs.join(' '),
+]);
 
 /** Modules 4–6: the system — branches, the cycle, the four pillars. */
 export const SYSTEM: CurriculumModule[] = [
   {
     id: 4,
+    slug: 'dizhi',
     title: '地支',
     pinyin: 'dì zhī',
     subtitle: 'twelve earthly branches — the hidden layer',
@@ -67,6 +76,7 @@ export const SYSTEM: CurriculumModule[] = [
   },
   {
     id: 5,
+    slug: 'liushi-jiazi',
     title: '六十甲子',
     pinyin: 'liùshí jiǎzǐ',
     subtitle: 'the sexagenary cycle — the clock of the chart',
@@ -91,38 +101,7 @@ export const SYSTEM: CurriculumModule[] = [
         ],
         table: {
           head: ['nayin name', 'the pairs it covers'],
-          rows: [
-            ['海中金 metal in the sea', '甲子 乙丑'],
-            ['炉中火 fire in the furnace', '丙寅 丁卯'],
-            ['大林木 timber of the forest', '戊辰 己巳'],
-            ['路旁土 earth by the roadside', '庚午 辛未'],
-            ['剑锋金 sword-blade metal', '壬申 癸酉'],
-            ['山头火 fire on the mountain', '甲戌 乙亥'],
-            ['涧下水 water in the ravine', '丙子 丁丑'],
-            ['城头土 earth on the rampart', '戊寅 己卯'],
-            ['白蜡金 wax-white metal', '庚辰 辛巳'],
-            ['杨柳木 willow wood', '壬午 癸未'],
-            ['泉中水 spring water', '甲申 乙酉'],
-            ['屋上土 earth on the roof', '丙戌 丁亥'],
-            ['霹雳火 thunderbolt fire', '戊子 己丑'],
-            ['松柏木 pine and cypress', '庚寅 辛卯'],
-            ['长流水 long flowing water', '壬辰 癸巳'],
-            ['沙中金 metal in the sand', '甲午 乙未'],
-            ['山下火 fire below the mountain', '丙申 丁酉'],
-            ['平地木 wood on level ground', '戊戌 己亥'],
-            ['壁上土 earth on the wall', '庚子 辛丑'],
-            ['金箔金 gold-foil metal', '壬寅 癸卯'],
-            ['覆灯火 lamp-light fire', '甲辰 乙巳'],
-            ['天河水 river of heaven', '丙午 丁未'],
-            ['大驿土 earth of the great highway', '戊申 己酉'],
-            ['钗钏金 hairpin metal', '庚戌 辛亥'],
-            ['桑柘木 mulberry wood', '壬子 癸丑'],
-            ['大溪水 water of the great stream', '甲寅 乙卯'],
-            ['沙中土 earth in the sand', '丙辰 丁巳'],
-            ['天上火 fire in the heavens', '戊午 己未'],
-            ['石榴木 pomegranate wood', '庚申 辛酉'],
-            ['大海水 water of the great sea', '壬戌 癸亥'],
-          ],
+          rows: NAYIN_ROWS,
         },
       },
       {
@@ -135,6 +114,7 @@ export const SYSTEM: CurriculumModule[] = [
   },
   {
     id: 6,
+    slug: 'sizhu',
     title: '四柱',
     pinyin: 'sì zhù',
     subtitle: 'four pillars — how a chart is actually computed',

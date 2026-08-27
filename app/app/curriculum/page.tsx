@@ -1,121 +1,75 @@
 import Link from 'next/link';
 import { CURRICULUM } from '@/lib/curriculum';
+import { ClickableCJK } from '@/components/ClickableCJK';
 
 export const metadata = {
-  title: 'Curriculum — 八字 bā zì, ten modules in depth | bazilionaire',
+  title: '课程 (kè chéng) — 八字 (bā zì), fifteen modules to adept | bazilionaire',
   description:
-    'Learn Bazi (八字) as a language, in depth: yin-yang, five phases, stems and branches, the sexagenary cycle and nayin, four pillars, ten gods, interactions, decades and years — and the frame.',
+    'Learn Bazi (八字) to adept depth: the vocabulary (yin-yang through interactions), the technical core (strength, pattern, favorable-god selection), named stars and pair-reading in depth, and the moving layer — plus the frame that holds it all.',
 };
+
+const PARTS: Array<{ label: string; range: [number, number]; note: string }> = [
+  { label: 'foundations', range: [1, 5], note: 'polarity, phases, the two alphabets, the sexagenary clock' },
+  { label: 'reading the chart', range: [6, 8], note: 'how a chart is computed, the ten relations, the branch geometry' },
+  { label: 'the adept core', range: [9, 13], note: 'strength, pattern, favorable-god selection, named stars, pair reading — the technical machinery a real reader needs' },
+  { label: 'the moving layer & the frame', range: [14, 15], note: 'decades, years, and the sentence that holds the whole map still' },
+];
 
 export default function CurriculumPage() {
   return (
     <main className="max-w-3xl mx-auto px-4 py-8">
-      <header className="mb-6">
-        <Link href="/" className="text-sm text-stone-500 hover:text-amber-900">
+      <header className="mb-8">
+        <Link href="/chart" className="text-sm text-muted hover:text-accent">
           ← back to the chart
         </Link>
-        <h1 className="text-2xl font-bold text-amber-950 mt-2">
-          课程 curriculum <span className="text-stone-500 text-lg font-normal">kè chéng</span>
+        <h1 className="text-2xl font-bold text-ink mt-2">
+          <ClickableCJK text="课程" /> curriculum
         </h1>
-        <p className="text-sm text-stone-500 mt-1">
-          ten modules, in depth — the whole system, one reading · structure only, no predictions ·
-          <span className="italic"> read the map, follow the Lion</span>
+        <p className="text-sm text-muted mt-1 leading-relaxed">
+          fifteen modules, adept depth — the full technical system, taught as if you were going to
+          read charts for real: not a folk simplification, but the machinery serious readers use,
+          with honest notes on where schools disagree and where the app does not yet compute what
+          a book teaches. <span className="italic">read the map, follow the Lion</span>
         </p>
-        <div className="mt-2 text-xs text-stone-500 space-y-0.5">
-          <div>01 阴阳 yīn yáng · 02 五行 wǔ xíng · 03 天干 tiān gān · 04 地支 dì zhī · 05 六十甲子 liùshí jiǎzǐ</div>
-          <div>06 四柱 sì zhù · 07 十神 shí shén · 08 合冲刑害 hé chōng xíng hài · 09 大运流年 dà yùn liú nián · 10 the frame</div>
-        </div>
+        <p className="mt-2 text-xs text-faint">
+          click any underlined Chinese term for its pinyin and gloss
+        </p>
       </header>
 
       <div className="space-y-8">
-        {CURRICULUM.map((m) => (
-          <section key={m.id} className="card p-5">
-            <div className="flex items-baseline gap-3 flex-wrap">
-              <span className="text-xs text-stone-400 font-mono">{String(m.id).padStart(2, '0')}</span>
-              <h2 className="text-xl font-bold text-amber-950">
-                {m.title} <span className="text-sm text-stone-500 font-normal">{m.pinyin}</span>
-              </h2>
-              <span className="text-sm text-stone-500">{m.subtitle}</span>
-            </div>
-
-            <div className="mt-3 space-y-3">
-              {m.intro.map((p, i) => (
-                <p key={i} className="text-sm text-stone-700 leading-relaxed">
-                  {p}
-                </p>
-              ))}
-            </div>
-
-            <div className="mt-4 space-y-5">
-              {m.sections.map((s) => (
-                <div key={s.heading}>
-                  <h3 className="text-base font-semibold text-amber-950">
-                    {s.heading}
-                    {s.chinese && (
-                      <span className="text-sm text-stone-500 font-normal"> — {s.chinese} </span>
-                    )}
-                    {s.pinyin && <span className="text-sm text-stone-400 font-normal">{s.pinyin}</span>}
-                  </h3>
-
-                  <div className="mt-2 space-y-2.5">
-                    {s.paragraphs.map((p, i) => (
-                      <p key={i} className="text-sm text-stone-700 leading-relaxed">
-                        {p}
-                      </p>
-                    ))}
-                  </div>
-
-                  {s.table && (
-                    <div className="mt-2 overflow-x-auto">
-                      <table className="w-full text-sm border-collapse">
-                        <thead>
-                          <tr>
-                            <th className="text-left text-xs text-stone-500 font-medium border-b border-stone-300 py-1 pr-4">
-                              {s.table.head[0]}
-                            </th>
-                            <th className="text-left text-xs text-stone-500 font-medium border-b border-stone-300 py-1">
-                              {s.table.head[1]}
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {s.table.rows.map(([a, b]) => (
-                            <tr key={a + b} className="border-b border-stone-100">
-                              <td className="py-1.5 pr-4 text-amber-950 font-medium whitespace-nowrap">{a}</td>
-                              <td className="py-1.5 text-stone-700">{b}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+        {PARTS.map((part) => {
+          const modules = CURRICULUM.filter((m) => m.id >= part.range[0] && m.id <= part.range[1]);
+          return (
+            <section key={part.label}>
+              <div className="flex items-baseline gap-3 mb-3">
+                <h2 className="text-sm font-semibold uppercase tracking-wide text-accent-strong">
+                  {part.label}
+                </h2>
+                <span className="text-xs text-muted">{part.note}</span>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-3">
+                {modules.map((m) => (
+                  <Link
+                    key={m.slug}
+                    href={`/curriculum/${m.slug}/`}
+                    className="card p-4 hover:border-accent/50 transition-colors"
+                  >
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-xs text-faint font-mono">{String(m.id).padStart(2, '0')}</span>
+                      <span className="text-lg font-bold text-ink">{m.title}</span>
                     </div>
-                  )}
-
-                  {s.terms && s.terms.length > 0 && (
-                    <div className="grid sm:grid-cols-2 gap-2 mt-2">
-                      {s.terms.map((t) => (
-                        <div key={t.term + t.pinyin} className="border border-stone-200 rounded p-2">
-                          <div className="text-base font-semibold text-amber-900">
-                            {t.term} <span className="text-xs text-stone-500 font-normal">{t.pinyin}</span>
-                          </div>
-                          <div className="text-xs text-stone-600 mt-0.5 leading-relaxed">{t.gloss}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        ))}
+                    <div className="text-sm text-muted mt-1">{m.subtitle}</div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          );
+        })}
       </div>
 
-      <footer className="text-xs text-stone-400 text-center pt-6 space-y-1">
+      <footer className="text-xs text-faint text-center pt-8 space-y-1">
         <div>
-          <Link href="/trust/methodology" className="underline hover:text-amber-900">methodology</Link>
-          {' · '}
-          <Link href="/trust/theology" className="underline hover:text-amber-900">theology</Link>
-          {' · '}
-          <Link href="/trust/cosmology" className="underline hover:text-amber-900">cosmology</Link>
+          <Link href="/trust/research" className="underline hover:text-accent">methodology</Link>
         </div>
         <div>MIT · open source · bazilionaire.org · the chart is a map; Christ is the way</div>
       </footer>

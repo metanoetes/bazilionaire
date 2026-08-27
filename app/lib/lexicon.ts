@@ -39,11 +39,3 @@ export const BRANCH_LEXICON: Record<string, CharInfo> = {
 export function lexiconFor(char: string): CharInfo {
   return STEM_LEXICON[char] ?? BRANCH_LEXICON[char];
 }
-
-export const ELEMENT_COLOR: Record<string, string> = {
-  '木 wood': '#3e7d4f',
-  '火 fire': '#b23a2f',
-  '土 earth': '#8a6d3b',
-  '金 metal': '#7a7a8c',
-  '水 water': '#2f5d7d',
-};

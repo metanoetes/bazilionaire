@@ -21,6 +21,9 @@ import {
   type Location,
 } from './astronomy.js';
 import { shishenOf } from './tenGods.js';
+import { computeStrength, type StrengthResult } from './strength.js';
+import { classifyPattern, type PatternResult } from './pattern.js';
+import { selectYongShen, type YongShenResult } from './yongshen.js';
 
 /** The 12 节 (branch-changing terms), in solar-year order starting 小寒. */
 const JIE_ALL: Array<[number, string]> = [
@@ -69,6 +72,8 @@ export interface Chart {
   hideGan: [string[], string[], string[], string[]];
   zodiac: string;
   hourSchool: 'clock' | 'solar';
+  /** When hourSchool='solar': the converted wall-clock time (HH:mm). Null in clock school. */
+  trueSolarTime: string | null;
   warnings: string[];
   /** 十神 of each pillar stem vs the day master (day pillar itself = 日主). */
   shishenGan: [string, string, string, string];
@@ -77,6 +82,12 @@ export interface Chart {
   /** 空亡 of the day pillar: the 旬 name and its two void branches. */
   dayXun: string;
   dayXunKong: string;
+  /** 强弱 (module 9) — the four-factor day-master strength judgment. */
+  strength: StrengthResult;
+  /** 格局 (module 10) — pattern classification, incl. 从格/化气格 candidacy. */
+  pattern: PatternResult;
+  /** 用神 (module 11) — the five-method favorable-god selection. */
+  yongShen: YongShenResult;
   /** 大运 (decade luck), present when gender is provided. */
   yun?: {
     gender: 1 | 0;
@@ -96,6 +107,8 @@ export function computeChart(
   minute = 0,
   location?: Location,
   gender?: 1 | 0,
+  /** Explicit hour school. Default (undefined): solar iff a location is given — the pinned oracle behavior. */
+  hourSchoolOverride?: 'clock' | 'solar',
 ): Chart {
   const warnings: string[] = [];
   const tz = location?.tzHours ?? 8; // lunar_python convention: 节 boundaries in Beijing time
@@ -141,9 +154,23 @@ export function computeChart(
   // ---- Hour pillar ----
   let hourSchool: 'clock' | 'solar' = 'clock';
   let solarHour = hour + minute / 60;
-  if (location) {
-    hourSchool = 'solar';
-    solarHour += solarOffsetMinutes(birthTT, location) / 60;
+  const useSolar = hourSchoolOverride ?? (location ? 'solar' : 'clock');
+  let trueSolarTime: string | null = null;
+  if (useSolar === 'solar') {
+    if (!location) {
+      warnings.push('hour: solar school requested without a location — falling back to clock school');
+    } else {
+      hourSchool = 'solar';
+      solarHour += solarOffsetMinutes(birthTT, location) / 60;
+      const sh = ((solarHour % 24) + 24) % 24;
+      // Round total minutes-of-day first, then derive hour/minute — rounding
+      // the fractional minute separately can produce an invalid "HH:60"
+      // when the fraction rounds up to a full minute (e.g. sh = 12.9999...).
+      const totalMinutes = Math.round(sh * 60) % 1440;
+      const tsHour = Math.floor(totalMinutes / 60);
+      const tsMinute = totalMinutes % 60;
+      trueSolarTime = `${String(tsHour).padStart(2, '0')}:${String(tsMinute).padStart(2, '0')}`;
+    }
   }
   const hourBranchIdx = Math.floor((((solarHour + 1) % 24) + 24) % 24 / 2);
   const hourBranchStr = BRANCHES[hourBranchIdx];
@@ -183,6 +210,17 @@ export function computeChart(
   const xunStartIdx = Math.floor(dayIdx / 10) * 10;
   const dayXun = ganzhiOf(xunStartIdx).name;
   const dayXunKong = BRANCHES[(xunStartIdx + 10) % 12] + BRANCHES[(xunStartIdx + 11) % 12];
+
+  // ---- 强弱 / 格局 / 用神 (modules 9-11) ----
+  const branchesTuple: [string, string, string, string] = [
+    yearGanzhi.branch, monthBranchStr, dayGanzhi.branch, hourBranchStr,
+  ];
+  const stemsTuple: [string, string, string, string] = [
+    yearGanzhi.stem, STEMS[monthStemIdx], dayGanzhi.stem, STEMS[hourStemIdx],
+  ];
+  const strength = computeStrength(dayGanzhi.stem, branchesTuple, stemsTuple);
+  const pattern = classifyPattern(dayGanzhi.stem, branchesTuple, stemsTuple, strength);
+  const yongShen = selectYongShen(dayGanzhi.stem, branchesTuple, monthBranchStr, strength, pattern);
 
   // ---- 大运 ----
   // 起运 pinned to lunar_python sect-1: time to the governing 节 measured in
@@ -245,11 +283,15 @@ export function computeChart(
     hideGan,
     zodiac: ZODIAC[BRANCHES.indexOf(yearGanzhi.branch as (typeof BRANCHES)[number])],
     hourSchool,
+    trueSolarTime,
     warnings,
     shishenGan,
     shishenZhi,
     dayXun,
     dayXunKong,
+    strength,
+    pattern,
+    yongShen,
     yun,
   };
 }

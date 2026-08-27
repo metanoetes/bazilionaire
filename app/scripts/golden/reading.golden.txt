@@ -1,0 +1,482 @@
+==============================================================================
+CASE: anchor-1949 Beijing male, solar-school default
+PILLARS: 己丑 癸酉 甲子 庚午  (year=2026)
+==============================================================================
+
+--- FACTS ---
+F-EIGHT [frame] 四柱 | the eight characters = 己丑 癸酉 甲子 庚午
+F-DAYMASTER [frame] 日主 | day master = 甲 | 木 wood · yang — sprouting tree; the first, armor, beginning
+F-ZODIAC [frame] - | year animal = 牛
+F-SCHOOL [frame] 真太阳时 | hour school = true solar time | clock time converted to 11:56 solar
+F-DELING [standing] 得令 | season command = 酉 → 死 (失令) | the month's element is 金; subscore -1.00
+F-ROOTLESS [standing] 通根 | branch roots = rootless — no branch carries the day master as a hidden stem
+F-DEDI [standing] 得地 | root subscore = -0.02
+F-DESHI [standing] 得势 | stem support = 1 support / 2 draw off | year 己 正财 · month 癸 正印 · hour 庚 七杀
+F-STRENGTH [standing] 强弱 | day-master strength = 身弱 (-0.57)
+F-XINGYUN-YEAR [standing] 星运 | year growth stage = 甲 in 丑 → 冠带
+F-XINGYUN-MONTH [standing] 星运 | month growth stage = 甲 in 酉 → 胎
+F-XINGYUN-DAY [standing] 星运 | day growth stage = 甲 in 子 → 沐浴
+F-XINGYUN-HOUR [standing] 星运 | hour growth stage = 甲 in 午 → 死
+F-PATTERN [shape] 格局 | pattern = 正官格 | the month's presiding god is 正官, through the hidden stem 辛
+F-EXTREME [shape] 从格 | extreme-pattern candidate = 从财格 — follows 财 — the wealth | day master reads 身弱 and rootless: no branch in the chart carries 甲's element as a hidden stem. · dominant 十神 group across all visible + hidden stems: 财 — the wealth (count 3).
+F-YONGSHEN [medicine] 用神 | favorable god = 正财 / 偏财 / 正官 / 七杀 (专旺) | 从财格 candidate: the day master follows 财 — the wealth rather than resisting it. 用神 STRENGTHENS the dominant force — never opposes it.
+F-FUYI [medicine] 扶抑 | support-or-restrain (扶) = 正印 / 偏印 / 比肩 / 劫财 | 身弱 (score -0.57) — the day master needs support: 印 (resource) or 比劫 (peer).
+F-TIAOHOU [medicine] 调候 | climate = does not apply | month branch 酉 is not in a climate-extreme season — 调候 does not apply as a tiebreaker.
+F-BINGYAO [medicine] 病药 | illness and medicine = does not apply | neither named 病药 case (枭神夺食, unchecked 七杀) is present — 扶抑 is the more relevant lens for this chart.
+F-TONGGUAN [medicine] 通关 | bridging a stalemate = 火/金 bridged by 土 | 火 (1 branch main-qi) directly controls 金 (1) with neither side dominant — a stuck conflict. Bridge: 土, which 火 generates and which in turn feeds 金.
+F-ZHUANWANG [medicine] 专旺 | join the dominant force = 正财 / 偏财 / 正官 / 七杀 | 从财格 candidate: the day master follows 财 — the wealth rather than resisting it. 用神 STRENGTHENS the dominant force — never opposes it.
+F-AGREE [medicine] - | do 扶抑 and the pattern agree? = no
+F-REL-1 [tension] 半合 | year–month branches = 丑酉 半合 | 丑酉 半合 (巳酉丑)
+F-REL-2 [tension] 六合 | year–day branches = 丑子 六合 | 丑子 六合
+F-REL-3 [tension] 害 | year–hour branches = 丑午 害 | 丑午 害
+F-REL-4 [tension] 冲 | day–hour branches = 子午 冲 | 子午 冲
+F-VOID [tension] 空亡 | void seats = no pillar sits in a void seat | day pillar's 旬 is 甲子; its void branches are 戌亥
+F-TONE-YEAR [imagery] 霹雳火 | year tone = 霹雳火 — thunderbolt fire | 火 fire · fire that arrives all at once and does not stay
+F-TONE-MONTH [imagery] 剑锋金 | month tone = 剑锋金 — sword-blade metal | 金 metal · metal ground to an edge — the most finished and least forgiving form
+F-TONE-DAY [imagery] 海中金 | day tone = 海中金 — metal in the sea | 金 metal · ore still under water — metal that exists but has not been raised into the air
+F-TONE-HOUR [imagery] 路旁土 | hour tone = 路旁土 — earth by the roadside | 土 earth · ground everyone passes and nobody tends
+F-QIYUN [weather] 起运 | decades begin = 1957 | 7y 8m 20d after birth
+F-DECADE-NOW [weather] 大运 | decade covering 2026 = 丙寅 (2017–2026) | its stem 丙 reads 食神 to the day master; its branch is 寅
+F-DECADES [weather] 大运 | decade sequence = 9 decades computed, 壬申 onward
+
+--- MOVEMENTS ---
+## M-LENS 日主 rì zhǔ — the lens
+   cites: F-EIGHT, F-DAYMASTER, F-SCHOOL, F-ZODIAC
+   Eight characters, four pillars: 己丑 癸酉 甲子 庚午. The lens is 甲 — jiǎ, 木 wood, yang: sprouting tree; the first, armor, beginning. Every line below is read from that one seat. The same eight characters around a different day stem would describe a different plate entirely.
+   The hour is read on the true solar time school (clock time converted to 11:56 solar), and the year animal is 牛.
+
+## M-STANDING 强弱 qiáng ruò — where it stands
+   cites: F-DELING, F-ROOTLESS, F-DEDI, F-DESHI, F-XINGYUN-YEAR, F-XINGYUN-MONTH, F-XINGYUN-DAY, F-XINGYUN-HOUR, F-STRENGTH
+   The month branch is 酉. For 甲 that season reads 死 — the season controls it — dormant, working against the grain of the month; the plate does not command the season (失令).
+   Underneath, nothing answers: no branch carries 甲's element as a hidden stem. The tradition calls this rootless — a stem standing in the open, with the whole question of support thrown onto the season and the company it keeps.
+   Of the three other visible stems, 1 supports and 2 draw off: 己 in the year pillar reads 正财, 癸 in the month pillar reads 正印, and 庚 in the hour pillar reads 七杀.
+   Read through the twelve stages — 十二长生, a life cycle laid over every stem-and-branch pairing — the day master sits at 冠带 in 丑 (the year branch), 胎 in 酉 (the month branch), 沐浴 in 子 (自坐, its own seat), and 死 in 午 (the hour branch). The engine uses those stages as a finer supplement to the roots above. The tradition reads them as phases of a cycle — 长生 through 墓 and round again — not as a scorecard, and the schools do not agree on whether the yin stems run the cycle backwards.
+   Blended — half the weight on the season, a third on the roots, a fifth on the company — the plate lands 身弱 at -0.57. The weights and the arithmetic are printed on the chart page; the judgment is a documented heuristic, not a classical formula, and it is meant to be argued with.
+
+## M-SHAPE 格局 gé jú — the shape it makes
+   cites: F-PATTERN, F-EXTREME
+   The month's presiding god is 正官, carried by the hidden stem 辛 — which names this plate a 正官格. A 正官格 wants its officer protected and fed — the structure that restrains the day master is the thing worth keeping intact.
+   Pattern comes before medicine: it sets what the plate is trying to do, and the favorable god below is chosen in service of that, not in isolation.
+   Flagged, not decided: this plate is a 从财格 candidate — the tradition's name for a day master that follows the dominant force instead of holding its own (here it would follow 财 — the wealth). This is the most argued-over call in the system, so it surfaces as evidence rather than a verdict: day master reads 身弱 and rootless: no branch in the chart carries 甲's element as a hidden stem; dominant 十神 group across all visible + hidden stems: 财 — the wealth (count 3).
+
+## M-MEDICINE 用神 yòng shén — the medicine it asks for
+   cites: F-YONGSHEN, F-FUYI, F-TIAOHOU, F-BINGYAO, F-TONGGUAN, F-ZHUANWANG, F-AGREE
+   Five classical lenses run over this plate, and the one the decision order leans on here is 专旺: 正财 / 偏财 / 正官 / 七杀. 从财格 candidate: the day master follows 财 — the wealth rather than resisting it. 用神 STRENGTHENS the dominant force — never opposes it.
+   扶抑 and the pattern's own god do not agree here. That disagreement is itself the finding: the plate wants two things, and no formula resolves it.
+   All five lenses, in the engine's own words:
+   扶抑 (扶) — 身弱 (score -0.57) — the day master needs support: 印 (resource) or 比劫 (peer).
+   调候 — month branch 酉 is not in a climate-extreme season — 调候 does not apply as a tiebreaker.
+   病药 — neither named 病药 case (枭神夺食, unchecked 七杀) is present — 扶抑 is the more relevant lens for this chart.
+   通关 — 火 (1 branch main-qi) directly controls 金 (1) with neither side dominant — a stuck conflict. Bridge: 土, which 火 generates and which in turn feeds 金.
+   专旺 — 从财格 candidate: the day master follows 财 — the wealth rather than resisting it. 用神 STRENGTHENS the dominant force — never opposes it.
+   Naming a medicine is not prescribing one. The engine can say which phase this structure is short of; it cannot say what to do on Monday, and it will not pretend to.
+
+## M-TENSION 关系 guān xì — where it pulls
+   cites: F-REL-1, F-REL-2, F-REL-3, F-REL-4, F-VOID
+   The branches pull on each other in 4 places: 丑酉 半合 (year–month branches), 丑子 六合 (year–day branches), 丑午 害 (year–hour branches), and 子午 冲 (day–hour branches).
+   No pillar sits in a void seat (the day pillar's 旬 is 甲子, voiding 戌亥).
+   These are relations, not omens. The computation carries no verdict about fortune at all.
+
+## M-IMAGERY 纳音 nà yīn — how it sounds
+   cites: F-TONE-YEAR, F-TONE-MONTH, F-TONE-DAY, F-TONE-HOUR
+   The 纳音 are the tradition's most lyrical layer: each pillar's ganzhi carries a phase-name that situates it somewhere — in the sea, on the rampart, under the lamp. A flavor, not a fortune.
+   The year pillar 己丑 sounds 霹雳火 — thunderbolt fire: fire that arrives all at once and does not stay. The month pillar 癸酉 sounds 剑锋金 — sword-blade metal: metal ground to an edge — the most finished and least forgiving form. The day pillar 甲子 sounds 海中金 — metal in the sea: ore still under water — metal that exists but has not been raised into the air. The hour pillar 庚午 sounds 路旁土 — earth by the roadside: ground everyone passes and nobody tends.
+   Across the four pillars the tones run 1×火 · 2×金 · 1×土. Read them as a register the plate sounds in, not as four more verdicts stacked on the eight characters.
+
+## M-WEATHER 大运 dà yùn — the weather over it
+   cites: F-QIYUN, F-DECADES, F-DECADE-NOW
+   The fixed plate above does not move. Over it runs the 大运 — decade pillars, beginning 1957 (7y 8m 20d after birth), then turning every ten years.
+   The decade covering 2026 is 丙寅 (2017–2026): its stem 丙 reads 食神 to the day master; its branch is 寅.
+   The timeline says what SHAPE the weather has — which stem, which branch, which relation to the plate. It does not say whether the weather is good. That word is not in the computation, and adding it would be a different kind of claim than anything this engine can check.
+
+## M-CLAUSE 善人不为命所缚 shàn rén bù wéi mìng suǒ fù — the good are not bound by fate
+   cites: (none)
+   This chart does not bind you.
+   Everything above is structure: a temperament named precisely enough to be useful, and a moving layer over it. It describes; it does not sentence. Where the map and Scripture disagree, Scripture wins, and nothing computed here carries authority over your standing before God.
+   Every chart here has a rebirth slot for exactly this reason — 重生, John 3:3: the same weather still falls, and it falls on a new creation. The instrument carries its own dethroning (2 Kings 18:4). Read the map, follow the Lion (Rev 5:5).
+   What to do with any of this stays with people: a teacher, a friend, and finally Christ. The engine computed a map, and a map has never once told anyone where to go.
+
+==============================================================================
+CASE: anchor-2024 Beijing female (立春 boundary month)
+PILLARS: 甲辰 丙寅 甲辰 庚午  (year=2026)
+==============================================================================
+
+--- FACTS ---
+F-EIGHT [frame] 四柱 | the eight characters = 甲辰 丙寅 甲辰 庚午
+F-DAYMASTER [frame] 日主 | day master = 甲 | 木 wood · yang — sprouting tree; the first, armor, beginning
+F-ZODIAC [frame] - | year animal = 龙
+F-SCHOOL [frame] 真太阳时 | hour school = true solar time | clock time converted to 11:31 solar
+F-DELING [standing] 得令 | season command = 寅 → 旺 (得令) | the month's element is 木; subscore 1.00
+F-ROOT-1 [standing] 得地 | root in the year branch = 辰 → 乙 (中气, 衰)
+F-ROOT-2 [standing] 得地 | root in the month branch = 寅 → 甲 (主气, 临官)
+F-ROOT-3 [standing] 得地 | root in the day branch = 辰 → 乙 (中气, 衰)
+F-DEDI [standing] 得地 | root subscore = 0.44
+F-DESHI [standing] 得势 | stem support = 1 support / 2 draw off | year 甲 比肩 · month 丙 食神 · hour 庚 七杀
+F-STRENGTH [standing] 强弱 | day-master strength = 身强 (+0.57)
+F-XINGYUN-YEAR [standing] 星运 | year growth stage = 甲 in 辰 → 衰
+F-XINGYUN-MONTH [standing] 星运 | month growth stage = 甲 in 寅 → 临官
+F-XINGYUN-DAY [standing] 星运 | day growth stage = 甲 in 辰 → 衰
+F-XINGYUN-HOUR [standing] 星运 | hour growth stage = 甲 in 午 → 死
+F-PATTERN [shape] 格局 | pattern = 建禄格 | 月支本气与日主同五行同阴阳 (比肩) — the day master sits on its own 禄 seat in the month.
+F-YONGSHEN [medicine] 用神 | favorable god = 正官 / 七杀 / 食神 / 伤官 / 正财 / 偏财 (扶抑) | 身强 (score 0.57) — the day master needs restraint: 官杀 (discipline), 食伤 (output), or 财 (wealth).
+F-FUYI [medicine] 扶抑 | support-or-restrain (抑) = 正官 / 七杀 / 食神 / 伤官 / 正财 / 偏财 | 身强 (score 0.57) — the day master needs restraint: 官杀 (discipline), 食伤 (output), or 财 (wealth).
+F-TIAOHOU [medicine] 调候 | climate = does not apply | month branch 寅 is not in a climate-extreme season — 调候 does not apply as a tiebreaker.
+F-BINGYAO [medicine] 病药 | illness and medicine = does not apply | neither named 病药 case (枭神夺食, unchecked 七杀) is present — 扶抑 is the more relevant lens for this chart.
+F-TONGGUAN [medicine] 通关 | bridging a stalemate = 木/土 bridged by 火 | 木 (1 branch main-qi) directly controls 土 (2) with neither side dominant — a stuck conflict. Bridge: 火, which 木 generates and which in turn feeds 土.
+F-ZHUANWANG [medicine] 专旺 | join the dominant force = does not apply | strength does not read extreme+rootless — normal 扶抑 logic applies, not 专旺.
+F-AGREE [medicine] - | do 扶抑 and the pattern agree? = no
+F-REL-1 [tension] 刑 | year–day branches = 辰辰 刑 | 辰 自刑
+F-REL-2 [tension] 半合 | month–hour branches = 寅午 半合 | 寅午 半合 (寅午戌)
+F-VOID [tension] 空亡 | void seats = 月 寅 | day pillar's 旬 is 甲辰; its void branches are 寅卯
+F-TONE-YEAR [imagery] 覆灯火 | year tone = 覆灯火 — lamp-light fire | 火 fire · a covered lamp — small flame kept from the wind, lighting one room
+F-TONE-MONTH [imagery] 炉中火 | month tone = 炉中火 — fire in the furnace | 火 fire · flame with walls around it — heat that is contained and put to work
+F-TONE-DAY [imagery] 覆灯火 | day tone = 覆灯火 — lamp-light fire | 火 fire · a covered lamp — small flame kept from the wind, lighting one room
+F-TONE-HOUR [imagery] 路旁土 | hour tone = 路旁土 — earth by the roadside | 土 earth · ground everyone passes and nobody tends
+F-QIYUN [weather] 起运 | decades begin = 2026 | 1y 11m 10d after birth
+F-DECADE-NOW [weather] 大运 | decade covering 2026 = 乙丑 (2026–2035) | its stem 乙 reads 劫财 to the day master; its branch is 丑
+F-DECADES [weather] 大运 | decade sequence = 9 decades computed, 乙丑 onward
+
+--- MOVEMENTS ---
+## M-LENS 日主 rì zhǔ — the lens
+   cites: F-EIGHT, F-DAYMASTER, F-SCHOOL, F-ZODIAC
+   Eight characters, four pillars: 甲辰 丙寅 甲辰 庚午. The lens is 甲 — jiǎ, 木 wood, yang: sprouting tree; the first, armor, beginning. Every line below is read from that one seat. The same eight characters around a different day stem would describe a different plate entirely.
+   The hour is read on the true solar time school (clock time converted to 11:31 solar), and the year animal is 龙.
+
+## M-STANDING 强弱 qiáng ruò — where it stands
+   cites: F-DELING, F-ROOT-1, F-ROOT-2, F-ROOT-3, F-DEDI, F-DESHI, F-XINGYUN-YEAR, F-XINGYUN-MONTH, F-XINGYUN-DAY, F-XINGYUN-HOUR, F-STRENGTH
+   The month branch is 寅. For 甲 that season reads 旺 — its own season — the element at home, in command of the month; the plate commands the season (得令).
+   Underneath, 3 branches answer: 辰 in the year pillar holds 乙 at 中气 depth, at the 衰 stage, 寅 in the month pillar holds 甲 at 主气 depth, at the 临官 stage, and 辰 in the day pillar holds 乙 at 中气 depth, at the 衰 stage. That is what 得地 measures — not whether the day master is visible, but whether the ground under it carries the same element.
+   Of the three other visible stems, 1 supports and 2 draw off: 甲 in the year pillar reads 比肩, 丙 in the month pillar reads 食神, and 庚 in the hour pillar reads 七杀.
+   Read through the twelve stages — 十二长生, a life cycle laid over every stem-and-branch pairing — the day master sits at 衰 in 辰 (the year branch), 临官 in 寅 (the month branch), 衰 in 辰 (自坐, its own seat), and 死 in 午 (the hour branch). The engine uses those stages as a finer supplement to the roots above. The tradition reads them as phases of a cycle — 长生 through 墓 and round again — not as a scorecard, and the schools do not agree on whether the yin stems run the cycle backwards.
+   Blended — half the weight on the season, a third on the roots, a fifth on the company — the plate lands 身强 at +0.57. The weights and the arithmetic are printed on the chart page; the judgment is a documented heuristic, not a classical formula, and it is meant to be argued with.
+
+## M-SHAPE 格局 gé jú — the shape it makes
+   cites: F-PATTERN
+   This plate does not take its name from the month's presiding god. It classifies as 建禄格: 月支本气与日主同五行同阴阳 (比肩) — the day master sits on its own 禄 seat in the month. A 建禄格 stands on its own seat of office — a plate that already has standing, and asks what the standing is for.
+   Pattern comes before medicine: it sets what the plate is trying to do, and the favorable god below is chosen in service of that, not in isolation.
+
+## M-MEDICINE 用神 yòng shén — the medicine it asks for
+   cites: F-YONGSHEN, F-FUYI, F-TIAOHOU, F-BINGYAO, F-TONGGUAN, F-ZHUANWANG, F-AGREE
+   Five classical lenses run over this plate, and the one the decision order leans on here is 扶抑: 正官 / 七杀 / 食神 / 伤官 / 正财 / 偏财. 身强 (score 0.57) — the day master needs restraint: 官杀 (discipline), 食伤 (output), or 财 (wealth).
+   扶抑 and the pattern's own god do not agree here. That disagreement is itself the finding: the plate wants two things, and no formula resolves it.
+   All five lenses, in the engine's own words:
+   扶抑 (抑) — 身强 (score 0.57) — the day master needs restraint: 官杀 (discipline), 食伤 (output), or 财 (wealth).
+   调候 — month branch 寅 is not in a climate-extreme season — 调候 does not apply as a tiebreaker.
+   病药 — neither named 病药 case (枭神夺食, unchecked 七杀) is present — 扶抑 is the more relevant lens for this chart.
+   通关 — 木 (1 branch main-qi) directly controls 土 (2) with neither side dominant — a stuck conflict. Bridge: 火, which 木 generates and which in turn feeds 土.
+   专旺 — strength does not read extreme+rootless — normal 扶抑 logic applies, not 专旺.
+   Naming a medicine is not prescribing one. The engine can say which phase this structure is short of; it cannot say what to do on Monday, and it will not pretend to.
+
+## M-TENSION 关系 guān xì — where it pulls
+   cites: F-REL-1, F-REL-2, F-VOID
+   The branches pull on each other in 2 places: 辰辰 刑 (year–day branches) and 寅午 半合 (month–hour branches).
+   Void seats: 月 寅. The day pillar's 旬 is 甲辰, which empties 寅卯. A branch in a void seat is read thin, not absent — and a 冲 against it can fill it (冲空则实).
+   These are relations, not omens. The computation carries no verdict about fortune at all.
+
+## M-IMAGERY 纳音 nà yīn — how it sounds
+   cites: F-TONE-YEAR, F-TONE-MONTH, F-TONE-DAY, F-TONE-HOUR
+   The 纳音 are the tradition's most lyrical layer: each pillar's ganzhi carries a phase-name that situates it somewhere — in the sea, on the rampart, under the lamp. A flavor, not a fortune.
+   The year pillar 甲辰 sounds 覆灯火 — lamp-light fire: a covered lamp — small flame kept from the wind, lighting one room. The month pillar 丙寅 sounds 炉中火 — fire in the furnace: flame with walls around it — heat that is contained and put to work. The day pillar 甲辰 sounds 覆灯火 — lamp-light fire: a covered lamp — small flame kept from the wind, lighting one room. The hour pillar 庚午 sounds 路旁土 — earth by the roadside: ground everyone passes and nobody tends.
+   Across the four pillars the tones run 3×火 · 1×土. Read them as a register the plate sounds in, not as four more verdicts stacked on the eight characters.
+
+## M-WEATHER 大运 dà yùn — the weather over it
+   cites: F-QIYUN, F-DECADES, F-DECADE-NOW
+   The fixed plate above does not move. Over it runs the 大运 — decade pillars, beginning 2026 (1y 11m 10d after birth), then turning every ten years.
+   The decade covering 2026 is 乙丑 (2026–2035): its stem 乙 reads 劫财 to the day master; its branch is 丑.
+   The timeline says what SHAPE the weather has — which stem, which branch, which relation to the plate. It does not say whether the weather is good. That word is not in the computation, and adding it would be a different kind of claim than anything this engine can check.
+
+## M-CLAUSE 善人不为命所缚 shàn rén bù wéi mìng suǒ fù — the good are not bound by fate
+   cites: (none)
+   This chart does not bind you.
+   Everything above is structure: a temperament named precisely enough to be useful, and a moving layer over it. It describes; it does not sentence. Where the map and Scripture disagree, Scripture wins, and nothing computed here carries authority over your standing before God.
+   Every chart here has a rebirth slot for exactly this reason — 重生, John 3:3: the same weather still falls, and it falls on a new creation. The instrument carries its own dethroning (2 Kings 18:4). Read the map, follow the Lion (Rev 5:5).
+   What to do with any of this stays with people: a teacher, a friend, and finally Christ. The engine computed a map, and a map has never once told anyone where to go.
+
+==============================================================================
+CASE: no location, clock school, male
+PILLARS: 庚午 癸未 辛巳 庚寅  (year=2026)
+==============================================================================
+
+--- FACTS ---
+F-EIGHT [frame] 四柱 | the eight characters = 庚午 癸未 辛巳 庚寅
+F-DAYMASTER [frame] 日主 | day master = 辛 | 金 metal · yin — jewel; metal refined, sharp but precious
+F-ZODIAC [frame] - | year animal = 马
+F-SCHOOL [frame] - | hour school = clock time
+F-DELING [standing] 得令 | season command = 未 → 相 (得令) | the month's element is 土; subscore 0.50
+F-ROOT-1 [standing] 得地 | root in the day branch = 巳 → 庚 (中气, 死)
+F-DEDI [standing] 得地 | root subscore = 0.04
+F-DESHI [standing] 得势 | stem support = 2 support / 1 draw off | year 庚 劫财 · month 癸 食神 · hour 庚 劫财
+F-STRENGTH [standing] 强弱 | day-master strength = 身强 (+0.33)
+F-XINGYUN-YEAR [standing] 星运 | year growth stage = 辛 in 午 → 病
+F-XINGYUN-MONTH [standing] 星运 | month growth stage = 辛 in 未 → 衰
+F-XINGYUN-DAY [standing] 星运 | day growth stage = 辛 in 巳 → 死
+F-XINGYUN-HOUR [standing] 星运 | hour growth stage = 辛 in 寅 → 胎
+F-PATTERN [shape] 格局 | pattern = 偏印格 | the month's presiding god is 偏印, through the hidden stem 己
+F-YONGSHEN [medicine] 用神 | favorable god = 正官 / 七杀 / 食神 / 伤官 / 正财 / 偏财 (扶抑) | 身强 (score 0.33) — the day master needs restraint: 官杀 (discipline), 食伤 (output), or 财 (wealth).
+F-FUYI [medicine] 扶抑 | support-or-restrain (抑) = 正官 / 七杀 / 食神 / 伤官 / 正财 / 偏财 | 身强 (score 0.33) — the day master needs restraint: 官杀 (discipline), 食伤 (output), or 财 (wealth).
+F-TIAOHOU [medicine] 调候 | climate = water → 水 | month branch 未 is deep summer — climate need is 水 water. This can OUTRANK 扶抑 when the chart is strong but climate-starved.
+F-BINGYAO [medicine] 病药 | illness and medicine = does not apply | neither named 病药 case (枭神夺食, unchecked 七杀) is present — 扶抑 is the more relevant lens for this chart.
+F-TONGGUAN [medicine] 通关 | bridging a stalemate = 木/土 bridged by 火 | 木 (1 branch main-qi) directly controls 土 (1) with neither side dominant — a stuck conflict. Bridge: 火, which 木 generates and which in turn feeds 土.
+F-ZHUANWANG [medicine] 专旺 | join the dominant force = does not apply | strength does not read extreme+rootless — normal 扶抑 logic applies, not 专旺.
+F-AGREE [medicine] - | do 扶抑 and the pattern agree? = no
+F-REL-1 [tension] 六合 | year–month branches = 午未 六合 | 午未 六合
+F-REL-2 [tension] 半合 | year–hour branches = 午寅 半合 | 午寅 半合 (寅午戌)
+F-REL-3 [tension] 刑 | day–hour branches = 巳寅 刑 + 害 | 巳寅 刑 · 巳寅 害
+F-VOID [tension] 空亡 | void seats = no pillar sits in a void seat | day pillar's 旬 is 甲戌; its void branches are 申酉
+F-TONE-YEAR [imagery] 路旁土 | year tone = 路旁土 — earth by the roadside | 土 earth · ground everyone passes and nobody tends
+F-TONE-MONTH [imagery] 杨柳木 | month tone = 杨柳木 — willow wood | 木 wood · wood that bends and hangs — pliancy rather than frame
+F-TONE-DAY [imagery] 白蜡金 | day tone = 白蜡金 — wax-white metal | 金 metal · metal pale and soft-looking, new out of the mold
+F-TONE-HOUR [imagery] 松柏木 | hour tone = 松柏木 — pine and cypress | 木 wood · wood that keeps its needles through winter
+F-QIYUN [weather] 起运 | decades begin = 1998 | 7y 11m 20d after birth
+F-DECADE-NOW [weather] 大运 | decade covering 2026 = 丙戌 (2018–2027) | its stem 丙 reads 正官 to the day master; its branch is 戌
+F-DECADE-REL [weather] 刑 | decade branch against the month branch = 戌未 刑
+F-DECADES [weather] 大运 | decade sequence = 9 decades computed, 甲申 onward
+
+--- MOVEMENTS ---
+## M-LENS 日主 rì zhǔ — the lens
+   cites: F-EIGHT, F-DAYMASTER, F-SCHOOL, F-ZODIAC
+   Eight characters, four pillars: 庚午 癸未 辛巳 庚寅. The lens is 辛 — xīn, 金 metal, yin: jewel; metal refined, sharp but precious. Every line below is read from that one seat. The same eight characters around a different day stem would describe a different plate entirely.
+   The hour is read on the clock time school, and the year animal is 马.
+
+## M-STANDING 强弱 qiáng ruò — where it stands
+   cites: F-DELING, F-ROOT-1, F-DEDI, F-DESHI, F-XINGYUN-YEAR, F-XINGYUN-MONTH, F-XINGYUN-DAY, F-XINGYUN-HOUR, F-STRENGTH
+   The month branch is 未. For 辛 that season reads 相 — the season generates it — supported, carried by what the month already is; the plate commands the season (得令).
+   Underneath, one branch answers: 巳 in the day pillar holds 庚 at 中气 depth, at the 死 stage. That is what 得地 measures — not whether the day master is visible, but whether the ground under it carries the same element.
+   Of the three other visible stems, 2 support and 1 draws off: 庚 in the year pillar reads 劫财, 癸 in the month pillar reads 食神, and 庚 in the hour pillar reads 劫财.
+   Read through the twelve stages — 十二长生, a life cycle laid over every stem-and-branch pairing — the day master sits at 病 in 午 (the year branch), 衰 in 未 (the month branch), 死 in 巳 (自坐, its own seat), and 胎 in 寅 (the hour branch). The engine uses those stages as a finer supplement to the roots above. The tradition reads them as phases of a cycle — 长生 through 墓 and round again — not as a scorecard, and the schools do not agree on whether the yin stems run the cycle backwards.
+   Blended — half the weight on the season, a third on the roots, a fifth on the company — the plate lands 身强 at +0.33. The weights and the arithmetic are printed on the chart page; the judgment is a documented heuristic, not a classical formula, and it is meant to be argued with.
+
+## M-SHAPE 格局 gé jú — the shape it makes
+   cites: F-PATTERN
+   The month's presiding god is 偏印, carried by the hidden stem 己 — which names this plate a 偏印格. A 偏印格 wants its resource put to use — inherited strangeness turned into craft.
+   Pattern comes before medicine: it sets what the plate is trying to do, and the favorable god below is chosen in service of that, not in isolation.
+
+## M-MEDICINE 用神 yòng shén — the medicine it asks for
+   cites: F-YONGSHEN, F-FUYI, F-TIAOHOU, F-BINGYAO, F-TONGGUAN, F-ZHUANWANG, F-AGREE
+   Five classical lenses run over this plate, and the one the decision order leans on here is 扶抑: 正官 / 七杀 / 食神 / 伤官 / 正财 / 偏财. 身强 (score 0.33) — the day master needs restraint: 官杀 (discipline), 食伤 (output), or 财 (wealth).
+   扶抑 and the pattern's own god do not agree here. That disagreement is itself the finding: the plate wants two things, and no formula resolves it.
+   All five lenses, in the engine's own words:
+   扶抑 (抑) — 身强 (score 0.33) — the day master needs restraint: 官杀 (discipline), 食伤 (output), or 财 (wealth).
+   调候 — month branch 未 is deep summer — climate need is 水 water. This can OUTRANK 扶抑 when the chart is strong but climate-starved.
+   病药 — neither named 病药 case (枭神夺食, unchecked 七杀) is present — 扶抑 is the more relevant lens for this chart.
+   通关 — 木 (1 branch main-qi) directly controls 土 (1) with neither side dominant — a stuck conflict. Bridge: 火, which 木 generates and which in turn feeds 土.
+   专旺 — strength does not read extreme+rootless — normal 扶抑 logic applies, not 专旺.
+   Naming a medicine is not prescribing one. The engine can say which phase this structure is short of; it cannot say what to do on Monday, and it will not pretend to.
+
+## M-TENSION 关系 guān xì — where it pulls
+   cites: F-REL-1, F-REL-2, F-REL-3, F-VOID
+   The branches pull on each other in 3 places: 午未 六合 (year–month branches), 午寅 半合 (year–hour branches), and 巳寅 刑 + 害 (day–hour branches).
+   No pillar sits in a void seat (the day pillar's 旬 is 甲戌, voiding 申酉).
+   These are relations, not omens. The computation carries no verdict about fortune at all.
+
+## M-IMAGERY 纳音 nà yīn — how it sounds
+   cites: F-TONE-YEAR, F-TONE-MONTH, F-TONE-DAY, F-TONE-HOUR
+   The 纳音 are the tradition's most lyrical layer: each pillar's ganzhi carries a phase-name that situates it somewhere — in the sea, on the rampart, under the lamp. A flavor, not a fortune.
+   The year pillar 庚午 sounds 路旁土 — earth by the roadside: ground everyone passes and nobody tends. The month pillar 癸未 sounds 杨柳木 — willow wood: wood that bends and hangs — pliancy rather than frame. The day pillar 辛巳 sounds 白蜡金 — wax-white metal: metal pale and soft-looking, new out of the mold. The hour pillar 庚寅 sounds 松柏木 — pine and cypress: wood that keeps its needles through winter.
+   Across the four pillars the tones run 1×土 · 2×木 · 1×金. Read them as a register the plate sounds in, not as four more verdicts stacked on the eight characters.
+
+## M-WEATHER 大运 dà yùn — the weather over it
+   cites: F-QIYUN, F-DECADES, F-DECADE-NOW, F-DECADE-REL
+   The fixed plate above does not move. Over it runs the 大运 — decade pillars, beginning 1998 (7y 11m 20d after birth), then turning every ten years.
+   The decade covering 2026 is 丙戌 (2018–2027): its stem 丙 reads 正官 to the day master; its branch is 戌.
+   That decade's branch meets the month branch as 戌未 刑 — a relation between the moving layer and the plate's strongest seat.
+   The timeline says what SHAPE the weather has — which stem, which branch, which relation to the plate. It does not say whether the weather is good. That word is not in the computation, and adding it would be a different kind of claim than anything this engine can check.
+
+## M-CLAUSE 善人不为命所缚 shàn rén bù wéi mìng suǒ fù — the good are not bound by fate
+   cites: (none)
+   This chart does not bind you.
+   Everything above is structure: a temperament named precisely enough to be useful, and a moving layer over it. It describes; it does not sentence. Where the map and Scripture disagree, Scripture wins, and nothing computed here carries authority over your standing before God.
+   Every chart here has a rebirth slot for exactly this reason — 重生, John 3:3: the same weather still falls, and it falls on a new creation. The instrument carries its own dethroning (2 Kings 18:4). Read the map, follow the Lion (Rev 5:5).
+   What to do with any of this stays with people: a teacher, a friend, and finally Christ. The engine computed a map, and a map has never once told anyone where to go.
+
+==============================================================================
+CASE: no gender — 大运 uncomputed
+PILLARS: 己卯 丙子 戊午 戊午  (year=2026)
+==============================================================================
+
+--- FACTS ---
+F-EIGHT [frame] 四柱 | the eight characters = 己卯 丙子 戊午 戊午
+F-DAYMASTER [frame] 日主 | day master = 戊 | 土 earth · yang — mountain; massive, defensive ground
+F-ZODIAC [frame] - | year animal = 兔
+F-SCHOOL [frame] 真太阳时 | hour school = true solar time | clock time converted to 11:57 solar
+F-DELING [standing] 得令 | season command = 子 → 囚 (失令) | the month's element is 水; subscore -0.60
+F-ROOT-1 [standing] 得地 | root in the day branch = 午 → 己 (余气, 帝旺)
+F-ROOT-2 [standing] 得地 | root in the hour branch = 午 → 己 (余气, 帝旺)
+F-DEDI [standing] 得地 | root subscore = 0.15
+F-DESHI [standing] 得势 | stem support = 3 support / 0 draw off | year 己 劫财 · month 丙 偏印 · hour 戊 比肩
+F-STRENGTH [standing] 强弱 | day-master strength = 身弱 (-0.05) | borderline — inside the band the engine calls a genuine toss-up
+F-XINGYUN-YEAR [standing] 星运 | year growth stage = 戊 in 卯 → 沐浴
+F-XINGYUN-MONTH [standing] 星运 | month growth stage = 戊 in 子 → 胎
+F-XINGYUN-DAY [standing] 星运 | day growth stage = 戊 in 午 → 帝旺
+F-XINGYUN-HOUR [standing] 星运 | hour growth stage = 戊 in 午 → 帝旺
+F-PATTERN [shape] 格局 | pattern = 正财格 | the month's presiding god is 正财, through the hidden stem 癸
+F-YONGSHEN [medicine] 用神 | favorable god = 正印 / 偏印 / 比肩 / 劫财 (扶抑) | 身弱 (score -0.05) — the day master needs support: 印 (resource) or 比劫 (peer).
+F-FUYI [medicine] 扶抑 | support-or-restrain (扶) = 正印 / 偏印 / 比肩 / 劫财 | 身弱 (score -0.05) — the day master needs support: 印 (resource) or 比劫 (peer).
+F-TIAOHOU [medicine] 调候 | climate = fire → 火 | month branch 子 is deep winter — climate need is 火 fire. This can OUTRANK 扶抑 when the chart is strong but climate-starved.
+F-BINGYAO [medicine] 病药 | illness and medicine = does not apply | neither named 病药 case (枭神夺食, unchecked 七杀) is present — 扶抑 is the more relevant lens for this chart.
+F-TONGGUAN [medicine] 通关 | bridging a stalemate = 水/火 bridged by 木 | 水 (1 branch main-qi) directly controls 火 (2) with neither side dominant — a stuck conflict. Bridge: 木, which 水 generates and which in turn feeds 火.
+F-ZHUANWANG [medicine] 专旺 | join the dominant force = does not apply | strength does not read extreme+rootless — normal 扶抑 logic applies, not 专旺.
+F-AGREE [medicine] - | do 扶抑 and the pattern agree? = no
+F-REL-1 [tension] 刑 | year–month branches = 卯子 刑 | 卯子 刑
+F-REL-2 [tension] 冲 | month–day branches = 子午 冲 | 子午 冲
+F-REL-3 [tension] 冲 | month–hour branches = 子午 冲 | 子午 冲
+F-REL-4 [tension] 刑 | day–hour branches = 午午 刑 | 午 自刑
+F-VOID [tension] 空亡 | void seats = 月 子 | day pillar's 旬 is 甲寅; its void branches are 子丑
+F-TONE-YEAR [imagery] 城头土 | year tone = 城头土 — earth on the rampart | 土 earth · soil piled into a wall — earth given the shape of a defense
+F-TONE-MONTH [imagery] 涧下水 | month tone = 涧下水 — water in the ravine | 水 water · water down in the cut of the rock, moving where the channel takes it
+F-TONE-DAY [imagery] 天上火 | day tone = 天上火 — fire in the heavens | 火 fire · the sun itself — fire nothing shelters and nothing feeds
+F-TONE-HOUR [imagery] 天上火 | hour tone = 天上火 — fire in the heavens | 火 fire · the sun itself — fire nothing shelters and nothing feeds
+F-NOYUN [weather] 大运 | decade sequence = not computed — 大运 needs a gender, which orders the sequence
+
+--- MOVEMENTS ---
+## M-LENS 日主 rì zhǔ — the lens
+   cites: F-EIGHT, F-DAYMASTER, F-SCHOOL, F-ZODIAC
+   Eight characters, four pillars: 己卯 丙子 戊午 戊午. The lens is 戊 — wù, 土 earth, yang: mountain; massive, defensive ground. Every line below is read from that one seat. The same eight characters around a different day stem would describe a different plate entirely.
+   The hour is read on the true solar time school (clock time converted to 11:57 solar), and the year animal is 兔.
+
+## M-STANDING 强弱 qiáng ruò — where it stands
+   cites: F-DELING, F-ROOT-1, F-ROOT-2, F-DEDI, F-DESHI, F-XINGYUN-YEAR, F-XINGYUN-MONTH, F-XINGYUN-DAY, F-XINGYUN-HOUR, F-STRENGTH
+   The month branch is 子. For 戊 that season reads 囚 — it controls the season — confined, using itself up holding the month down; the plate does not command the season (失令).
+   Underneath, 2 branches answer: 午 in the day pillar holds 己 at 余气 depth, at the 帝旺 stage and 午 in the hour pillar holds 己 at 余气 depth, at the 帝旺 stage. That is what 得地 measures — not whether the day master is visible, but whether the ground under it carries the same element.
+   Of the three other visible stems, 3 support and 0 draw off: 己 in the year pillar reads 劫财, 丙 in the month pillar reads 偏印, and 戊 in the hour pillar reads 比肩.
+   Read through the twelve stages — 十二长生, a life cycle laid over every stem-and-branch pairing — the day master sits at 沐浴 in 卯 (the year branch), 胎 in 子 (the month branch), 帝旺 in 午 (自坐, its own seat), and 帝旺 in 午 (the hour branch). The engine uses those stages as a finer supplement to the roots above. The tradition reads them as phases of a cycle — 长生 through 墓 and round again — not as a scorecard, and the schools do not agree on whether the yin stems run the cycle backwards.
+   Blended — half the weight on the season, a third on the roots, a fifth on the company — the plate lands 身弱 at -0.05. That is inside the band the engine calls a genuine toss-up: two competent readers could take this plate in opposite directions, and the honest report is that the number does not settle it.
+
+## M-SHAPE 格局 gé jú — the shape it makes
+   cites: F-PATTERN
+   The month's presiding god is 正财, carried by the hidden stem 癸 — which names this plate a 正财格. A 正财格 wants its wealth guarded and worked — cultivated ground, not a windfall.
+   Pattern comes before medicine: it sets what the plate is trying to do, and the favorable god below is chosen in service of that, not in isolation.
+
+## M-MEDICINE 用神 yòng shén — the medicine it asks for
+   cites: F-YONGSHEN, F-FUYI, F-TIAOHOU, F-BINGYAO, F-TONGGUAN, F-ZHUANWANG, F-AGREE
+   Five classical lenses run over this plate, and the one the decision order leans on here is 扶抑: 正印 / 偏印 / 比肩 / 劫财. 身弱 (score -0.05) — the day master needs support: 印 (resource) or 比劫 (peer).
+   扶抑 and the pattern's own god do not agree here. That disagreement is itself the finding: the plate wants two things, and no formula resolves it.
+   All five lenses, in the engine's own words:
+   扶抑 (扶) — 身弱 (score -0.05) — the day master needs support: 印 (resource) or 比劫 (peer).
+   调候 — month branch 子 is deep winter — climate need is 火 fire. This can OUTRANK 扶抑 when the chart is strong but climate-starved.
+   病药 — neither named 病药 case (枭神夺食, unchecked 七杀) is present — 扶抑 is the more relevant lens for this chart.
+   通关 — 水 (1 branch main-qi) directly controls 火 (2) with neither side dominant — a stuck conflict. Bridge: 木, which 水 generates and which in turn feeds 火.
+   专旺 — strength does not read extreme+rootless — normal 扶抑 logic applies, not 专旺.
+   Naming a medicine is not prescribing one. The engine can say which phase this structure is short of; it cannot say what to do on Monday, and it will not pretend to.
+
+## M-TENSION 关系 guān xì — where it pulls
+   cites: F-REL-1, F-REL-2, F-REL-3, F-REL-4, F-VOID
+   The branches pull on each other in 4 places: 卯子 刑 (year–month branches), 子午 冲 (month–day branches), 子午 冲 (month–hour branches), and 午午 刑 (day–hour branches).
+   Void seats: 月 子. The day pillar's 旬 is 甲寅, which empties 子丑. A branch in a void seat is read thin, not absent — and a 冲 against it can fill it (冲空则实).
+   These are relations, not omens. The computation carries no verdict about fortune at all.
+
+## M-IMAGERY 纳音 nà yīn — how it sounds
+   cites: F-TONE-YEAR, F-TONE-MONTH, F-TONE-DAY, F-TONE-HOUR
+   The 纳音 are the tradition's most lyrical layer: each pillar's ganzhi carries a phase-name that situates it somewhere — in the sea, on the rampart, under the lamp. A flavor, not a fortune.
+   The year pillar 己卯 sounds 城头土 — earth on the rampart: soil piled into a wall — earth given the shape of a defense. The month pillar 丙子 sounds 涧下水 — water in the ravine: water down in the cut of the rock, moving where the channel takes it. The day pillar 戊午 sounds 天上火 — fire in the heavens: the sun itself — fire nothing shelters and nothing feeds. The hour pillar 戊午 sounds 天上火 — fire in the heavens: the sun itself — fire nothing shelters and nothing feeds.
+   Across the four pillars the tones run 1×土 · 1×水 · 2×火. Read them as a register the plate sounds in, not as four more verdicts stacked on the eight characters.
+
+## M-WEATHER 大运 dà yùn — the weather over it
+   cites: F-NOYUN
+   The 大运 sequence is not computed for this plate: the decade order depends on gender, which was not supplied.
+   The timeline says what SHAPE the weather has — which stem, which branch, which relation to the plate. It does not say whether the weather is good. That word is not in the computation, and adding it would be a different kind of claim than anything this engine can check.
+
+## M-CLAUSE 善人不为命所缚 shàn rén bù wéi mìng suǒ fù — the good are not bound by fate
+   cites: (none)
+   This chart does not bind you.
+   Everything above is structure: a temperament named precisely enough to be useful, and a moving layer over it. It describes; it does not sentence. Where the map and Scripture disagree, Scripture wins, and nothing computed here carries authority over your standing before God.
+   Every chart here has a rebirth slot for exactly this reason — 重生, John 3:3: the same weather still falls, and it falls on a new creation. The instrument carries its own dethroning (2 Kings 18:4). Read the map, follow the Lion (Rev 5:5).
+   What to do with any of this stays with people: a teacher, a friend, and finally Christ. The engine computed a map, and a map has never once told anyone where to go.
+
+==============================================================================
+CASE: rootless chart (F-ROOTLESS + the rootless paragraph)
+PILLARS: 庚子 己卯 己亥 丁卯  (year=2026)
+==============================================================================
+
+--- FACTS ---
+F-EIGHT [frame] 四柱 | the eight characters = 庚子 己卯 己亥 丁卯
+F-DAYMASTER [frame] 日主 | day master = 己 | 土 earth · yin — field; soil that grows what is planted
+F-ZODIAC [frame] - | year animal = 鼠
+F-SCHOOL [frame] 真太阳时 | hour school = true solar time | clock time converted to 05:36 solar
+F-DELING [standing] 得令 | season command = 卯 → 死 (失令) | the month's element is 木; subscore -1.00
+F-ROOTLESS [standing] 通根 | branch roots = rootless — no branch carries the day master as a hidden stem
+F-DEDI [standing] 得地 | root subscore = -0.06
+F-DESHI [standing] 得势 | stem support = 2 support / 1 draw off | year 庚 伤官 · month 己 比肩 · hour 丁 偏印
+F-STRENGTH [standing] 强弱 | day-master strength = 身弱 (-0.45)
+F-XINGYUN-YEAR [standing] 星运 | year growth stage = 己 in 子 → 绝
+F-XINGYUN-MONTH [standing] 星运 | month growth stage = 己 in 卯 → 病
+F-XINGYUN-DAY [standing] 星运 | day growth stage = 己 in 亥 → 胎
+F-XINGYUN-HOUR [standing] 星运 | hour growth stage = 己 in 卯 → 病
+F-PATTERN [shape] 格局 | pattern = 七杀格 | the month's presiding god is 七杀, through the hidden stem 乙
+F-YONGSHEN [medicine] 用神 | favorable god = 食神 or 印 (to control or absorb the pressure) (病药) | 七杀 present with no 食神 or 印 anywhere in the hidden stems to control or absorb it — the pressure runs unchecked. Medicine: 食神 (control) or 印 (absorb).
+F-FUYI [medicine] 扶抑 | support-or-restrain (扶) = 正印 / 偏印 / 比肩 / 劫财 | 身弱 (score -0.45) — the day master needs support: 印 (resource) or 比劫 (peer).
+F-TIAOHOU [medicine] 调候 | climate = does not apply | month branch 卯 is not in a climate-extreme season — 调候 does not apply as a tiebreaker.
+F-BINGYAO [medicine] 病药 | illness and medicine = 七杀 unchecked (no 食神/印 present) → 食神 or 印 (to control or absorb the pressure) | 七杀 present with no 食神 or 印 anywhere in the hidden stems to control or absorb it — the pressure runs unchecked. Medicine: 食神 (control) or 印 (absorb).
+F-TONGGUAN [medicine] 通关 | bridging a stalemate = does not apply | no two branch main-qi elements sit in a roughly-matched direct 克 standoff — 通关 does not apply.
+F-ZHUANWANG [medicine] 专旺 | join the dominant force = does not apply | strength does not read extreme+rootless — normal 扶抑 logic applies, not 专旺.
+F-AGREE [medicine] - | do 扶抑 and the pattern agree? = no
+F-REL-1 [tension] 刑 | year–month branches = 子卯 刑 | 子卯 刑
+F-REL-2 [tension] 刑 | year–hour branches = 子卯 刑 | 子卯 刑
+F-REL-3 [tension] 半合 | month–day branches = 卯亥 半合 | 卯亥 半合 (亥卯未)
+F-REL-4 [tension] 半合 | day–hour branches = 亥卯 半合 | 亥卯 半合 (亥卯未)
+F-VOID [tension] 空亡 | void seats = no pillar sits in a void seat | day pillar's 旬 is 甲午; its void branches are 辰巳
+F-TONE-YEAR [imagery] 壁上土 | year tone = 壁上土 — earth on the wall | 土 earth · earth pressed flat into plaster — soil made a surface
+F-TONE-MONTH [imagery] 城头土 | month tone = 城头土 — earth on the rampart | 土 earth · soil piled into a wall — earth given the shape of a defense
+F-TONE-DAY [imagery] 平地木 | day tone = 平地木 — wood on level ground | 木 wood · a tree with no slope to lean on, standing by its own trunk
+F-TONE-HOUR [imagery] 炉中火 | hour tone = 炉中火 — fire in the furnace | 火 fire · flame with walls around it — heat that is contained and put to work
+F-QIYUN [weather] 起运 | decades begin = 1968 | 7y 11m 10d after birth
+F-DECADE-NOW [weather] 大运 | decade covering 2026 = 乙酉 (2018–2027) | its stem 乙 reads 七杀 to the day master; its branch is 酉
+F-DECADE-REL [weather] 冲 | decade branch against the month branch = 酉卯 冲
+F-DECADES [weather] 大运 | decade sequence = 9 decades computed, 庚辰 onward
+
+--- MOVEMENTS ---
+## M-LENS 日主 rì zhǔ — the lens
+   cites: F-EIGHT, F-DAYMASTER, F-SCHOOL, F-ZODIAC
+   Eight characters, four pillars: 庚子 己卯 己亥 丁卯. The lens is 己 — jǐ, 土 earth, yin: field; soil that grows what is planted. Every line below is read from that one seat. The same eight characters around a different day stem would describe a different plate entirely.
+   The hour is read on the true solar time school (clock time converted to 05:36 solar), and the year animal is 鼠.
+
+## M-STANDING 强弱 qiáng ruò — where it stands
+   cites: F-DELING, F-ROOTLESS, F-DEDI, F-DESHI, F-XINGYUN-YEAR, F-XINGYUN-MONTH, F-XINGYUN-DAY, F-XINGYUN-HOUR, F-STRENGTH
+   The month branch is 卯. For 己 that season reads 死 — the season controls it — dormant, working against the grain of the month; the plate does not command the season (失令).
+   Underneath, nothing answers: no branch carries 己's element as a hidden stem. The tradition calls this rootless — a stem standing in the open, with the whole question of support thrown onto the season and the company it keeps.
+   Of the three other visible stems, 2 support and 1 draws off: 庚 in the year pillar reads 伤官, 己 in the month pillar reads 比肩, and 丁 in the hour pillar reads 偏印.
+   Read through the twelve stages — 十二长生, a life cycle laid over every stem-and-branch pairing — the day master sits at 绝 in 子 (the year branch), 病 in 卯 (the month branch), 胎 in 亥 (自坐, its own seat), and 病 in 卯 (the hour branch). The engine uses those stages as a finer supplement to the roots above. The tradition reads them as phases of a cycle — 长生 through 墓 and round again — not as a scorecard, and the schools do not agree on whether the yin stems run the cycle backwards.
+   Blended — half the weight on the season, a third on the roots, a fifth on the company — the plate lands 身弱 at -0.45. The weights and the arithmetic are printed on the chart page; the judgment is a documented heuristic, not a classical formula, and it is meant to be argued with.
+
+## M-SHAPE 格局 gé jú — the shape it makes
+   cites: F-PATTERN
+   The month's presiding god is 七杀, carried by the hidden stem 乙 — which names this plate a 七杀格. A 七杀格 wants its pressure channelled rather than removed — the weight is the engine, if something carries it.
+   Pattern comes before medicine: it sets what the plate is trying to do, and the favorable god below is chosen in service of that, not in isolation.
+
+## M-MEDICINE 用神 yòng shén — the medicine it asks for
+   cites: F-YONGSHEN, F-FUYI, F-TIAOHOU, F-BINGYAO, F-TONGGUAN, F-ZHUANWANG, F-AGREE
+   Five classical lenses run over this plate, and the one the decision order leans on here is 病药: 食神 or 印 (to control or absorb the pressure). 七杀 present with no 食神 or 印 anywhere in the hidden stems to control or absorb it — the pressure runs unchecked. Medicine: 食神 (control) or 印 (absorb).
+   扶抑 and the pattern's own god do not agree here. That disagreement is itself the finding: the plate wants two things, and no formula resolves it.
+   All five lenses, in the engine's own words:
+   扶抑 (扶) — 身弱 (score -0.45) — the day master needs support: 印 (resource) or 比劫 (peer).
+   调候 — month branch 卯 is not in a climate-extreme season — 调候 does not apply as a tiebreaker.
+   病药 — 七杀 present with no 食神 or 印 anywhere in the hidden stems to control or absorb it — the pressure runs unchecked. Medicine: 食神 (control) or 印 (absorb).
+   通关 — no two branch main-qi elements sit in a roughly-matched direct 克 standoff — 通关 does not apply.
+   专旺 — strength does not read extreme+rootless — normal 扶抑 logic applies, not 专旺.
+   Naming a medicine is not prescribing one. The engine can say which phase this structure is short of; it cannot say what to do on Monday, and it will not pretend to.
+
+## M-TENSION 关系 guān xì — where it pulls
+   cites: F-REL-1, F-REL-2, F-REL-3, F-REL-4, F-VOID
+   The branches pull on each other in 4 places: 子卯 刑 (year–month branches), 子卯 刑 (year–hour branches), 卯亥 半合 (month–day branches), and 亥卯 半合 (day–hour branches).
+   No pillar sits in a void seat (the day pillar's 旬 is 甲午, voiding 辰巳).
+   These are relations, not omens. The computation carries no verdict about fortune at all.
+
+## M-IMAGERY 纳音 nà yīn — how it sounds
+   cites: F-TONE-YEAR, F-TONE-MONTH, F-TONE-DAY, F-TONE-HOUR
+   The 纳音 are the tradition's most lyrical layer: each pillar's ganzhi carries a phase-name that situates it somewhere — in the sea, on the rampart, under the lamp. A flavor, not a fortune.
+   The year pillar 庚子 sounds 壁上土 — earth on the wall: earth pressed flat into plaster — soil made a surface. The month pillar 己卯 sounds 城头土 — earth on the rampart: soil piled into a wall — earth given the shape of a defense. The day pillar 己亥 sounds 平地木 — wood on level ground: a tree with no slope to lean on, standing by its own trunk. The hour pillar 丁卯 sounds 炉中火 — fire in the furnace: flame with walls around it — heat that is contained and put to work.
+   Across the four pillars the tones run 2×土 · 1×木 · 1×火. Read them as a register the plate sounds in, not as four more verdicts stacked on the eight characters.
+
+## M-WEATHER 大运 dà yùn — the weather over it
+   cites: F-QIYUN, F-DECADES, F-DECADE-NOW, F-DECADE-REL
+   The fixed plate above does not move. Over it runs the 大运 — decade pillars, beginning 1968 (7y 11m 10d after birth), then turning every ten years.
+   The decade covering 2026 is 乙酉 (2018–2027): its stem 乙 reads 七杀 to the day master; its branch is 酉.
+   That decade's branch meets the month branch as 酉卯 冲 — a relation between the moving layer and the plate's strongest seat.
+   The timeline says what SHAPE the weather has — which stem, which branch, which relation to the plate. It does not say whether the weather is good. That word is not in the computation, and adding it would be a different kind of claim than anything this engine can check.
+
+## M-CLAUSE 善人不为命所缚 shàn rén bù wéi mìng suǒ fù — the good are not bound by fate
+   cites: (none)
+   This chart does not bind you.
+   Everything above is structure: a temperament named precisely enough to be useful, and a moving layer over it. It describes; it does not sentence. Where the map and Scripture disagree, Scripture wins, and nothing computed here carries authority over your standing before God.
+   Every chart here has a rebirth slot for exactly this reason — 重生, John 3:3: the same weather still falls, and it falls on a new creation. The instrument carries its own dethroning (2 Kings 18:4). Read the map, follow the Lion (Rev 5:5).
+   What to do with any of this stays with people: a teacher, a friend, and finally Christ. The engine computed a map, and a map has never once told anyone where to go.

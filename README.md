@@ -10,7 +10,7 @@ Bazilionaire (ba-ZI-LION-aire) is a free, open-source, nonprofit **Bazi (八字)
 
 ## What this repo is
 
-1. **`engine/`** — the deterministic Bazi computation engine, a TypeScript port that runs entirely client-side (birth data never leaves the browser). The Python reference (lunar_python) lives in `oracle/` and is used **only** as a test oracle in CI.
+1. **`engine/`** — the deterministic Bazi computation engine, a TypeScript port that runs entirely client-side (no account, no server compute). The Python reference (lunar_python) lives in `oracle/` and is used **only** as a test oracle in CI.
 2. **`fixtures/`** — the pinned anchor chain (published historical dates) that both implementations must agree on.
 3. **`oracle/`** — the Python referee. Its output is regenerated in CI and must byte-match the committed expectations.
 
@@ -39,7 +39,7 @@ Not yet: 流年 (annual transits), 合婚 pair analysis, the web app, LLM tutor 
 - Verdicts as weather, never sentences. Tool informs, user decides.
 - 善人不为命所缚 — the good are not bound by fate. Every reading ends here.
 - No predictive-certainty claims (health/death/money). No "scientific validity" claims — computational rigor + tradition.
-- Birth data is held only under covenant: explicit opt-in, hashed, deletable, never minors.
+- Research data, plainly: entering birth data is consent — every chart computed becomes a research record (inputs + everything derived), held under covenant and deletable. No minors' data without a parent's explicit consent.
 
 ## License
 

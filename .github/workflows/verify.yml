@@ -33,3 +33,23 @@ jobs:
         working-directory: engine
       - run: bun run typecheck
         working-directory: engine
+
+  app:
+    name: App gates (lexicon, 解盘 prose, static export)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install
+      - name: Gate — 纳音 lexicon matches the engine's doctrine table
+        run: bun run check:nayin
+      - name: Gate — 解盘 prose is deterministic (golden file + editorial fence)
+        run: bun run check:reading
+      - name: Gate — tutor payload carries no birth data; audit catches bad output
+        run: bun run check:tutor
+      - name: Gate — engine cross-check catches false claims, spares good ones
+        run: bun run check:verify
+      - name: Static export must build (typechecks the app too)
+        run: bun run build

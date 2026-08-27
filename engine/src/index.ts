@@ -34,3 +34,29 @@ export {
   type Location,
 } from './astronomy.js';
 export { computeChart, type Chart } from './pillars.js';
+export { computeStrength, type StrengthResult, type RootInfo, type StemSupport, type PillarKey, type RootDepth } from './strength.js';
+export {
+  classifyPattern,
+  type PatternResult,
+  type RegularPattern,
+  type SpecialPattern,
+  type ExtremeCandidate,
+  type HuaQiCandidate,
+  type RegularPatternName,
+  type SpecialPatternName,
+  type ExtremePatternName,
+} from './pattern.js';
+export {
+  selectYongShen,
+  type YongShenResult,
+  type FuyiResult,
+  type TiaohouResult,
+  type BingyaoResult,
+  type TongguanResult,
+  type ZhuanwangResult,
+  type YongShenMethod,
+} from './yongshen.js';
+export { TWELVE_STAGES, twelveStageOf, type GrowthStage } from './twelveStages.js';
+export { WUHE_PAIRS, wuheTransform, findWuHeCombinations, dayMasterCombines, type WuHeCombination, type WuHePair } from './wuhe.js';
+export { ELEMENT_NAMES, elementOfStem, seasonState } from './elements.js';
+export { shenshaFor, YANGREN, LU, TIANYI, WENCHANG, YIMA_TARGET, HUAGAI_TARGET, TAOHUA_TARGET } from './shensha.js';
