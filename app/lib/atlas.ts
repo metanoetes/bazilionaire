@@ -51,6 +51,48 @@ export interface LifeEvent {
   label: string;
   category?: 'career' | 'relationship' | 'health' | 'legal' | 'family' | 'move' | 'other';
   notes?: string;
+  /**
+   * What KIND of entry this is. ABSENT ⇒ 'milestone' — every record written before
+   * 2026-08-27 predates this field, so read it through `eventKind()` rather than
+   * touching `.kind` directly; that keeps the migration in exactly one place.
+   *
+   * 'milestone' — something that happened TO the person. Interprets the 大运/流年 it
+   *               lands in (the timeline overlay already plots these).
+   * 'remedy'    — medicine PRESCRIBED AND TAKEN: a practice deliberately begun
+   *               (a jiujitsu class, freestyle rap, a discipline, a move). The
+   *               interpretive question a remedy answers is not "what happened" but
+   *               "was the 用神 this chart asks for actually administered, when did it
+   *               start, and did it hold" — which is why `endedAt` exists.
+   */
+  kind?: 'milestone' | 'remedy';
+  /**
+   * For remedies: which of the 五行 the practice is taken FOR. Indices match the
+   * engine's `ELEMENT_NAMES` order — 0=木 1=火 2=土 3=金 4=水 (verified against
+   * engine/src/elements.ts:10, not assumed).
+   *
+   * A remedy whose elements do NOT include the chart's 用神 is not an error to
+   * correct — it is the finding. Do not validate this against the chart.
+   */
+  remedyFor?: number[];
+  /**
+   * For remedies: when it stopped. A remedy that STOPPED is data, not a deletion —
+   * a practice held for eight years and dropped at a 大运 boundary is exactly the
+   * kind of thing the timeline exists to show. Never delete a lapsed remedy.
+   */
+  endedAt?: string;
+}
+
+/**
+ * The one place the `kind` migration lives: records predating the field are
+ * milestones. Every consumer (pack, timeline, report) must go through this rather
+ * than re-implementing the fallback and drifting.
+ */
+export function eventKind(e: LifeEvent): 'milestone' | 'remedy' {
+  return e.kind === 'remedy' ? 'remedy' : 'milestone';
+}
+
+export function isRemedy(e: LifeEvent): boolean {
+  return eventKind(e) === 'remedy';
 }
 
 export interface Profile {
@@ -66,6 +108,33 @@ export interface Profile {
   lon?: number | null;
   tz?: number | null;
   notes?: string;
+  /**
+   * 重生 — the date this person was born again in Christ (John 3:3), YYYY-MM-DD.
+   * Optional and never inferred.
+   *
+   * Until 2026-08-27 this lived only in `RebirthSlot`'s `useState`, so it died with
+   * the page — the single field the two-regime 大运 timeline depends on was the one
+   * field never stored. It belongs on the Profile because it is a property of the
+   * person, not of a page visit.
+   *
+   * PRIVACY NOTE, since it is easy to miss: a rebirth date is *itself a date*, and
+   * combined with the 大运 decade it splits it narrows the birth year the same way a
+   * 起运 offset does. It is redacted on the same footing as birth data — never sent
+   * to a remote model, never in a shareable-grade report.
+   */
+  rebirthAt?: string;
+  /**
+   * The person's name in Chinese characters — `given` as given, `chosen` if they
+   * took another (a baptismal or chosen name). Optional.
+   *
+   * This is the ONE interpretive layer the pinned Python oracle cannot settle:
+   * schools disagree on whether a character's element comes from its radical, its
+   * stroke count, or 五格 numerology. Anything derived from this therefore carries
+   * its own fact prefix and an honesty badge, and is never blended into
+   * oracle-verified facts — otherwise "computed, not generated" becomes a lie by
+   * adjacency.
+   */
+  nameCJK?: { given?: string; chosen?: string };
   isMinor: boolean;
   /** Set once the one-time minors acknowledgment (ProfileForm) has been shown and accepted. */
   minorAcknowledged: boolean;
@@ -172,6 +241,9 @@ export function newProfile(partial: {
   tz?: number | null;
   notes?: string;
   isMinor: boolean;
+  /** Optional at creation — both are normally filled in later, on the person's own page. */
+  rebirthAt?: string;
+  nameCJK?: { given?: string; chosen?: string };
 }): Profile {
   const now = new Date().toISOString();
   return {
@@ -184,6 +256,8 @@ export function newProfile(partial: {
     lon: partial.lon ?? null,
     tz: partial.tz ?? null,
     notes: partial.notes,
+    rebirthAt: partial.rebirthAt,
+    nameCJK: partial.nameCJK,
     isMinor: partial.isSelf ? false : partial.isMinor, // isSelf can't be a minor-of-someone-else
     minorAcknowledged: partial.isSelf ? false : partial.isMinor, // ProfileForm only calls this after acknowledgment is given
     sendEventsToLLM: true, // default ON, per-profile opt-out
