@@ -7,7 +7,8 @@
     "check:nayin": "bun run scripts/check-nayin.ts",
     "check:reading": "bun run scripts/check-reading.ts",
     "check:tutor": "bun run scripts/check-tutor.ts",
-    "check:verify": "bun run scripts/check-verify.ts"
+    "check:verify": "bun run scripts/check-verify.ts",
+    "check:commons": "bun run scripts/check-commons.ts"
   },
   "dependencies": {
     "@bazilionaire/engine": "workspace:*",

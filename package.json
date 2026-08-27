@@ -9,6 +9,7 @@
     "check:reading": "bun run --cwd app check:reading",
     "check:tutor": "bun run --cwd app check:tutor",
     "check:verify": "bun run --cwd app check:verify",
+    "check:commons": "bun run --cwd app check:commons",
     "dev": "bun run --cwd app dev",
     "build": "bun run --cwd app build"
   }

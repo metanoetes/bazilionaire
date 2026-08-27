@@ -51,5 +51,7 @@ jobs:
         run: bun run check:tutor
       - name: Gate — engine cross-check catches false claims, spares good ones
         run: bun run check:verify
+      - name: Gate — the commons discloses exactly what it collects
+        run: bun run check:commons
       - name: Static export must build (typechecks the app too)
         run: bun run build
