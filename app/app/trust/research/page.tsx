@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ClickableCJK } from '@/components/ClickableCJK';
+import { COMMONS_DISCLOSURE } from '@/lib/research';
 
 export const metadata = {
   title: 'Research — computation vs. interpretation | bazilionaire',
@@ -190,11 +191,33 @@ export default function ResearchPage() {
           <p className="mt-2 text-sm text-body leading-relaxed">
             Computing runs <span className="font-medium">in your browser</span>, and there is no
             account to make. But this is a research commons: <span className="font-medium">entering
-            your birth data is consent</span> — every chart computed here becomes a research record
-            (the birth inputs you entered plus everything derived from them: pillars, <ClickableCJK text="十神" />,{' '}
-            <ClickableCJK text="藏干" />, <ClickableCJK text="纳音" />, <ClickableCJK text="空亡" />, <ClickableCJK text="大运" />). Records are held under covenant and are deletable from the intake
+            your birth data is consent</span> — every chart computed here becomes a research record.
+            Records are held under covenant and are deletable from the intake
             page; they are queued in this browser until the commons endpoint ships.
           </p>
+          <p className="mt-2 text-sm text-body leading-relaxed">
+            Below is the <span className="font-medium">whole record, field by field</span> — not a
+            summary of it. The list is rendered from the same constant the code sends, and CI fails
+            the build if the two ever disagree (<span className="font-mono text-xs">check:commons</span>).
+            Fields marked <span className="text-accent-strong">◆</span> narrow the birth moment,
+            alone or in combination — three of the four pillars are already enough to make a birth
+            date unique.
+          </p>
+          <ul className="mt-2 grid gap-x-5 gap-y-1 text-xs text-body sm:grid-cols-2">
+            {COMMONS_DISCLOSURE.map((f) => (
+              <li key={f.path} className="flex items-baseline gap-1.5">
+                <span aria-hidden className={f.identifying ? 'text-accent-strong' : 'text-faint'}>
+                  {f.identifying ? '◆' : '·'}
+                </span>
+                <span>
+                  <ClickableCJK text={f.english} />
+                  {f.identifying ? (
+                    <span className="sr-only"> (narrows the birth moment)</span>
+                  ) : null}
+                </span>
+              </li>
+            ))}
+          </ul>
           <p className="mt-2 text-sm text-body leading-relaxed">
             Rating claims in the study (§3) is a separate consent step from computing a chart — opting in or
             out there never affects whether your chart computes or whether its research record is held.
