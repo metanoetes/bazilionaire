@@ -61,6 +61,10 @@ export function TutorPanel({ facts, movements }: { facts: Fact[]; movements: Mov
   const [audit, setAudit] = useState<TutorAudit | null>(null);
   const [verify, setVerify] = useState<VerifyReport | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Model ids offered as one-click fixes after a failure: what the endpoint says the key
+  // can use, else this endpoint's preset default. A message that only NAMES a bad model
+  // still leaves the reader retyping it correctly from memory.
+  const [modelChoices, setModelChoices] = useState<string[]>([]);
   const [abort, setAbort] = useState<AbortController | null>(null);
 
   // Endpoint/model are a preference; the key is only restored if the reader
@@ -122,7 +126,14 @@ export function TutorPanel({ facts, movements }: { facts: Fact[]; movements: Mov
       setVerify(verifyTutorOutput(a.sentences.map((s) => ({ text: s.text, cites: s.cites })), payload.sent));
       setPhase('done');
     } catch (e) {
-      setError(e instanceof TutorError ? e.message : 'The request failed.');
+      if (e instanceof TutorError) {
+        setError(e.message);
+        const choices = e.available ?? (e.suggestedModel ? [e.suggestedModel] : []);
+        setModelChoices(choices.filter((c) => c !== model));
+      } else {
+        setError('The request failed.');
+        setModelChoices([]);
+      }
       setPhase('gate');
     } finally {
       setAbort(null);
@@ -400,7 +411,29 @@ export function TutorPanel({ facts, movements }: { facts: Fact[]; movements: Mov
         )}
       </div>
 
-      {error && <div className="mt-3 text-xs text-accent-strong">⚠ {error}</div>}
+      {error && (
+        <div className="mt-3 text-xs text-accent-strong">
+          ⚠ {error}
+          {modelChoices.length > 0 && (
+            <div className="mt-2 flex flex-wrap items-baseline gap-2 text-muted">
+              <span>try:</span>
+              {modelChoices.slice(0, 8).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => {
+                    setModel(m);
+                    setError(null);
+                    setModelChoices([]);
+                  }}
+                  className="px-1.5 py-0.5 rounded border border-line font-mono text-[11px] text-ink hover:border-accent hover:text-accent"
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="mt-3 flex gap-2">
         <button

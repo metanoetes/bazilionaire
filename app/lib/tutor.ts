@@ -343,10 +343,37 @@ export function isLocalEndpoint(baseUrl: string): boolean {
 }
 
 export class TutorError extends Error {
-  constructor(message: string) {
+  /**
+   * Model ids the endpoint says this key can use, when we managed to ask. Carried on
+   * the ERROR rather than only baked into its text so the panel can offer them as one
+   * click each — a message naming a wrong model still leaves the reader retyping.
+   */
+  readonly available?: string[];
+  /** The preset default for this endpoint, when the current model differs from it. */
+  readonly suggestedModel?: string;
+
+  constructor(message: string, extra?: { available?: string[]; suggestedModel?: string }) {
     super(message);
     this.name = 'TutorError';
+    this.available = extra?.available;
+    this.suggestedModel = extra?.suggestedModel;
   }
+}
+
+/**
+ * The preset model for a base URL, when the given model is not already it.
+ *
+ * Exists because a SAVED config silently outranks a fixed preset: TutorPanel restores
+ * `cfg.model` from localStorage on mount, so correcting a preset default in code does
+ * nothing for a browser that already stored a bad id. Observed 2026-08-27 — the
+ * DeepSeek preset was corrected to deepseek-v4-pro and the app still sent a stale
+ * hand-typed `deepseek-pro`.
+ */
+export function presetModelFor(baseUrl: string, currentModel: string): string | undefined {
+  const norm = (u: string) => u.replace(/\/+$/, '');
+  const hit = TUTOR_PRESETS.find((p) => norm(p.baseUrl) === norm(baseUrl));
+  if (!hit) return undefined;
+  return hit.model === currentModel ? undefined : hit.model;
 }
 
 /**
@@ -493,6 +520,7 @@ export async function runTutor(
         model: cfg.model,
         available,
       }),
+      { available, suggestedModel: presetModelFor(cfg.baseUrl, cfg.model) },
     );
   }
 

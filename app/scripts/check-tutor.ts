@@ -22,7 +22,7 @@
 import { computeChart } from '@bazilionaire/engine';
 import { factsheet } from '../lib/factsheet';
 import { reading } from '../lib/reading';
-import { auditTutorText, describeHttpFailure, hasReadingModel, redactFacts, tutorPayload, TUTOR_CFG_KEY, TUTOR_KEY_KEY, TUTOR_PRESETS, TUTOR_SYSTEM_PROMPT } from '../lib/tutor';
+import { auditTutorText, describeHttpFailure, hasReadingModel, presetModelFor, redactFacts, tutorPayload, TUTOR_CFG_KEY, TUTOR_KEY_KEY, TUTOR_PRESETS, TUTOR_SYSTEM_PROMPT } from '../lib/tutor';
 
 const PINNED_YEAR = 2026;
 
@@ -309,6 +309,29 @@ if (/\b(1[6-9]\d{2}|20\d{2})\b/.test(TUTOR_SYSTEM_PROMPT)) {
   });
   if (!modelComplaint.includes('deepseek-chat')) {
     problems.push('describeHttpFailure: a model complaint must name the model id at any status');
+  }
+}
+
+// ---- presetModelFor: a SAVED model id silently outranks a corrected preset ----
+//
+// The second half of the 2026-08-27 DeepSeek failure. The preset default was corrected in
+// code, but TutorPanel restores cfg.model from localStorage on mount, so a browser holding
+// a stale hand-typed id (`deepseek-pro`) kept sending it and kept 404ing. The panel now
+// offers the preset model as a one-click fix, which only works if this resolver does.
+{
+  const ds = 'https://api.deepseek.com/v1';
+  const cases: Array<[string, string, string, string | undefined]> = [
+    ['stale hand-typed id → offer the preset', ds, 'deepseek-pro', 'deepseek-v4-pro'],
+    ['retired id → offer the preset', ds, 'deepseek-chat', 'deepseek-v4-pro'],
+    ['already correct → offer nothing', ds, 'deepseek-v4-pro', undefined],
+    ['trailing slash still matches the preset', `${ds}/`, 'deepseek-pro', 'deepseek-v4-pro'],
+    ['unknown endpoint → offer nothing', 'https://example.test/v1', 'whatever', undefined],
+  ];
+  for (const [name, baseUrl, model, want] of cases) {
+    const got = presetModelFor(baseUrl, model);
+    if (got !== want) {
+      problems.push(`presetModelFor: ${name} — expected ${String(want)}, got ${String(got)}`);
+    }
   }
 }
 
