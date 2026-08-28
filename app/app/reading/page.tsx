@@ -29,6 +29,7 @@ import { TutorPanel } from '@/components/TutorPanel';
 import { factsheet, type Fact, type FactLayer } from '@/lib/factsheet';
 import { reading } from '@/lib/reading';
 import { queuedContributions, type ResearchRecord } from '@/lib/research';
+import { hasReadingModel } from '@/lib/tutor';
 
 const LAYER_LABEL: Record<FactLayer, string> = {
   frame: 'frame',
@@ -47,6 +48,16 @@ export default function ReadingPage() {
   const [record, setRecord] = useState<ResearchRecord | null | undefined>(undefined);
   const [year, setYear] = useState<number | null>(null);
   const [showFacts, setShowFacts] = useState(false);
+  // Does the model reading lead? True when this browser already has a reading model
+  // (Peter, 2026-08-27: "focus on readings done by deepseek"). Resolved in an effect,
+  // never during render, because it reads localStorage — doing it inline would make
+  // the server-rendered markup and the first client paint disagree.
+  const [modelLeads, setModelLeads] = useState(false);
+  const [showTemplate, setShowTemplate] = useState(false);
+
+  useEffect(() => {
+    setModelLeads(hasReadingModel());
+  }, []);
 
   useEffect(() => {
     const queue = queuedContributions();
@@ -89,17 +100,32 @@ export default function ReadingPage() {
         </p>
       </header>
 
-      <div className="card p-4 text-xs text-muted leading-relaxed">
-        <span className="font-medium text-body">No model wrote a word of the reading below.</span>{' '}
-        Every sentence is composed from the computed facts listed beneath it, by template, in your
-        browser — the same chart yields the same words every time it is read in the same year (the
-        大运 movement names the decade covering today, so that one line moves when the calendar
-        does), and a test pins the composition against a golden file. A tutor that rephrases these
-        facts more fluently sits at the bottom of the page, switched off: turning it on runs on your
-        own key or your own local model, sends only the fact sheet (never your birth data), and cites
-        a fact for every sentence — anything uncited is shown to you as uncited. This page is
-        complete without it.
-      </div>
+      {modelLeads ? (
+        <div className="card p-4 text-xs text-muted leading-relaxed">
+          <span className="font-medium text-body">A model writes the reading below, on your own key.</span>{' '}
+          It receives the computed fact sheet and nothing else — no raw birth inputs, no city — and it
+          must cite a fact for every sentence. Afterwards each sentence is graded against the engine:
+          uncited, fabricated and contradicted sentences are labelled as such rather than quietly
+          printed. Be clear-eyed about the trade the disclosure gate spells out: the full sheet names
+          your <ClickableCJK text="干支" />, and those invert back to your birth moment within about
+          two hours. One click away sits the computed reading — composed by template, no model, the
+          same words every time. That one is the floor; this is the fluent pass over it. Neither one
+          applies your chart to your life.
+        </div>
+      ) : (
+        <div className="card p-4 text-xs text-muted leading-relaxed">
+          <span className="font-medium text-body">No model wrote a word of the reading below.</span>{' '}
+          Every sentence is composed from the computed facts listed beneath it, by template, in your
+          browser — the same chart yields the same words every time it is read in the same year (the
+          大运 movement names the decade covering today, so that one line moves when the calendar
+          does), and a test pins the composition against a golden file. A model that rephrases these
+          facts more fluently sits at the bottom of the page, switched off: turning it on runs on your
+          own key or your own local model, sends the computed fact sheet (which by default names your
+          干支 — the gate lists exactly what leaves before anything is sent), and cites a fact for
+          every sentence, with anything uncited shown to you as uncited. This page is complete
+          without it.
+        </div>
+      )}
 
       {record === undefined && (
         <p className="text-sm text-muted mt-6">Looking for your last computed chart…</p>
@@ -136,34 +162,55 @@ export default function ReadingPage() {
             </Link>
           </div>
 
-          {movements.map((m) => (
-            <section key={m.id} className="card p-4">
-              <h2 className="text-base font-semibold text-ink">
-                <ClickableCJK text={m.zh} />{' '}
-                <span className="text-xs text-faint font-normal">{m.pinyin}</span>
-                <span className="text-muted font-normal"> — {m.title}</span>
-              </h2>
-              <div className="mt-2 space-y-2 text-sm text-body leading-relaxed">
-                {m.paragraphs.map((p, i) => (
-                  <p key={i}>
-                    <ClickableCJK text={p} />
-                  </p>
-                ))}
-              </div>
-              {m.cites.length > 0 && (
-                <div className="mt-3 pt-2 border-t border-line-soft flex flex-wrap gap-1">
-                  <span className="text-[10px] text-faint mr-1">composed from</span>
-                  {m.cites.map((c) => (
-                    <span key={c} className="text-[10px] px-1.5 py-0.5 rounded bg-surface-2 text-muted font-mono">
-                      {c}
-                    </span>
+          {/* The model reading LEADS when this browser has a reading model configured
+              (Peter, 2026-08-27). Without one the template 解盘 leads and the page is
+              complete with no model at all — that floor does not move, and it is why
+              the template is never removed, only collapsed. */}
+          {modelLeads && <TutorPanel facts={facts} movements={movements} />}
+
+          {modelLeads && (
+            <div className="card p-4 flex items-center justify-between gap-3 flex-wrap">
+              <span className="text-sm text-muted">
+                the computed reading — composed by template, no model, the same words every time
+              </span>
+              <button
+                onClick={() => setShowTemplate((v) => !v)}
+                className="text-xs underline hover:text-accent shrink-0"
+              >
+                {showTemplate ? 'hide the computed reading' : 'show the computed reading'}
+              </button>
+            </div>
+          )}
+
+          {(!modelLeads || showTemplate) &&
+            movements.map((m) => (
+              <section key={m.id} className="card p-4">
+                <h2 className="text-base font-semibold text-ink">
+                  <ClickableCJK text={m.zh} />{' '}
+                  <span className="text-xs text-faint font-normal">{m.pinyin}</span>
+                  <span className="text-muted font-normal"> — {m.title}</span>
+                </h2>
+                <div className="mt-2 space-y-2 text-sm text-body leading-relaxed">
+                  {m.paragraphs.map((p, i) => (
+                    <p key={i}>
+                      <ClickableCJK text={p} />
+                    </p>
                   ))}
                 </div>
-              )}
-            </section>
-          ))}
+                {m.cites.length > 0 && (
+                  <div className="mt-3 pt-2 border-t border-line-soft flex flex-wrap gap-1">
+                    <span className="text-[10px] text-faint mr-1">composed from</span>
+                    {m.cites.map((c) => (
+                      <span key={c} className="text-[10px] px-1.5 py-0.5 rounded bg-surface-2 text-muted font-mono">
+                        {c}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </section>
+            ))}
 
-          <TutorPanel facts={facts} movements={movements} />
+          {!modelLeads && <TutorPanel facts={facts} movements={movements} />}
 
           <div className="card p-4">
             <div className="flex items-center justify-between gap-3 flex-wrap">

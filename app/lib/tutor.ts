@@ -281,13 +281,52 @@ export interface TutorConfig {
   apiKey: string;
 }
 
-/** Presets: the local ones come first, because they are the only leak-free path. */
+/**
+ * Presets. **DeepSeek leads** because it is the reading model this project uses
+ * (Peter, 2026-08-27: "we want to focus on readings done by deepseek"), so it is
+ * also the default the panel opens with.
+ *
+ * The local endpoints stay listed directly beneath it, and not out of politeness:
+ * they are the only leak-free path — nothing leaves the machine — which makes them
+ * the right choice for reading a chart that is not your own.
+ */
 export const TUTOR_PRESETS: Array<{ label: string; baseUrl: string; model: string; needsKey: boolean }> = [
+  { label: 'DeepSeek', baseUrl: 'https://api.deepseek.com/v1', model: 'deepseek-chat', needsKey: true },
   { label: 'Ollama (local)', baseUrl: 'http://localhost:11434/v1', model: 'llama3.1', needsKey: false },
   { label: 'LM Studio (local)', baseUrl: 'http://localhost:1234/v1', model: 'local-model', needsKey: false },
   { label: 'OpenAI', baseUrl: 'https://api.openai.com/v1', model: 'gpt-4o-mini', needsKey: true },
-  { label: 'DeepSeek', baseUrl: 'https://api.deepseek.com/v1', model: 'deepseek-chat', needsKey: true },
 ];
+
+/**
+ * Storage keys for the reader's own endpoint config and key. Exported so a page can
+ * ask whether a reading model exists without duplicating the strings — they were
+ * private to TutorPanel until /reading needed to know.
+ */
+export const TUTOR_CFG_KEY = 'bazilionaire.tutor.config.v1';
+export const TUTOR_KEY_KEY = 'bazilionaire.tutor.key.v1';
+
+/**
+ * True when this browser already has a usable reading model: a stored key (session
+ * or device), or a configured LOCAL endpoint, which needs no key at all.
+ *
+ * `/reading` uses this to decide whether the model reading LEADS the page. It never
+ * reads out, returns, or logs the key itself — only whether one is present.
+ * When it returns false the template 解盘 leads and the page is complete without any
+ * model, which is the floor this project does not give up.
+ */
+export function hasReadingModel(): boolean {
+  try {
+    if (typeof localStorage === 'undefined') return false;
+    const key = localStorage.getItem(TUTOR_KEY_KEY) ?? sessionStorage.getItem(TUTOR_KEY_KEY);
+    if (key && key.trim().length > 0) return true;
+    const raw = localStorage.getItem(TUTOR_CFG_KEY);
+    if (!raw) return false;
+    const cfg = JSON.parse(raw) as { baseUrl?: string };
+    return Boolean(cfg.baseUrl) && isLocalEndpoint(cfg.baseUrl as string);
+  } catch {
+    return false;
+  }
+}
 
 /** Host shown on the disclosure gate — never the full URL with a key in it. */
 export function endpointHost(baseUrl: string): string {

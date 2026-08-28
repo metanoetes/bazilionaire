@@ -31,14 +31,18 @@ import {
   isLocalEndpoint,
   runTutor,
   tutorPayload,
+  TUTOR_CFG_KEY,
+  TUTOR_KEY_KEY,
   TUTOR_PRESETS,
   TutorError,
   type TutorAudit,
 } from '@/lib/tutor';
 import { verifyTutorOutput, type VerifyReport } from '@/lib/verify';
 
-const CFG_KEY = 'bazilionaire.tutor.config.v1';
-const KEY_KEY = 'bazilionaire.tutor.key.v1';
+// Re-exported from lib/tutor so /reading can ask "is a reading model configured?"
+// without duplicating the strings. One definition, two readers.
+const CFG_KEY = TUTOR_CFG_KEY;
+const KEY_KEY = TUTOR_KEY_KEY;
 
 type Phase = 'off' | 'gate' | 'running' | 'done';
 
@@ -48,7 +52,10 @@ export function TutorPanel({ facts, movements }: { facts: Fact[]; movements: Mov
   const [model, setModel] = useState(TUTOR_PRESETS[0].model);
   const [apiKey, setApiKey] = useState('');
   const [remember, setRemember] = useState(false);
-  const [minimize, setMinimize] = useState(true);
+  // Full sheet by DEFAULT (Peter, 2026-08-27): minimization strips every 干支, so a
+  // minimized reading cannot name your day master — it can only talk about structure.
+  // The disclosure gate states plainly that the full sheet inverts to the birth moment.
+  const [minimize, setMinimize] = useState(false);
   const [showPayload, setShowPayload] = useState(false);
   const [text, setText] = useState('');
   const [audit, setAudit] = useState<TutorAudit | null>(null);
@@ -365,7 +372,8 @@ export function TutorPanel({ facts, movements }: { facts: Fact[]; movements: Mov
         <label className="flex items-start gap-2">
           <input type="checkbox" checked={minimize} onChange={(e) => setMinimize(e.target.checked)} className="mt-0.5" />
           <span className="text-muted">
-            send the <span className="text-body">minimized</span> fact sheet (recommended)
+            send the <span className="text-body">minimized</span> fact sheet instead — safer, but the
+            reading cannot name your stems or branches
           </span>
         </label>
         <label className="flex items-start gap-2">

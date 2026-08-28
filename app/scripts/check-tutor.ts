@@ -22,7 +22,7 @@
 import { computeChart } from '@bazilionaire/engine';
 import { factsheet } from '../lib/factsheet';
 import { reading } from '../lib/reading';
-import { auditTutorText, redactFacts, tutorPayload, TUTOR_SYSTEM_PROMPT } from '../lib/tutor';
+import { auditTutorText, hasReadingModel, redactFacts, tutorPayload, TUTOR_CFG_KEY, TUTOR_KEY_KEY, TUTOR_PRESETS, TUTOR_SYSTEM_PROMPT } from '../lib/tutor';
 
 const PINNED_YEAR = 2026;
 
@@ -185,6 +185,70 @@ if (/\b(1[6-9]\d{2}|20\d{2})\b/.test(TUTOR_SYSTEM_PROMPT)) {
   problems.push('system prompt contains a year — it must be chart-independent');
 }
 
+// ---- hasReadingModel(): the gate that decides whether the model reading LEADS /reading ----
+//
+// This is UI-load-bearing (Peter, 2026-08-27: "focus on readings done by deepseek"), and it is the
+// one piece of that decision that can be checked without a browser — so it is checked here rather
+// than trusted. A false positive would put a model panel at the top of a page for a reader who has
+// no model; a false negative would silently bury the reading they configured.
+{
+  const store = () => {
+    const m = new Map<string, string>();
+    return {
+      getItem: (k: string) => (m.has(k) ? (m.get(k) as string) : null),
+      setItem: (k: string, v: string) => void m.set(k, v),
+      removeItem: (k: string) => void m.delete(k),
+      clear: () => m.clear(),
+      key: () => null,
+      length: 0,
+    } as unknown as Storage;
+  };
+
+  const withStores = (seed: (ls: Storage, ss: Storage) => void): boolean => {
+    const ls = store();
+    const ss = store();
+    seed(ls, ss);
+    const g = globalThis as unknown as { localStorage?: Storage; sessionStorage?: Storage };
+    const prevL = g.localStorage;
+    const prevS = g.sessionStorage;
+    g.localStorage = ls;
+    g.sessionStorage = ss;
+    try {
+      return hasReadingModel();
+    } finally {
+      g.localStorage = prevL;
+      g.sessionStorage = prevS;
+    }
+  };
+
+  const REMOTE = JSON.stringify({ baseUrl: 'https://api.deepseek.com/v1', model: 'deepseek-chat' });
+  const LOCAL = JSON.stringify({ baseUrl: 'http://localhost:11434/v1', model: 'llama3.1' });
+
+  const expectations: Array<[string, boolean, (ls: Storage, ss: Storage) => void]> = [
+    ['empty browser → template leads', false, () => {}],
+    ['remembered key on device → model leads', true, (ls) => ls.setItem(TUTOR_KEY_KEY, 'sk-x')],
+    ['session-only key → model leads', true, (_ls, ss) => ss.setItem(TUTOR_KEY_KEY, 'sk-x')],
+    ['blank key string → template leads', false, (ls) => ls.setItem(TUTOR_KEY_KEY, '   ')],
+    ['local endpoint, no key → model leads', true, (ls) => ls.setItem(TUTOR_CFG_KEY, LOCAL)],
+    ['remote endpoint, no key → template leads', false, (ls) => ls.setItem(TUTOR_CFG_KEY, REMOTE)],
+    ['corrupt config, no key → template leads', false, (ls) => ls.setItem(TUTOR_CFG_KEY, '{not json')],
+  ];
+
+  for (const [name, want, seed] of expectations) {
+    const got = withStores(seed);
+    if (got !== want) problems.push(`hasReadingModel: ${name} — expected ${want}, got ${got}`);
+  }
+
+  // DeepSeek must be the default the panel opens with.
+  if (TUTOR_PRESETS[0].label !== 'DeepSeek') {
+    problems.push(`presets: expected DeepSeek first, got "${TUTOR_PRESETS[0].label}"`);
+  }
+  // …and a local, leak-free option must remain offered.
+  if (!TUTOR_PRESETS.some((p) => !p.needsKey)) {
+    problems.push('presets: no key-free local endpoint is offered any more');
+  }
+}
+
 if (problems.length > 0) {
   console.error('tutor payload/audit check FAILED:');
   for (const p of problems) console.error(`  - ${p}`);
@@ -194,5 +258,6 @@ if (problems.length > 0) {
 console.log(
   `tutor check passed — ${CASES.length} charts × 2 modes: minimized payloads contain no 干支 at all ` +
     `(no pillar is recoverable), no clock time leaves in either mode, the system prompt states the ` +
-    `contract, and the audit catches uncited, fabricated, and predictive sentences.`,
+    `contract, the audit catches uncited, fabricated, and predictive sentences, and hasReadingModel ` +
+    `decides the /reading layout correctly in 7 storage states (DeepSeek is preset 0).`,
 );
