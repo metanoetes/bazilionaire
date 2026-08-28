@@ -127,10 +127,18 @@ for (const c of CASES) {
       }
     }
 
-    // The contract itself must be in the system prompt, or the model was never told.
-    for (const rule of ['[F-DELING]', 'never invent an id', 'no predictions', 'second-person future']) {
+    // The citation contract must be in the system prompt, or the model was never told.
+    // The destiny intent must be there too — that is the point of the page now.
+    for (const rule of ['never invent an id', '[F-DAYMASTER]', 'life and destiny', '大运', 'no markdown']) {
       if (!payload.system.toLowerCase().includes(rule.toLowerCase())) {
         problems.push(`${c.name} [${mode}]: system prompt is missing the rule "${rule}"`);
+      }
+    }
+    // THE FENCE IS DELETED (Peter, 2026-08-27). These strings must NOT come back into the
+    // prompt, or the deleted fence has quietly regrown.
+    for (const banned of ['no predictions', 'second-person future', 'never apply', 'not an oracle']) {
+      if (payload.system.toLowerCase().includes(banned.toLowerCase())) {
+        problems.push(`${c.name} [${mode}]: the deleted fence has regrown — prompt contains "${banned}"`);
       }
     }
     if (payload.allowedIds.length === 0) problems.push(`${c.name} [${mode}]: no allowed ids`);
@@ -141,15 +149,17 @@ for (const c of CASES) {
   }
 }
 
-// ---------------- audit behaviour ----------------
+// ---------------- audit behaviour ---------------- 
 {
   const allowed = ['F-DELING', 'F-STRENGTH'];
+  // Four sentences: two clean, one uncited, one fabricated. NO prediction case — since the
+  // fence was deleted (2026-08-27), a fortune sentence citing a real fact is legitimate
+  // output and must NOT be flagged.
   const synthetic = [
     'The month generates this chart’s day master, so the season supports it. [F-DELING]',
     'This structure is weak overall and the engine says so plainly. [F-STRENGTH]',
     'A fluent sentence with nothing behind it.',
     'The chart is strong. [F-MADEUP]',
-    'You will find money in the coming decade. [F-STRENGTH]',
   ].join('\n');
   const a = auditTutorText(synthetic, allowed);
 
@@ -168,13 +178,12 @@ for (const c of CASES) {
     problems.push(`inline-citation split: the uncited advice sentence was not flagged (unanchored=${b.unanchored})`);
   }
 
-  if (a.sentences.length !== 5) problems.push(`audit: expected 5 sentences, got ${a.sentences.length}`);
+  if (a.sentences.length !== 4) problems.push(`audit: expected 4 sentences, got ${a.sentences.length}`);
   if (a.unanchored !== 1) problems.push(`audit: expected 1 unanchored sentence, got ${a.unanchored}`);
   if (a.fabricated !== 1) problems.push(`audit: expected 1 fabricated citation, got ${a.fabricated}`);
-  if (a.violations !== 1) problems.push(`audit: expected 1 fence violation, got ${a.violations}`);
+  if (a.violations !== 0) problems.push(`audit: fence deleted — violations must always be 0, got ${a.violations}`);
   if (!a.sentences[0].ok) problems.push('audit: a clean cited sentence was marked not-ok');
   if (a.sentences[3].ok) problems.push('audit: a fabricated citation was marked ok');
-  if (a.sentences[4].ok) problems.push('audit: a prediction was marked ok');
   if (!a.sentences[3].unknownCites.includes('F-MADEUP')) {
     problems.push('audit: fabricated id not reported');
   }
@@ -225,13 +234,23 @@ if (/\b(1[6-9]\d{2}|20\d{2})\b/.test(TUTOR_SYSTEM_PROMPT)) {
   const LOCAL = JSON.stringify({ baseUrl: 'http://localhost:11434/v1', model: 'llama3.1' });
 
   const expectations: Array<[string, boolean, (ls: Storage, ss: Storage) => void]> = [
-    ['empty browser → template leads', false, () => {}],
-    ['remembered key on device → model leads', true, (ls) => ls.setItem(TUTOR_KEY_KEY, 'sk-x')],
-    ['session-only key → model leads', true, (_ls, ss) => ss.setItem(TUTOR_KEY_KEY, 'sk-x')],
-    ['blank key string → template leads', false, (ls) => ls.setItem(TUTOR_KEY_KEY, '   ')],
-    ['local endpoint, no key → model leads', true, (ls) => ls.setItem(TUTOR_CFG_KEY, LOCAL)],
-    ['remote endpoint, no key → template leads', false, (ls) => ls.setItem(TUTOR_CFG_KEY, REMOTE)],
-    ['corrupt config, no key → template leads', false, (ls) => ls.setItem(TUTOR_CFG_KEY, '{not json')],
+    ['empty browser → not configured', false, () => {}],
+    ['key but NO saved endpoint → not configured (the chat needs an endpoint)', false, (ls) => ls.setItem(TUTOR_KEY_KEY, 'sk-x')],
+    ['remembered key + remote endpoint → configured', true, (ls) => {
+      ls.setItem(TUTOR_KEY_KEY, 'sk-x');
+      ls.setItem(TUTOR_CFG_KEY, REMOTE);
+    }],
+    ['session-only key + remote endpoint → configured', true, (ls, ss) => {
+      ss.setItem(TUTOR_KEY_KEY, 'sk-x');
+      ls.setItem(TUTOR_CFG_KEY, REMOTE);
+    }],
+    ['blank key + remote endpoint → not configured', false, (ls) => {
+      ls.setItem(TUTOR_KEY_KEY, '   ');
+      ls.setItem(TUTOR_CFG_KEY, REMOTE);
+    }],
+    ['local endpoint, no key → configured', true, (ls) => ls.setItem(TUTOR_CFG_KEY, LOCAL)],
+    ['remote endpoint, no key → not configured', false, (ls) => ls.setItem(TUTOR_CFG_KEY, REMOTE)],
+    ['corrupt config, no key → not configured', false, (ls) => ls.setItem(TUTOR_CFG_KEY, '{not json')],
   ];
 
   for (const [name, want, seed] of expectations) {
@@ -434,6 +453,7 @@ if (problems.length > 0) {
 console.log(
   `tutor check passed — ${CASES.length} charts × 2 modes: minimized payloads contain no 干支 at all ` +
     `(no pillar is recoverable), no clock time leaves in either mode, the system prompt states the ` +
-    `contract, the audit catches uncited, fabricated, and predictive sentences, and hasReadingModel ` +
-    `decides the /reading layout correctly in 7 storage states (DeepSeek is preset 0).`,
+    `contract and NOT the deleted fence, the audit catches uncited and fabricated citations (predictions ` +
+    `are now legitimate and unflag), and savedTutorConfig decides the chat configuration in 8 storage ` +
+    `states (DeepSeek is preset 0).`,
 );

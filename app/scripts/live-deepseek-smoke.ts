@@ -11,7 +11,7 @@
 import { computeChart } from '@bazilionaire/engine';
 import { factsheet } from '../lib/factsheet';
 import { reading } from '../lib/reading';
-import { auditTutorText, MAX_COMPLETION_TOKENS, runTutor, tutorPayload } from '../lib/tutor';
+import { auditTutorText, MAX_COMPLETION_TOKENS, runChat, runTutor, TUTOR_SYSTEM_PROMPT, tutorPayload } from '../lib/tutor';
 import { verifyTutorOutput } from '../lib/verify';
 
 const key = (process.env.DEEPSEEK_API_KEY ?? '').trim();
@@ -60,3 +60,29 @@ for (const s of flagged.slice(0, 4)) {
 
 console.log('\n--- first 900 chars ---');
 console.log(text.trim().slice(0, 900));
+
+// ---- and the SURFACE THAT SHIPPED: runChat, one turn, with a logged event in context ----
+console.log('\n=== runChat (the destiny chat, one turn) ===');
+const context = [
+  ...payload.lines,
+  '',
+  "THE PERSON'S OWN RECORD (logged events and remedies):",
+  '- 2024-03-01 · began jiujitsu class · remedy taken · health (ended 2024-11-01)',
+].join('\n');
+const chatReply = await runChat(
+  { baseUrl, model, apiKey: key },
+  {
+    system: TUTOR_SYSTEM_PROMPT,
+    context,
+    history: [],
+    userMessage:
+      'Compose my full reading — my life and destiny from this chart, from childhood through the decades ahead. Read my logged remedies against the pattern as you go.',
+  },
+);
+const chatAudit = auditTutorText(chatReply, payload.allowedIds);
+console.log(
+  `chat reply: ${chatReply.length} chars, sentences=${chatAudit.sentences.length}, ` +
+    `uncited=${chatAudit.unanchored}, fabricated=${chatAudit.fabricated}`,
+);
+console.log('\n--- first 700 chars of the destiny reading ---');
+console.log(chatReply.trim().slice(0, 700));

@@ -134,11 +134,13 @@ export default function ResearchPage() {
           <p className="mt-2 text-sm text-body leading-relaxed">
             <span className="font-medium">What it does instead:</span> keeps the unverified layer visibly
             separate from the checked one, and makes the machine show its work. The{' '}
-            <Link href="/reading" className="underline hover:text-accent">解盘 reading</Link> is composed by
-            template with no model involved — the same chart yields the same words, every time. Anything a
-            model adds on top is fenced in its own voice, cites the computed fact behind each sentence, and
-            is cross-checked against the engine, which flags contradictions instead of hiding them. The
-            temperament vocabulary stays labelled as tradition, not as measurement.
+            <Link href="/reading" className="underline hover:text-accent">computed 解盘 reading</Link> is
+            composed by template with no model involved — the same chart yields the same words, every
+            time. The reading room on that page also offers a chat: a model you configure composes
+            the tradition&apos;s full reading of your life and destiny on your request. That prose is
+            the tradition speaking, not the engine&apos;s output — sentences that draw on computed
+            facts carry those facts&apos; chips, and made-up citations are labelled. The temperament
+            vocabulary stays labelled as tradition, not as measurement.
           </p>
         </section>
 
@@ -184,9 +186,11 @@ export default function ResearchPage() {
 
         <section className="card p-4 text-sm text-muted leading-relaxed">
           <span className="font-medium">What the math cannot do:</span> the engine computes positions, pillars,
-          and relations — a map. It computes no meaning, no fortune, no verdict. Where the map stops, reading
-          begins — and reading is yours, not the machine&apos;s. This page is where we go looking for evidence
-          about that reading, in the open, and publish whatever we find.
+          and relations — a map. It computes no meaning, no fortune, no verdict. The reading room
+          (<Link href="/reading" className="underline hover:text-accent">解盘</Link>) adds a model that
+          composes the tradition&apos;s reading on your request — that prose is the tradition speaking,
+          clearly labelled, never presented as the engine&apos;s output. This page is where we go
+          looking for evidence about the reading itself, in the open, and publish whatever we find.
         </section>
       </div>
 

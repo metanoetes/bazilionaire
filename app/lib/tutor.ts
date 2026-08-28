@@ -27,7 +27,6 @@
  */
 import type { Fact } from './factsheet';
 import type { Movement } from './reading';
-import { FENCE_PATTERNS } from './reading';
 
 /**
  * Facts dropped outright when minimizing, and the reason each one is a leak:
@@ -126,23 +125,53 @@ export function factLines(facts: Fact[]): string[] {
   );
 }
 
+/**
+ * The destiny-mode system prompt. Peter's call, 2026-08-27: "delete the fence."
+ * The model composes a FULL reading of the person's life and destiny in the tradition's
+ * vocabulary — predictions, periods, all of it — instead of the structural paraphrase
+ * this prompt replaced.
+ *
+ * What remains, because it is mechanics rather than fence: every computed fact it uses
+ * still carries its [F-ID] citation, made-up ids still get flagged, and the model is
+ * told to ground its reading in the fact sheet and the person's logged events, not in
+ * free invention about who the person is. Nothing in here forbids fortune language,
+ * second-person future, advice, or applying the chart to a life.
+ */
 export const TUTOR_SYSTEM_PROMPT = [
-  'You are a tutor inside Bazilionaire, a Bazi (八字) learning center. You are not an oracle and not a fortune teller.',
+  'You are a Bazi (八字) reader inside Bazilionaire. You are asked to compose a full reading of a person\'s life and destiny from their chart, in the living vocabulary of the tradition — the 十神, the 格局, the 用神, the 大运 decades, the 流年 years, the 纳音 imagery, the 十二长生 stages.',
   '',
-  'You receive a FACT SHEET: computed facts about one chart, each with an id such as F-DELING. An engine computed them; a template has already written a literal reading. Your only job is to say the same things in clearer English, so a beginner understands what the doctrine terms mean.',
+  'You receive a FACT SHEET: computed facts about the chart, each with an id such as F-DELING, plus optionally the person\'s logged life events and remedies. The chart facts are computed by a verified engine; the events are the person\'s own record.',
   '',
-  'HARD RULES:',
-  '1. End every sentence with the id(s) of the fact(s) it came from, in square brackets: [F-DELING] or [F-ROOT-1][F-DEDI]. Use only ids that appear in the fact sheet. Never invent an id.',
-  '2. If something is not in the fact sheet, do not say it. No extra doctrine, no 神煞, no numbers you were not given.',
-  '3. Describe structure; never apply it. No predictions, no advice, no outcomes. Nothing about money, career, health, marriage, children, death, lawsuits, or the timing of events.',
-  '4. Never use the second-person future. "You will", "you\'ll", "this year brings" are forbidden. Write "this chart", "the structure", "the tradition reads this as".',
-  '5. No fortune vocabulary: lucky, unlucky, fortunate, auspicious, blessed, cursed, destined, guaranteed.',
-  '6. Imagery is welcome only when it is the tradition\'s own — the 纳音 tone images, the 十二长生 stage names, the seasonal states you were given. Do not invent mystical imagery.',
-  '7. Keep each section to one short paragraph, at most 60 words. Plain English. Keep Chinese terms and give the pinyin on first use.',
-  '8. If the sheet is thin on a section, say so plainly instead of filling.',
-  '',
-  'You are the third voice in a chain: the engine computed, the template wrote, you clarify. The reader\'s own discernment is the last word, and nothing you write carries authority over it.',
+  'HOW TO READ:',
+  '1. When a sentence draws on a computed fact, end it with that fact\'s id(s) in square brackets: [F-DAYMASTER] or [F-ROOT-1][F-DEDI]. Use only ids that appear in the fact sheet. Never invent an id.',
+  '2. Read the whole life: childhood, education, relationships, work, health, faith, the decades ahead. Use the 大运 sequence you are given to speak about each period, and the person\'s logged events to show where the pattern and the life actually met.',
+  '3. Speak in the tradition\'s own voice and vocabulary — auspicious, inauspicious, wealth, 官, peach blossom, the lot. Say what the tradition says, in clear English, with the Chinese term and pinyin on first use.',
+  '4. When you predict, predict concretely: name the decade, name the flavor of it, say what it is good for and what it tests.',
+  '5. If the fact sheet or the events are thin somewhere, fill from the tradition\'s standard reading of that structure and say you are doing so.',
+  '6. Write in plain flowing prose paragraphs — no markdown, no headers, no bullet lists, no bold.',
+  '7. Be warm and direct. This is a person reading about their own life, not a scholar reading a footnote.',
 ].join('\n');
+
+/**
+ * The event/remedy context block for the destiny prompt. Plain lines, NO bracket ids —
+ * the citation audit only recognizes [F-…] ids, so anything else would be flagged as a
+ * fabricated citation. Life events are the reader's own record, not computed facts.
+ */
+export function lifeContextLines(
+  events: Array<{ date: string; label: string; category?: string; notes?: string; kind?: string; endedAt?: string }>,
+): string[] {
+  if (events.length === 0) return [];
+  const out: string[] = ['', 'THE PERSON\'S OWN RECORD (logged events and remedies):'];
+  for (const e of events) {
+    const kind = e.kind === 'remedy' ? 'remedy taken' : 'milestone';
+    const ended = e.endedAt ? ` (ended ${e.endedAt})` : '';
+    const notes = e.notes ? ` — ${e.notes}` : '';
+    out.push(
+      `- ${e.date} · ${e.label} · ${kind}${e.category ? ` · ${e.category}` : ''}${ended}${notes}`,
+    );
+  }
+  return out;
+}
 
 export interface TutorPayload {
   system: string;
@@ -213,7 +242,8 @@ export interface TutorAudit {
   unanchored: number;
   /** Sentences citing an id that does not exist. */
   fabricated: number;
-  /** Sentences that hit the editorial fence. */
+  /** Always 0 now — the editorial fence was deleted 2026-08-27 ("delete the fence").
+   *  Kept as a field so existing UI and call sites do not churn. */
   violations: number;
 }
 
@@ -224,6 +254,12 @@ const CITE_RE = /\[(F-[A-Z0-9-]+)\]/g;
  * with its verdict so the UI can show a flagged sentence AS flagged, which is
  * the whole point — an unanchored fluent sentence is exactly the failure mode
  * this layer exists to make visible.
+ *
+ * NOTE, 2026-08-27: this no longer checks any editorial fence. The fence was
+ * deleted at Peter's instruction; what remains is citation mechanics only —
+ * a sentence either cites a real computed fact, cites nothing, or cites a
+ * made-up id. Fortune vocabulary, predictions, and applying the chart to a
+ * life are now permitted and are NOT flagged.
  */
 export function auditTutorText(text: string, allowedIds: string[]): TutorAudit {
   const allowed = new Set(allowedIds);
@@ -251,17 +287,12 @@ export function auditTutorText(text: string, allowedIds: string[]): TutorAudit {
       if (allowed.has(m[1])) cites.push(m[1]);
       else unknownCites.push(m[1]);
     }
-    const fenceHits: string[] = [];
-    for (const re of FENCE_PATTERNS) {
-      const hit = s.match(re);
-      if (hit) fenceHits.push(hit[0]);
-    }
     return {
       text: s,
       cites,
       unknownCites,
-      fenceHits,
-      ok: cites.length > 0 && unknownCites.length === 0 && fenceHits.length === 0,
+      fenceHits: [],
+      ok: cites.length > 0 && unknownCites.length === 0,
     };
   });
 
@@ -269,7 +300,7 @@ export function auditTutorText(text: string, allowedIds: string[]): TutorAudit {
     sentences,
     unanchored: sentences.filter((s) => s.cites.length === 0 && s.unknownCites.length === 0).length,
     fabricated: sentences.filter((s) => s.unknownCites.length > 0).length,
-    violations: sentences.filter((s) => s.fenceHits.length > 0).length,
+    violations: 0,
   };
 }
 
@@ -315,16 +346,33 @@ export const TUTOR_KEY_KEY = 'bazilionaire.tutor.key.v1';
  * model, which is the floor this project does not give up.
  */
 export function hasReadingModel(): boolean {
+  const cfg = savedTutorConfig();
+  return cfg !== null;
+}
+
+/**
+ * The reader's saved endpoint/key/model, if a usable one exists. A stored key (session or
+ * device) makes any endpoint usable; a configured LOCAL endpoint needs no key. Returns
+ * null when nothing is saved, and never logs or returns the key itself — only the config
+ * object, which the caller is responsible for not printing.
+ */
+export function savedTutorConfig(): TutorConfig | null {
   try {
-    if (typeof localStorage === 'undefined') return false;
+    if (typeof localStorage === 'undefined') return null;
     const key = localStorage.getItem(TUTOR_KEY_KEY) ?? sessionStorage.getItem(TUTOR_KEY_KEY);
-    if (key && key.trim().length > 0) return true;
     const raw = localStorage.getItem(TUTOR_CFG_KEY);
-    if (!raw) return false;
-    const cfg = JSON.parse(raw) as { baseUrl?: string };
-    return Boolean(cfg.baseUrl) && isLocalEndpoint(cfg.baseUrl as string);
+    if (!raw) return null;
+    const cfg = JSON.parse(raw) as { baseUrl?: string; model?: string };
+    if (!cfg.baseUrl) return null;
+    const hasKey = Boolean(key && key.trim().length > 0);
+    if (!hasKey && !isLocalEndpoint(cfg.baseUrl)) return null;
+    return {
+      baseUrl: cfg.baseUrl,
+      model: cfg.model ?? TUTOR_PRESETS[0].model,
+      apiKey: key ?? '',
+    };
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -558,9 +606,20 @@ export function describeEmptyCompletion(args: {
   );
 }
 
-export async function runTutor(
+export interface ChatMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
+
+/**
+ * One request with the full reasoning-retry machinery. runTutor and runChat both go
+ * through here so the two surfaces share one behaviour: honest HTTP errors, the
+ * 404-suspect-ranking, the reasoning-suppression retry, and the empty-completion
+ * diagnosis.
+ */
+export async function requestChat(
   cfg: TutorConfig,
-  payload: TutorPayload,
+  messages: ChatMessage[],
   signal?: AbortSignal,
 ): Promise<string> {
   const problem = endpointProblem(cfg.baseUrl);
@@ -568,10 +627,10 @@ export async function runTutor(
   // A hung endpoint must not strand the caller: without a deadline the panel sat
   // in 'running' with its button disabled forever (review finding, 2026-08-27).
   //
-  // Raised 120s → 240s because this deadline now covers TWO attempts: a reasoning model can
-  // burn the whole budget thinking, and the retry with reasoning suppressed follows on the
-  // same signal. Measured 2026-08-27: deepseek-v4-pro took 93.1s for both attempts combined
-  // on the real 33-fact payload, so 120s left almost no margin on a slower day.
+  // 240s because this deadline covers TWO attempts: a reasoning model can burn the
+  // whole budget thinking, and the retry with reasoning suppressed follows on the
+  // same signal. Measured 2026-08-27: deepseek-v4-pro took 93.1s for both attempts
+  // combined on the real 33-fact payload.
   const timeout = AbortSignal.timeout(240_000);
   const effectiveSignal = signal ? AbortSignal.any([signal, timeout]) : timeout;
   const url = `${cfg.baseUrl.replace(/\/+$/, '')}/chat/completions`;
@@ -583,10 +642,7 @@ export async function runTutor(
       model: cfg.model,
       temperature: 0.4,
       max_tokens: MAX_COMPLETION_TOKENS,
-      messages: [
-        { role: 'system', content: payload.system },
-        { role: 'user', content: payload.user },
-      ],
+      messages,
       ...(suppressReasoning ? REASONING_OFF : {}),
     });
 
@@ -699,4 +755,45 @@ export async function runTutor(
     );
   }
   return text.trim();
+}
+
+export async function runTutor(
+  cfg: TutorConfig,
+  payload: TutorPayload,
+  signal?: AbortSignal,
+): Promise<string> {
+  return requestChat(
+    cfg,
+    [
+      { role: 'system', content: payload.system },
+      { role: 'user', content: payload.user },
+    ],
+    signal,
+  );
+}
+
+/**
+ * The multi-turn destiny chat: sends the context pack, the conversation history, and the
+ * new message in one call. History is trimmed from the tail to stay inside the token
+ * budget — the context pack is never dropped, because it is what every reply must stay
+ * grounded in.
+ */
+export async function runChat(
+  cfg: TutorConfig,
+  args: {
+    system: string;
+    context: string;
+    history: ChatMessage[];
+    userMessage: string;
+  },
+  signal?: AbortSignal,
+): Promise<string> {
+  const messages: ChatMessage[] = [
+    { role: 'system', content: args.system },
+    { role: 'user', content: args.context },
+  ];
+  const trimmed = args.history.slice(-20);
+  for (const m of trimmed) messages.push(m);
+  messages.push({ role: 'user', content: args.userMessage });
+  return requestChat(cfg, messages, signal);
 }

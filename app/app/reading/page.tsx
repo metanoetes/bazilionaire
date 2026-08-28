@@ -1,35 +1,33 @@
 'use client';
 
 /**
- * /reading — 解盘 jiě pán, "unpacking the plate."
+ * /reading — 解盘 jiě pán, now the reading room.
  *
- * LAYER 1 of the interpretation surface: the computed chart put into English
- * prose, composed by template from the fact sheet (lib/factsheet.ts →
- * lib/reading.ts). No model, no network, no randomness — and the page says so
- * plainly, because "computed, not generated" has to be true on the surface
- * that most looks like generation.
+ * Peter's call, 2026-08-27: this page is an LLM chat. A list of conversations on the
+ * left, one thread in the main pane, and the model composes a full reading of the
+ * person's life and destiny from the computed fact sheet and their logged events.
  *
- * Where the chart comes from: the last research record queued in THIS browser
- * by /chart (lib/research.ts, entry-as-consent), re-computed here from its
- * birth inputs. Nothing is transmitted, no birth data touches the URL — a
- * shareable /reading link would leak the birth moment, since four pillars plus
- * the decade start years invert to a ~2-hour window.
+ * The editorial fence was deleted the same day. What remains below the chat is the
+ * FLOOR, unchanged: the computed 解盘, composed by template with no model, the same
+ * words every time, pinned against a golden file in CI. The chat is the fluent pass
+ * over it; the template is what works with no key and no network, forever.
  *
- * Phase 2 (planned, not built): an opt-in tutor that rephrases these same
- * facts on the reader's own API key, cites a fact id per sentence, and is
- * fenced visually from the computed prose. This page has to be complete and
- * useful with that layer switched off, forever.
+ * Where the chart comes from: the last research record queued in THIS browser by
+ * /chart (lib/research.ts, entry-as-consent), re-computed here from its birth inputs.
+ * Logged events and remedies are read from the matching atlas profile (lib/atlas.ts),
+ * matched on the birth data itself. Nothing is transmitted except what the reader's
+ * own endpoint call sends.
  */
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { computeChart, type Chart } from '@bazilionaire/engine';
+import { ChatPanel } from '@/components/ChatPanel';
 import { ClickableCJK } from '@/components/ClickableCJK';
-import { TutorPanel } from '@/components/TutorPanel';
+import { listProfiles, type LifeEvent } from '@/lib/atlas';
 import { factsheet, type Fact, type FactLayer } from '@/lib/factsheet';
 import { reading } from '@/lib/reading';
 import { queuedContributions, type ResearchRecord } from '@/lib/research';
-import { hasReadingModel } from '@/lib/tutor';
 
 const LAYER_LABEL: Record<FactLayer, string> = {
   frame: 'frame',
@@ -47,23 +45,36 @@ export default function ReadingPage() {
   // undefined = still reading storage (SSR/first paint), null = nothing stored.
   const [record, setRecord] = useState<ResearchRecord | null | undefined>(undefined);
   const [year, setYear] = useState<number | null>(null);
+  const [events, setEvents] = useState<LifeEvent[]>([]);
   const [showFacts, setShowFacts] = useState(false);
-  // Does the model reading lead? True when this browser already has a reading model
-  // (Peter, 2026-08-27: "focus on readings done by deepseek"). Resolved in an effect,
-  // never during render, because it reads localStorage — doing it inline would make
-  // the server-rendered markup and the first client paint disagree.
-  const [modelLeads, setModelLeads] = useState(false);
   const [showTemplate, setShowTemplate] = useState(false);
-
-  useEffect(() => {
-    setModelLeads(hasReadingModel());
-  }, []);
 
   useEffect(() => {
     const queue = queuedContributions();
     setRecord(queue.length > 0 ? queue[queue.length - 1] : null);
     setYear(new Date().getFullYear());
   }, []);
+
+  // The matching atlas profile supplies the person's own record: logged events and
+  // remedies, matched on the birth data itself (date/time/gender/hour school).
+  useEffect(() => {
+    if (!record) return;
+    const b = record.birth;
+    void (async () => {
+      const profiles = await listProfiles();
+      const match = profiles.find(
+        (p) =>
+          p.birth.year === b.year &&
+          p.birth.month === b.month &&
+          p.birth.day === b.day &&
+          p.birth.hour === b.hour &&
+          p.birth.minute === b.minute &&
+          p.birth.gender === b.gender &&
+          p.birth.hourSchool === b.hourSchool,
+      );
+      setEvents(match?.events ?? []);
+    })();
+  }, [record]);
 
   const chart: Chart | null = useMemo(() => {
     if (!record) return null;
@@ -87,45 +98,31 @@ export default function ReadingPage() {
   );
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-8">
-      <header className="mb-6">
+    <main className="max-w-5xl mx-auto px-4 py-8">
+      <header className="mb-4">
         <Link href="/chart" className="text-sm text-muted hover:text-accent">
           ← the plate
         </Link>
         <h1 className="text-2xl font-bold text-ink mt-2">
-          <ClickableCJK text="解盘" /> — unpacking the plate
+          <ClickableCJK text="解盘" /> — the reading room
         </h1>
         <p className="text-sm text-muted mt-1 leading-relaxed">
-          The computed chart, in English. Structure translated — never applied.
+          Your chart, your life, one conversation at a time. The engine computed the chart; the
+          reader composes the reading.
         </p>
       </header>
 
-      {modelLeads ? (
-        <div className="card p-4 text-xs text-muted leading-relaxed">
-          <span className="font-medium text-body">A model writes the reading below, on your own key.</span>{' '}
-          It receives the computed fact sheet and nothing else — no raw birth inputs, no city — and it
-          must cite a fact for every sentence. Afterwards each sentence is graded against the engine:
-          uncited, fabricated and contradicted sentences are labelled as such rather than quietly
-          printed. Be clear-eyed about the trade the disclosure gate spells out: the full sheet names
-          your <ClickableCJK text="干支" />, and those invert back to your birth moment within about
-          two hours. One click away sits the computed reading — composed by template, no model, the
-          same words every time. That one is the floor; this is the fluent pass over it. Neither one
-          applies your chart to your life.
-        </div>
-      ) : (
-        <div className="card p-4 text-xs text-muted leading-relaxed">
-          <span className="font-medium text-body">No model wrote a word of the reading below.</span>{' '}
-          Every sentence is composed from the computed facts listed beneath it, by template, in your
-          browser — the same chart yields the same words every time it is read in the same year (the
-          大运 movement names the decade covering today, so that one line moves when the calendar
-          does), and a test pins the composition against a golden file. A model that rephrases these
-          facts more fluently sits at the bottom of the page, switched off: turning it on runs on your
-          own key or your own local model, sends the computed fact sheet (which by default names your
-          干支 — the gate lists exactly what leaves before anything is sent), and cites a fact for
-          every sentence, with anything uncited shown to you as uncited. This page is complete
-          without it.
-        </div>
-      )}
+      <div className="card p-4 text-xs text-muted leading-relaxed mb-4">
+        <span className="font-medium text-body">The reading is the tradition speaking, on your own key.</span>{' '}
+        The engine computes no meaning, no fortune, no verdict — that promise still holds for the
+        computation. The reader below is a model you configured: it receives the computed fact
+        sheet, your logged events, and the conversation, and it composes the tradition&apos;s full
+        reading of your life and destiny from them — predictions included, in the tradition&apos;s
+        own vocabulary. Where a sentence draws on a computed fact it carries that fact&apos;s chip;
+        made-up citations are labelled. Read it as the tradition&apos;s claim, weigh it against
+        your own life, and remember <ClickableCJK text="善人不为命所缚" /> — the good are not
+        bound by fate.
+      </div>
 
       {record === undefined && (
         <p className="text-sm text-muted mt-6">Looking for your last computed chart…</p>
@@ -134,7 +131,7 @@ export default function ReadingPage() {
       {record === null && (
         <div className="card p-4 mt-4">
           <p className="text-sm text-body">
-            Nothing to unpack yet — no chart has been computed in this browser.
+            Nothing to read yet — no chart has been computed in this browser.
           </p>
           <p className="text-sm text-muted mt-2">
             The reading is built from your last chart&apos;s computed facts, held only here.{' '}
@@ -147,7 +144,7 @@ export default function ReadingPage() {
       )}
 
       {chart && (
-        <div className="mt-6 space-y-4">
+        <div className="space-y-4">
           <div className="card p-3 text-xs text-muted flex flex-wrap items-baseline justify-between gap-2">
             <span>
               reading{' '}
@@ -157,32 +154,26 @@ export default function ReadingPage() {
               · <ClickableCJK text="日主" /> {chart.day[0]} ·{' '}
               {chart.hourSchool === 'solar' ? <ClickableCJK text="真太阳时" /> : 'clock time'}
             </span>
-            <Link href="/chart" className="underline hover:text-accent shrink-0">
-              recompute or change the birth data →
-            </Link>
+            <span className="text-faint">
+              {facts.length} facts · {events.length} logged events in context
+            </span>
           </div>
 
-          {/* The model reading LEADS when this browser has a reading model configured
-              (Peter, 2026-08-27). Without one the template 解盘 leads and the page is
-              complete with no model at all — that floor does not move, and it is why
-              the template is never removed, only collapsed. */}
-          {modelLeads && <TutorPanel facts={facts} movements={movements} />}
+          <ChatPanel facts={facts} events={events} />
 
-          {modelLeads && (
-            <div className="card p-4 flex items-center justify-between gap-3 flex-wrap">
-              <span className="text-sm text-muted">
-                the computed reading — composed by template, no model, the same words every time
-              </span>
-              <button
-                onClick={() => setShowTemplate((v) => !v)}
-                className="text-xs underline hover:text-accent shrink-0"
-              >
-                {showTemplate ? 'hide the computed reading' : 'show the computed reading'}
-              </button>
-            </div>
-          )}
+          <div className="card p-4 flex items-center justify-between gap-3 flex-wrap">
+            <span className="text-sm text-muted">
+              the computed reading — composed by template, no model, the same words every time
+            </span>
+            <button
+              onClick={() => setShowTemplate((v) => !v)}
+              className="text-xs underline hover:text-accent shrink-0"
+            >
+              {showTemplate ? 'hide the computed reading' : 'show the computed reading'}
+            </button>
+          </div>
 
-          {(!modelLeads || showTemplate) &&
+          {showTemplate &&
             movements.map((m) => (
               <section key={m.id} className="card p-4">
                 <h2 className="text-base font-semibold text-ink">
@@ -210,12 +201,10 @@ export default function ReadingPage() {
               </section>
             ))}
 
-          {!modelLeads && <TutorPanel facts={facts} movements={movements} />}
-
           <div className="card p-4">
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <span className="text-sm text-muted">
-                the fact sheet — {facts.length} computed facts, every sentence above traces to one
+                the fact sheet — {facts.length} computed facts, the reader cites these
               </span>
               <button
                 onClick={() => setShowFacts((v) => !v)}
