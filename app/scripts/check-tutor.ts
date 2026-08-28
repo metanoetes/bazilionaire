@@ -22,7 +22,7 @@
 import { computeChart } from '@bazilionaire/engine';
 import { factsheet } from '../lib/factsheet';
 import { reading } from '../lib/reading';
-import { auditTutorText, describeHttpFailure, hasReadingModel, presetModelFor, redactFacts, tutorPayload, TUTOR_CFG_KEY, TUTOR_KEY_KEY, TUTOR_PRESETS, TUTOR_SYSTEM_PROMPT } from '../lib/tutor';
+import { auditTutorText, describeEmptyCompletion, describeHttpFailure, hasReadingModel, MAX_COMPLETION_TOKENS, presetModelFor, redactFacts, tutorPayload, TUTOR_CFG_KEY, TUTOR_KEY_KEY, TUTOR_PRESETS, TUTOR_SYSTEM_PROMPT } from '../lib/tutor';
 
 const PINNED_YEAR = 2026;
 
@@ -373,6 +373,55 @@ if (/\b(1[6-9]\d{2}|20\d{2})\b/.test(TUTOR_SYSTEM_PROMPT)) {
     if (got !== want) {
       problems.push(`presetModelFor: ${name} — expected ${String(want)}, got ${String(got)}`);
     }
+  }
+}
+
+// ---- the reasoning-budget failure: a 200 with no text ----
+//
+// Measured against api.deepseek.com 2026-08-27: deepseek-v4-pro at max_tokens 900 returns
+// HTTP 200, finish_reason "length", 900 completion tokens ALL of them reasoning, and an EMPTY
+// content string. The panel's old message — "The endpoint returned an empty completion." —
+// was true and useless; Peter hit it twice. The budget must be large enough for a reasoning
+// model, and the message must name the mechanism when it still happens.
+{
+  if (MAX_COMPLETION_TOKENS < 2000) {
+    problems.push(
+      `MAX_COMPLETION_TOKENS is ${MAX_COMPLETION_TOKENS}: deepseek-v4-pro needed ~1839 completion ` +
+        'tokens (1723 of them reasoning) before any answer appeared, so a budget under 2000 ' +
+        'returns an empty reading',
+    );
+  }
+
+  const burned = describeEmptyCompletion({
+    model: 'deepseek-v4-pro',
+    finishReason: 'length',
+    reasoningTokens: 900,
+    budget: MAX_COMPLETION_TOKENS,
+  });
+  if (!/reasoning model/.test(burned)) {
+    problems.push('describeEmptyCompletion: must name the reasoning-model mechanism');
+  }
+  if (!burned.includes('deepseek-v4-pro') || !burned.includes('900')) {
+    problems.push('describeEmptyCompletion: must name the model and the reasoning tokens spent');
+  }
+
+  // Truncated with no reasoning reported — still a budget story, but do not invent reasoning.
+  const plainLength = describeEmptyCompletion({
+    model: 'some-model',
+    finishReason: 'length',
+    budget: MAX_COMPLETION_TOKENS,
+  });
+  if (/reasoning model/.test(plainLength)) {
+    problems.push('describeEmptyCompletion: must not claim reasoning when none was reported');
+  }
+
+  // Empty for an unknown reason must not be dressed up as a budget problem.
+  const mystery = describeEmptyCompletion({ model: 'some-model', budget: MAX_COMPLETION_TOKENS });
+  if (/budget/.test(mystery)) {
+    problems.push('describeEmptyCompletion: an unexplained empty completion must not blame the budget');
+  }
+  if (!mystery.includes('some-model')) {
+    problems.push('describeEmptyCompletion: must always name the model');
   }
 }
 

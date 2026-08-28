@@ -495,6 +495,69 @@ export function describeHttpFailure(args: {
   return msg;
 }
 
+/**
+ * Completion budget. Measured against api.deepseek.com on 2026-08-27, because the old value
+ * of 900 made the panel fail outright with "The endpoint returned an empty completion":
+ *
+ *   TOY task (2 sentences):
+ *     deepseek-v4-pro   @  900 →  900 tokens, ALL reasoning,   0 chars, finish=length
+ *     deepseek-v4-pro   @ 2000 → 1839 tokens (1723 reasoning), 434 chars, finish=stop
+ *     deepseek-v4-flash @  900 →  656 tokens ( 598 reasoning),  62 chars, finish=stop
+ *
+ *   REAL reading payload (33 fact lines, 7 sections) — the number that matters:
+ *     deepseek-v4-pro   @ 4000 → 4000 tokens, ALL reasoning, 0 chars, finish=length
+ *     deepseek-v4-flash @ 4000 → 4000 tokens, ALL reasoning, 0 chars, finish=length
+ *
+ * So raising the budget alone does NOT fix this: a bigger allowance just buys more
+ * deliberation on a task this open-ended. The real lever is REASONING_OFF below.
+ */
+export const MAX_COMPLETION_TOKENS = 4000;
+
+/**
+ * How to ask an OpenAI-compatible endpoint to stop reasoning and just answer.
+ *
+ * Probed against api.deepseek.com 2026-08-27 (reasoning tokens for the same small task):
+ *   baseline 302 · reasoning_effort:"low" 175 · "minimal" 136 · **"none" → no reasoning at
+ *   all** · thinking:{type:"disabled"} → no reasoning at all.
+ *
+ * `reasoning_effort` is the OpenAI-compatible spelling, so it is the one we send — but it is
+ * NOT sent on the first attempt, because an endpoint that rejects unknown fields (some local
+ * servers, some proxies) would fail a request that would otherwise have worked. It is a
+ * RETRY, applied only after the model has demonstrably burned the whole budget thinking.
+ */
+export const REASONING_OFF = { reasoning_effort: 'none' } as const;
+
+/**
+ * Why a 200 response carried no text. Pure, so the gate can assert it offline.
+ *
+ * "The endpoint returned an empty completion." was technically true and diagnostically
+ * useless — Peter hit it twice and it named nothing. The usual cause is a reasoning model
+ * whose budget ran out before it started answering, and the response says so plainly in
+ * `finish_reason` and `usage.completion_tokens_details.reasoning_tokens`.
+ */
+export function describeEmptyCompletion(args: {
+  model: string;
+  finishReason?: string;
+  reasoningTokens?: number;
+  budget: number;
+}): string {
+  const { model, finishReason, reasoningTokens, budget } = args;
+  if (finishReason === 'length' && (reasoningTokens ?? 0) > 0) {
+    return (
+      `"${model}" is a reasoning model: it spent the whole ${budget}-token budget thinking ` +
+      `(${reasoningTokens} reasoning tokens) and never began the answer. Raise the budget, or ` +
+      `pick a model that reasons less before it writes.`
+    );
+  }
+  if (finishReason === 'length') {
+    return `"${model}" reached the ${budget}-token budget before writing any answer.`;
+  }
+  return (
+    `The endpoint returned an empty completion for "${model}"` +
+    `${finishReason ? ` (finish reason: ${finishReason})` : ''}.`
+  );
+}
+
 export async function runTutor(
   cfg: TutorConfig,
   payload: TutorPayload,
@@ -504,11 +567,28 @@ export async function runTutor(
   if (problem) throw new TutorError(problem);
   // A hung endpoint must not strand the caller: without a deadline the panel sat
   // in 'running' with its button disabled forever (review finding, 2026-08-27).
-  const timeout = AbortSignal.timeout(120_000);
+  //
+  // Raised 120s → 240s because this deadline now covers TWO attempts: a reasoning model can
+  // burn the whole budget thinking, and the retry with reasoning suppressed follows on the
+  // same signal. Measured 2026-08-27: deepseek-v4-pro took 93.1s for both attempts combined
+  // on the real 33-fact payload, so 120s left almost no margin on a slower day.
+  const timeout = AbortSignal.timeout(240_000);
   const effectiveSignal = signal ? AbortSignal.any([signal, timeout]) : timeout;
   const url = `${cfg.baseUrl.replace(/\/+$/, '')}/chat/completions`;
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (cfg.apiKey.trim().length > 0) headers.Authorization = `Bearer ${cfg.apiKey.trim()}`;
+
+  const requestBody = (suppressReasoning: boolean) =>
+    JSON.stringify({
+      model: cfg.model,
+      temperature: 0.4,
+      max_tokens: MAX_COMPLETION_TOKENS,
+      messages: [
+        { role: 'system', content: payload.system },
+        { role: 'user', content: payload.user },
+      ],
+      ...(suppressReasoning ? REASONING_OFF : {}),
+    });
 
   let res: Response;
   try {
@@ -516,20 +596,12 @@ export async function runTutor(
       method: 'POST',
       headers,
       signal: effectiveSignal,
-      body: JSON.stringify({
-        model: cfg.model,
-        temperature: 0.4,
-        max_tokens: 900,
-        messages: [
-          { role: 'system', content: payload.system },
-          { role: 'user', content: payload.user },
-        ],
-      }),
+      body: requestBody(false),
     });
   } catch (e) {
     if (e instanceof DOMException && e.name === 'TimeoutError') {
       throw new TutorError(
-        `${endpointHost(cfg.baseUrl)} did not answer within two minutes — the request was cancelled.`,
+        `${endpointHost(cfg.baseUrl)} did not answer within four minutes — the request was cancelled.`,
       );
     }
     if (e instanceof DOMException && e.name === 'AbortError') {
@@ -577,10 +649,54 @@ export async function runTutor(
     );
   }
 
-  const body = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+  const body = (await res.json()) as {
+    choices?: Array<{ message?: { content?: string }; finish_reason?: string }>;
+    usage?: { completion_tokens_details?: { reasoning_tokens?: number } };
+  };
   const text = body.choices?.[0]?.message?.content;
   if (!text || text.trim().length === 0) {
-    throw new TutorError('The endpoint returned an empty completion.');
+    const finishReason = body.choices?.[0]?.finish_reason;
+    const reasoningTokens = body.usage?.completion_tokens_details?.reasoning_tokens;
+
+    // THE RETRY THAT MAKES REASONING MODELS USABLE. Measured 2026-08-27: on the real reading
+    // payload, both deepseek-v4-pro and deepseek-v4-flash spend the ENTIRE budget reasoning and
+    // return no answer, at 900 and at 4000 alike — a bigger allowance only buys more
+    // deliberation. Asking the endpoint to stop reasoning is the lever that works, and it is
+    // applied here rather than on the first attempt so that an endpoint which rejects unknown
+    // fields is never broken by a parameter it does not know.
+    if (finishReason === 'length' && (reasoningTokens ?? 0) > 0) {
+      try {
+        const retry = await fetch(url, {
+          method: 'POST',
+          headers,
+          signal: effectiveSignal,
+          body: requestBody(true),
+        });
+        if (retry.ok) {
+          const rbody = (await retry.json()) as {
+            choices?: Array<{ message?: { content?: string }; finish_reason?: string }>;
+          };
+          const rtext = rbody.choices?.[0]?.message?.content;
+          if (rtext && rtext.trim().length > 0) return rtext.trim();
+        }
+      } catch {
+        /* fall through to the honest error below — the retry is a bonus, not a promise */
+      }
+    }
+
+    // A reasoning model that ate the budget is a MODEL choice problem, so offer the other
+    // ids this key can use rather than leaving the reader to guess which reason less.
+    const available =
+      finishReason === 'length' ? await fetchAvailableModels(cfg) : undefined;
+    throw new TutorError(
+      describeEmptyCompletion({
+        model: cfg.model,
+        finishReason,
+        reasoningTokens,
+        budget: MAX_COMPLETION_TOKENS,
+      }),
+      { available },
+    );
   }
   return text.trim();
 }
