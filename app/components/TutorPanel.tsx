@@ -65,6 +65,9 @@ export function TutorPanel({ facts, movements }: { facts: Fact[]; movements: Mov
   // can use, else this endpoint's preset default. A message that only NAMES a bad model
   // still leaves the reader retyping it correctly from memory.
   const [modelChoices, setModelChoices] = useState<string[]>([]);
+  // When the endpoint itself is unrecognized, one click must fix BOTH fields: the observed
+  // failure was endpoint ".../v4" + model "pro", i.e. deepseek-v4-pro split across the two.
+  const [endpointFix, setEndpointFix] = useState<{ baseUrl: string; model: string } | null>(null);
   const [abort, setAbort] = useState<AbortController | null>(null);
 
   // Endpoint/model are a preference; the key is only restored if the reader
@@ -130,9 +133,15 @@ export function TutorPanel({ facts, movements }: { facts: Fact[]; movements: Mov
         setError(e.message);
         const choices = e.available ?? (e.suggestedModel ? [e.suggestedModel] : []);
         setModelChoices(choices.filter((c) => c !== model));
+        setEndpointFix(
+          e.suggestedBaseUrl && e.suggestedModel
+            ? { baseUrl: e.suggestedBaseUrl, model: e.suggestedModel }
+            : null,
+        );
       } else {
         setError('The request failed.');
         setModelChoices([]);
+        setEndpointFix(null);
       }
       setPhase('gate');
     } finally {
@@ -414,6 +423,22 @@ export function TutorPanel({ facts, movements }: { facts: Fact[]; movements: Mov
       {error && (
         <div className="mt-3 text-xs text-accent-strong">
           ⚠ {error}
+          {endpointFix && (
+            <div className="mt-2">
+              <button
+                onClick={() => {
+                  setBaseUrl(endpointFix.baseUrl);
+                  setModel(endpointFix.model);
+                  setError(null);
+                  setModelChoices([]);
+                  setEndpointFix(null);
+                }}
+                className="px-2 py-1 rounded border border-accent text-ink hover:bg-accent hover:text-on-accent"
+              >
+                use {endpointFix.baseUrl} + {endpointFix.model}
+              </button>
+            </div>
+          )}
           {modelChoices.length > 0 && (
             <div className="mt-2 flex flex-wrap items-baseline gap-2 text-muted">
               <span>try:</span>

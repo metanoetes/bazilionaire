@@ -259,29 +259,68 @@ if (/\b(1[6-9]\d{2}|20\d{2})\b/.test(TUTOR_SYSTEM_PROMPT)) {
   }
 }
 
-// ---- describeHttpFailure: a 404 must accuse the MODEL, not the base URL ----
+// ---- describeHttpFailure: a 404 must rank its suspects honestly ----
 //
-// The bug this pins: the app reported "api.deepseek.com returned 404" and nothing else, so
-// the base URL looked guilty when it was correct (unauthenticated probes answer 401 on that
-// exact path, and the CORS preflight answers 200). The message must name the model id.
+// Two shipped bugs are pinned here. First, the app reported "api.deepseek.com returned 404"
+// and nothing else, leaving the reader to guess. Then the fix over-corrected and asserted
+// "the request path is fixed, and a bad key would have answered 401 instead" — which is
+// FALSE: api.deepseek.com answers 401 on every path, including /v4, /v1beta and
+// /openai/v1, so an unauthenticated 401 proves nothing about whether a path exists. That
+// wrong claim sent Peter looking at the model while his endpoint was .../v4. A 404 has two
+// possible causes and the message must say so, ranked by the only offline evidence there
+// is: whether the base URL is one this app ships.
 {
-  const notFound = describeHttpFailure({
+  const KNOWN = 'https://api.deepseek.com/v1';
+
+  // (a) Known endpoint + bad model → the model is the ranked suspect, and it is named.
+  const onKnown = describeHttpFailure({
     host: 'api.deepseek.com',
     status: 404,
     detail: '',
+    baseUrl: KNOWN,
     model: 'deepseek-chat',
   });
-  if (!notFound.includes('deepseek-chat')) {
-    problems.push('describeHttpFailure: a 404 message must name the model id that was sent');
+  if (!onKnown.includes('deepseek-chat')) {
+    problems.push('describeHttpFailure: a 404 must name the model id that was sent');
   }
-  if (!/401/.test(notFound)) {
-    problems.push('describeHttpFailure: a 404 message must explain that a bad key answers 401');
+  if (!/known base URL/.test(onKnown)) {
+    problems.push('describeHttpFailure: a 404 on a preset endpoint should say the endpoint is known');
+  }
+
+  // (b) THE REGRESSION THAT SHIPPED: an edited endpoint must be blamed FIRST, and the
+  // message must never claim a 401 would have proved the path good — api.deepseek.com
+  // answers 401 on every path, including /v4, /v1beta and /openai/v1.
+  const onEdited = describeHttpFailure({
+    host: 'api.deepseek.com',
+    status: 404,
+    detail: '',
+    baseUrl: 'https://api.deepseek.com/v4',
+    model: 'pro',
+  });
+  if (!onEdited.includes('https://api.deepseek.com/v4')) {
+    problems.push('describeHttpFailure: an unrecognized endpoint must be quoted back to the reader');
+  }
+  if (!onEdited.includes(KNOWN)) {
+    problems.push('describeHttpFailure: an unrecognized endpoint must be shown a known one');
+  }
+  if (!onEdited.includes('"pro"')) {
+    problems.push('describeHttpFailure: the model id must still be named alongside a bad endpoint');
+  }
+  if (/401/.test(onEdited) || /401/.test(onKnown)) {
+    problems.push(
+      'describeHttpFailure: must NOT reason from 401 — api.deepseek.com returns 401 on every ' +
+        'path, so an unauthenticated 401 proves nothing about whether a path exists',
+    );
+  }
+  if (/is the likeliest cause/.test(onEdited)) {
+    problems.push('describeHttpFailure: must not name a single likeliest cause when the endpoint is unknown');
   }
 
   const withList = describeHttpFailure({
     host: 'api.deepseek.com',
     status: 404,
     detail: '',
+    baseUrl: KNOWN,
     model: 'deepseek-chat',
     available: ['deepseek-v4-pro', 'deepseek-reasoner'],
   });
@@ -294,10 +333,11 @@ if (/\b(1[6-9]\d{2}|20\d{2})\b/.test(TUTOR_SYSTEM_PROMPT)) {
     host: 'api.deepseek.com',
     status: 500,
     detail: 'internal error',
+    baseUrl: KNOWN,
     model: 'deepseek-v4-pro',
   });
-  if (/likeliest cause/.test(serverErr)) {
-    problems.push('describeHttpFailure: a 500 must not be blamed on the model id');
+  if (/more likely fault|first thing to check/.test(serverErr)) {
+    problems.push('describeHttpFailure: a 500 must not be blamed on the model or the endpoint');
   }
 
   // …but an explicit model complaint at any status should still name it.
@@ -305,6 +345,7 @@ if (/\b(1[6-9]\d{2}|20\d{2})\b/.test(TUTOR_SYSTEM_PROMPT)) {
     host: 'api.deepseek.com',
     status: 400,
     detail: 'Model Not Exist',
+    baseUrl: KNOWN,
     model: 'deepseek-chat',
   });
   if (!modelComplaint.includes('deepseek-chat')) {

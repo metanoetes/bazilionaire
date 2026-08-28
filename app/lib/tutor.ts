@@ -351,12 +351,22 @@ export class TutorError extends Error {
   readonly available?: string[];
   /** The preset default for this endpoint, when the current model differs from it. */
   readonly suggestedModel?: string;
+  /**
+   * A known base URL to offer when the reader's endpoint matches no preset. Paired with
+   * suggestedModel so one click can fix BOTH fields — the observed failure was an endpoint
+   * of `.../v4` with a model of `pro`, i.e. `deepseek-v4-pro` split across the two inputs.
+   */
+  readonly suggestedBaseUrl?: string;
 
-  constructor(message: string, extra?: { available?: string[]; suggestedModel?: string }) {
+  constructor(
+    message: string,
+    extra?: { available?: string[]; suggestedModel?: string; suggestedBaseUrl?: string },
+  ) {
     super(message);
     this.name = 'TutorError';
     this.available = extra?.available;
     this.suggestedModel = extra?.suggestedModel;
+    this.suggestedBaseUrl = extra?.suggestedBaseUrl;
   }
 }
 
@@ -423,27 +433,61 @@ export async function fetchAvailableModels(cfg: TutorConfig): Promise<string[] |
 }
 
 /**
+ * The preset whose base URL matches this one, if any. Trailing slashes normalized.
+ * Used to decide whether the ENDPOINT is above suspicion when a 404 arrives.
+ */
+export function presetFor(baseUrl: string): (typeof TUTOR_PRESETS)[number] | undefined {
+  const norm = (u: string) => u.replace(/\/+$/, '');
+  return TUTOR_PRESETS.find((p) => norm(p.baseUrl) === norm(baseUrl));
+}
+
+/**
  * Failure text for a non-OK response. Pure, so the gate can assert it offline.
  *
- * Why this exists: the app once reported a bare "api.deepseek.com returned 404" for a
- * stale model id (deepseek-chat), which sends a reader hunting the base URL — the one
- * thing that was correct. On an OpenAI-compatible endpoint the path is fixed, and a bad
- * key answers 401 long before anything is looked up, so **a 404 is almost always the
- * model id.** Say that, name the id, and list what the key can really use.
+ * TWO CORRECTIONS ARE BAKED INTO THIS FUNCTION, both from getting it wrong in public:
+ *
+ * 1. A bare "returned 404" sends the reader hunting the base URL with no evidence.
+ *    So the message names its suspects.
+ * 2. **It must not claim more than it knows.** An earlier version asserted "the request
+ *    path is fixed, and a bad key would have answered 401 instead of 404" — and that
+ *    inference is false. Probed 2026-08-27: api.deepseek.com answers **401 on every
+ *    path**, including `/v4`, `/v1beta` and `/openai/v1`. Auth really is checked before
+ *    routing, but that means an unauthenticated 401 proves NOTHING about whether a path
+ *    exists, and with a valid key a 404 can be the path OR the model. The message that
+ *    told Peter the model was "the likeliest cause" was wrong: his endpoint was
+ *    `https://api.deepseek.com/v4` and the path was the actual fault.
+ *
+ * So a 404 now names BOTH suspects and ranks them by the only evidence available
+ * offline — whether the base URL is one this app ships as a preset.
  */
 export function describeHttpFailure(args: {
   host: string;
   status: number;
   detail: string;
+  baseUrl: string;
   model: string;
   available?: string[];
 }): string {
-  const { host, status, detail, model, available } = args;
+  const { host, status, detail, baseUrl, model, available } = args;
   let msg = `${host} returned ${status}${detail ? ` — ${detail}` : ''}`;
+
   if (status === 404 || /model/i.test(detail)) {
-    msg +=
-      `. The model id "${model}" is the likeliest cause: the request path is fixed, and a bad key ` +
-      `would have answered 401 instead of 404.`;
+    const preset = presetFor(baseUrl);
+    if (preset) {
+      // The endpoint is a base URL this app ships, so the model id is the open question.
+      msg +=
+        `. The endpoint is a known base URL, so the model id "${model}" is the more likely fault ` +
+        `of the two things a 404 can mean here.`;
+    } else {
+      // The reader has edited the endpoint. That is the first thing to check, because a
+      // wrong path 404s no matter how good the model id is.
+      msg +=
+        `. A 404 here means either the endpoint path or the model id, and the endpoint is the ` +
+        `first thing to check: "${baseUrl}" is not a base URL this app knows.`;
+      const known = TUTOR_PRESETS.map((p) => p.baseUrl).filter((u, i, a) => a.indexOf(u) === i);
+      if (known.length > 0) msg += ` Known endpoints: ${known.join(', ')}.`;
+      msg += ` The model id sent was "${model}".`;
+    }
     if (available && available.length > 0) {
       msg += ` This key can use: ${available.join(', ')}.`;
     }
@@ -517,10 +561,19 @@ export async function runTutor(
         host: endpointHost(cfg.baseUrl),
         status: res.status,
         detail,
+        baseUrl: cfg.baseUrl,
         model: cfg.model,
         available,
       }),
-      { available, suggestedModel: presetModelFor(cfg.baseUrl, cfg.model) },
+      presetFor(cfg.baseUrl)
+        ? { available, suggestedModel: presetModelFor(cfg.baseUrl, cfg.model) }
+        : // Endpoint is unrecognized: offer the DeepSeek preset outright, since a wrong
+          // path 404s regardless of the model id.
+          {
+            available,
+            suggestedBaseUrl: TUTOR_PRESETS[0].baseUrl,
+            suggestedModel: TUTOR_PRESETS[0].model,
+          },
     );
   }
 
