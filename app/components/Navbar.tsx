@@ -12,8 +12,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const LINKS: Array<{ href: string; label: string }> = [
-  { href: '/chart', label: 'chart' },
-  { href: '/reading', label: 'reading' },
+  { href: '/', label: '解盘 reading' },
+  { href: '/atlas', label: '命谱 atlas' },
   { href: '/curriculum', label: 'curriculum' },
   { href: '/trust/research', label: 'research' },
 ];

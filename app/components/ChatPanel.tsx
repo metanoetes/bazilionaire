@@ -1,24 +1,33 @@
 'use client';
 
 /**
- * ChatPanel — the destiny chat that /reading is now built around.
+ * ChatPanel — the destiny chat the home page is built around.
  *
- * Peter's call, 2026-08-27: /reading becomes an LLM chat. A list of conversations on
- * the left, one thread in the main pane, and the model composes a full reading of the
- * person's life and destiny from the computed fact sheet plus their logged events.
+ * Peter's call, 2026-08-27: land on the chat. A list of conversations on the left, one
+ * thread in the main pane, and the model composes a full reading of the person's life
+ * and destiny from the computed fact sheet plus their logged events.
  *
- * The editorial fence is DELETED (same call). What remains is citation mechanics: the
- * model's sentences that cite computed facts carry their [F-ID] chips; made-up ids get
- * a FABRICATED badge; sentences citing nothing get UNCITED. Fortune language is no
- * longer flagged — that is the point of the page now.
+ * Since the same call: the editorial fence is DELETED. What remains is citation
+ * mechanics (chips for cited facts, FABRICATED badges for made-up ids). Fortune
+ * language is the point of the page now.
+ *
+ * The reader also explains itself: every new conversation opens with a fixed local
+ * greeting — the four systems (八字 / 紫微斗数 / 奇门遁甲 / 大六壬), the Christ-centered
+ * frame (we do not worship the stars; we read the creation), the monist fractal cosmos
+ * that resonates into the infant at birth, and the request for birth data and name.
+ *
+ * When the user answers with birth data, the app recognizes it, offers a confirmation
+ * panel, computes the pillars locally, and — on confirm — saves the profile into the
+ * atlas (isSelf). Imported atlas profiles (right-click → import into reading, on
+ * /atlas) join the context with namespaced fact ids and their key notes.
  */
 
 import { useEffect, useRef, useState } from 'react';
+import { computeChart, type Chart } from '@bazilionaire/engine';
 import { ClickableCJK } from './ClickableCJK';
-import type { LifeEvent } from '@/lib/atlas';
+import { listProfiles, newProfile, saveProfile, type LifeEvent, type Profile } from '@/lib/atlas';
 import {
   deleteChat as deleteChatDb,
-  getChat,
   listChats,
   newChat as newChatDb,
   newMsgId,
@@ -26,7 +35,7 @@ import {
   type Chat,
   type ChatMsg,
 } from '@/lib/chat';
-import type { Fact } from '@/lib/factsheet';
+import { factsheet, type Fact } from '@/lib/factsheet';
 import {
   auditTutorText,
   factLines,
@@ -40,10 +49,30 @@ import {
   type TutorConfig,
 } from '@/lib/tutor';
 
+const IMPORT_KEY = 'bazilionaire.importProfiles';
+
 const KICKOFF =
   'Compose my full reading — my life and destiny from this chart. Begin at the beginning: ' +
   'childhood, education, relationships, work, health, faith. Then walk the decades ahead one by ' +
   'one through the 大运, and read my logged events and remedies against the pattern as you go.';
+
+/** The greeting every new conversation opens with — fixed local prose, not model output. */
+const GREETING: Array<string> = [
+  'I am the reader. I interpret Chinese astrology — 八字 (the eight characters), 紫微斗数 (Purple Star), 奇门遁甲 (the Mysterious Door), and 大六壬 (the Great Six Ren) — as ways of reading God\u2019s creation, never of worshipping it. The stars rule no one. We read the map, and we follow the Lion.',
+  'The tradition rests on a monist, fractal cosmos: one pattern repeated at every scale — the year, the season, the day, the hour — all pulsing through 阴阳 and 五行. At the moment of birth, that larger pattern resonates into the infant\u2019s internal structure, and the chart is a snapshot of the resonance. A description, not a cage: 善人不为命所缚 — the good are not bound by fate.',
+  'To begin, tell me your birth data — year, month, day, and hour (and the place, if you know it) — and your name. I will compute your pillars, and with your confirmation, save them into the atlas. Then I will read your life with you.',
+];
+
+const BIRTH_RE =
+  /(\d{4})\s*[年\-\/\.]\s*(\d{1,2})\s*[月\-\/\.]\s*(\d{1,2})\s*日?\s*(?:(\d{1,2})\s*[:：時时]\s*(\d{1,2})?\s*分?)?/;
+
+interface BirthDraft {
+  year: number;
+  month: number;
+  day: number;
+  hour: number;
+  minute: number;
+}
 
 function firstTitle(text: string): string {
   const t = text.trim().replace(/\s+/g, ' ');
@@ -51,7 +80,12 @@ function firstTitle(text: string): string {
 }
 
 function cleanSentence(text: string): string {
-  return text.replace(/\[F-[A-Z0-9-]+\]/g, '').trim();
+  return text.replace(/\[[A-Z0-9]+\.[A-Z0-9-]+\]/g, '').replace(/\[F-[A-Z0-9-]+\]/g, '').trim();
+}
+
+/** Namespaced facts for an imported profile, so two people's F-DAYMASTER never collide. */
+function namespacedLines(prefix: string, facts: Fact[]): string[] {
+  return factLines(facts.map((f) => ({ ...f, id: `${prefix}.${f.id}` })));
 }
 
 export function ChatPanel({ facts, events }: { facts: Fact[]; events: LifeEvent[] }) {
@@ -69,8 +103,14 @@ export function ChatPanel({ facts, events }: { facts: Fact[]; events: LifeEvent[
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  const allowedIds = facts.map((f) => f.id);
-  const context = [factLines(facts).join('\n'), ...lifeContextLines(events)].join('\n');
+  // Birth-data capture: a draft detected in the user's last message, awaiting confirmation.
+  const [draft, setDraft] = useState<BirthDraft | null>(null);
+  const [draftName, setDraftName] = useState('');
+  const [draftGender, setDraftGender] = useState<'male' | 'female'>('male');
+  const [savedSelf, setSavedSelf] = useState<{ profile: Profile; facts: Fact[] } | null>(null);
+
+  // Imported atlas profiles (right-click → import into reading on /atlas).
+  const [imported, setImported] = useState<Array<{ profile: Profile; facts: Fact[] }>>([]);
 
   useEffect(() => {
     void (async () => {
@@ -80,7 +120,6 @@ export function ChatPanel({ facts, events }: { facts: Fact[]; events: LifeEvent[
         setBaseUrl(c.baseUrl);
         setModel(c.model);
         setApiKey(c.apiKey);
-        setRemember(false);
       } else {
         setShowSettings(true);
       }
@@ -90,6 +129,64 @@ export function ChatPanel({ facts, events }: { facts: Fact[]; events: LifeEvent[
       setLoaded(true);
     })();
   }, []);
+
+  // Load imported profiles once.
+  useEffect(() => {
+    void (async () => {
+      try {
+        const raw = localStorage.getItem(IMPORT_KEY);
+        if (!raw) return;
+        const ids = JSON.parse(raw) as string[];
+        if (!Array.isArray(ids) || ids.length === 0) return;
+        const all = await listProfiles();
+        const picked = ids
+          .map((id) => all.find((p) => p.id === id))
+          .filter((p): p is Profile => Boolean(p))
+          .slice(0, 4);
+        const year = new Date().getFullYear();
+        setImported(
+          picked.map((profile) => {
+            const b = profile.birth;
+            const location =
+              profile.lon !== null && profile.tz !== null
+                ? { lonDeg: profile.lon as number, tzHours: profile.tz as number }
+                : undefined;
+            const chart = computeChart(
+              b.year, b.month, b.day, b.hour, b.minute, location,
+              b.gender === 'male' ? 1 : 0, b.hourSchool,
+            );
+            return { profile, facts: factsheet(chart, { year }) };
+          }),
+        );
+      } catch {
+        /* no imports */
+      }
+    })();
+  }, []);
+
+  // ---- context pack: self facts + self events + imported profiles + their notes ----
+  const selfFacts = savedSelf?.facts ?? facts;
+  const selfEvents = savedSelf ? (savedSelf.profile.events ?? []) : events;
+  const allowedIds = new Set<string>(selfFacts.map((f) => f.id));
+  const contextParts: string[] = [factLines(selfFacts).join('\n'), ...lifeContextLines(selfEvents)];
+  for (const [i, imp] of imported.entries()) {
+    const p = imp.profile;
+    const prefix = `P${i + 1}`;
+    for (const f of imp.facts) allowedIds.add(`${prefix}.${f.id}`);
+    contextParts.push('');
+    contextParts.push(
+      `${p.name}${p.relation ? ` (${p.relation})` : ''} — a profile imported from the atlas, ` +
+        `fact ids namespaced as ${prefix}.F-…`,
+    );
+    contextParts.push(...namespacedLines(prefix, imp.facts));
+    if (p.notes?.trim()) {
+      contextParts.push(`KEY NOTES ON ${p.name}: ${p.notes.trim()}`);
+    }
+    if (p.rebirthAt) {
+      contextParts.push(`${p.name} was reborn in Christ on ${p.rebirthAt} — the same weather, a new creation.`);
+    }
+  }
+  const context = contextParts.join('\n');
 
   const persistConfig = () => {
     try {
@@ -121,15 +218,38 @@ export function ChatPanel({ facts, events }: { facts: Fact[]; events: LifeEvent[
   };
 
   const startNew = () => {
-    const c = newChatDb();
-    setActive(c);
+    setActive(newChatDb());
   };
+
+  const appendLocalAssistant = (chat: Chat, content: string): Chat => ({
+    ...chat,
+    updatedAt: new Date().toISOString(),
+    messages: [
+      ...chat.messages,
+      { id: newMsgId(), role: 'assistant', content, at: new Date().toISOString() },
+    ],
+  });
 
   const send = async (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || !cfg || !active || sending) return;
     setInput('');
     setError(null);
+
+    // Birth-data capture: scan the user's message before it goes anywhere else.
+    const m = trimmed.match(BIRTH_RE);
+    if (m && !savedSelf) {
+      const year = Number(m[1]);
+      const month = Number(m[2]);
+      const day = Number(m[3]);
+      const hour = m[4] ? Number(m[4]) : 12;
+      const minute = m[5] ? Number(m[5]) : 0;
+      if (year >= 1900 && year <= 2100 && month >= 1 && month <= 12 && day >= 1 && day <= 31 && hour <= 23 && minute <= 59) {
+        setDraft({ year, month, day, hour, minute });
+        setDraftName(draftName || '');
+      }
+    }
+
     const userMsg: ChatMsg = { id: newMsgId(), role: 'user', content: trimmed, at: new Date().toISOString() };
     const withUser: Chat = {
       ...active,
@@ -149,12 +269,12 @@ export function ChatPanel({ facts, events }: { facts: Fact[]; events: LifeEvent[
         {
           system: TUTOR_SYSTEM_PROMPT,
           context,
-          history: withUser.messages.map((m) => ({ role: m.role, content: m.content })),
+          history: withUser.messages.map((mm) => ({ role: mm.role, content: mm.content })),
           userMessage: trimmed,
         },
         controller.signal,
       );
-      const audit = auditTutorText(out, allowedIds);
+      const audit = auditTutorText(out, [...allowedIds]);
       const reply: ChatMsg = {
         id: newMsgId(),
         role: 'assistant',
@@ -178,13 +298,63 @@ export function ChatPanel({ facts, events }: { facts: Fact[]; events: LifeEvent[
     }
   };
 
+  const confirmSaveToAtlas = async () => {
+    if (!draft || !active) return;
+    const birth = {
+      year: draft.year,
+      month: draft.month,
+      day: draft.day,
+      hour: draft.hour,
+      minute: draft.minute,
+      gender: draftGender,
+      hourSchool: 'clock' as const,
+    };
+    const profile = newProfile({
+      name: draftName.trim() || 'me',
+      isSelf: true,
+      birth,
+      isMinor: false,
+    });
+    const ok = await saveProfile(profile);
+    if (!ok) {
+      setError('The atlas could not save this profile (storage unavailable).');
+      setDraft(null);
+      return;
+    }
+    const chart: Chart = computeChart(
+      birth.year, birth.month, birth.day, birth.hour, birth.minute,
+      undefined,
+      birth.gender === 'male' ? 1 : 0,
+      birth.hourSchool,
+    );
+    const factsForSelf = factsheet(chart, { year: new Date().getFullYear() });
+    setSavedSelf({ profile, facts: factsForSelf });
+    setDraft(null);
+    const done = appendLocalAssistant(
+      active,
+      `Saved. Your pillars — ${chart.year} ${chart.month} ${chart.day} ${chart.time} — are now in the ` +
+        `atlas, and I will read your life from this chart. (Say "continue" and I will compose the full reading.)`,
+    );
+    setActive(done);
+    await saveChat(done);
+    await refreshList(done);
+  };
+
   const remove = async (id: string) => {
     await deleteChatDb(id);
     if (active?.id === id) {
-      const c = newChatDb();
-      setActive(c);
+      setActive(newChatDb());
     }
     await refreshList();
+  };
+
+  const clearImports = () => {
+    try {
+      localStorage.removeItem(IMPORT_KEY);
+    } catch {
+      /* noop */
+    }
+    setImported([]);
   };
 
   if (!loaded) {
@@ -240,7 +410,8 @@ export function ChatPanel({ facts, events }: { facts: Fact[]; events: LifeEvent[
           <div className="card p-4 mb-4">
             <div className="text-xs text-muted mb-2 leading-relaxed">
               Your endpoint, your key, your account. The model receives the computed fact sheet, your
-              logged events, and this conversation — nothing else leaves the browser.
+              logged events, the imported profiles, and this conversation — nothing else leaves the
+              browser.
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
               <label className="text-xs text-muted block">
@@ -307,34 +478,52 @@ export function ChatPanel({ facts, events }: { facts: Fact[]; events: LifeEvent[
           </div>
         )}
 
+        {/* who's in the room */}
+        {imported.length > 0 && (
+          <div className="card p-2.5 mb-3 text-xs text-muted flex flex-wrap items-center gap-2">
+            <span className="font-medium text-body">in the room:</span>
+            {imported.map((imp) => (
+              <span key={imp.profile.id} className="px-1.5 py-0.5 rounded bg-surface-2">
+                {imp.profile.name}
+                {imp.profile.relation ? ` (${imp.profile.relation})` : ''}
+              </span>
+            ))}
+            <button onClick={clearImports} className="underline text-faint hover:text-accent ml-auto">
+              remove from the room
+            </button>
+          </div>
+        )}
+
         {/* thread */}
         <div className="card p-4 space-y-4 min-h-[320px]">
           {active && active.messages.length === 0 && (
-            <div className="text-sm text-muted leading-relaxed">
-              <p>
-                A reader will compose your full reading here — your chart, your logged events, your
-                life, one conversation at a time.
-              </p>
-              <p className="mt-2 text-xs">
-                {facts.length} computed facts and {events.length} logged events will be sent with
-                every message. <ClickableCJK text="善人不为命所缚" /> — read it as the tradition
-                speaking, never as the machine deciding.
+            <div className="space-y-3 text-sm text-body leading-relaxed">
+              <div className="text-[10px] uppercase tracking-wider text-faint">the reader</div>
+              {GREETING.map((para, i) => (
+                <p key={i}>
+                  <ClickableCJK text={para} />
+                </p>
+              ))}
+              <p className="text-xs text-muted">
+                {selfFacts.length > 0
+                  ? `${selfFacts.length} computed facts and ${selfEvents.length} logged events are already in context — just ask.`
+                  : 'No chart is in context yet — tell me your birth data above and I will offer to save it into the atlas.'}
               </p>
             </div>
           )}
 
           {active &&
-            active.messages.map((m) =>
-              m.role === 'user' ? (
-                <div key={m.id} className="flex justify-end">
+            active.messages.map((mm) =>
+              mm.role === 'user' ? (
+                <div key={mm.id} className="flex justify-end">
                   <div className="max-w-[85%] bg-surface-2 rounded-lg rounded-tr-sm px-3 py-2 text-sm text-body">
-                    {m.content}
+                    {mm.content}
                   </div>
                 </div>
               ) : (
-                <div key={m.id} className="space-y-2">
-                  {m.audit
-                    ? m.audit.sentences.map((s, i) => (
+                <div key={mm.id} className="space-y-2">
+                  {mm.audit
+                    ? mm.audit.sentences.map((s, i) => (
                         <div key={i} className="text-sm text-body leading-relaxed">
                           <ClickableCJK text={cleanSentence(s.text)} />
                           {(s.cites.length > 0 || s.unknownCites.length > 0) && (
@@ -367,12 +556,92 @@ export function ChatPanel({ facts, events }: { facts: Fact[]; events: LifeEvent[
 
           {sending && <div className="text-sm text-muted animate-pulse">the reader is writing… (this can take a minute or two)</div>}
 
-          {error && (
-            <div className="text-xs text-accent-strong">
-              ⚠ {error}
-            </div>
-          )}
+          {error && <div className="text-xs text-accent-strong">⚠ {error}</div>}
         </div>
+
+        {/* birth-data confirmation */}
+        {draft && (
+          <div className="card p-4 mt-3 border-accent/50">
+            <div className="text-sm text-body font-medium mb-2">
+              Save these pillars into the atlas?
+            </div>
+            <div className="grid gap-2 sm:grid-cols-6 text-xs">
+              <label className="text-muted block">
+                name
+                <input
+                  value={draftName}
+                  onChange={(e) => setDraftName(e.target.value)}
+                  placeholder="your name"
+                  className="w-full border border-line rounded px-2 py-1 bg-surface-2 text-ink text-sm mt-0.5"
+                />
+              </label>
+              <label className="text-muted block">
+                year
+                <input
+                  type="number"
+                  value={draft.year}
+                  onChange={(e) => setDraft({ ...draft, year: Number(e.target.value) })}
+                  className="w-full border border-line rounded px-2 py-1 bg-surface-2 text-ink text-sm mt-0.5"
+                />
+              </label>
+              <label className="text-muted block">
+                month
+                <input
+                  type="number"
+                  value={draft.month}
+                  onChange={(e) => setDraft({ ...draft, month: Number(e.target.value) })}
+                  className="w-full border border-line rounded px-2 py-1 bg-surface-2 text-ink text-sm mt-0.5"
+                />
+              </label>
+              <label className="text-muted block">
+                day
+                <input
+                  type="number"
+                  value={draft.day}
+                  onChange={(e) => setDraft({ ...draft, day: Number(e.target.value) })}
+                  className="w-full border border-line rounded px-2 py-1 bg-surface-2 text-ink text-sm mt-0.5"
+                />
+              </label>
+              <label className="text-muted block">
+                hour:minute
+                <input
+                  value={`${String(draft.hour).padStart(2, '0')}:${String(draft.minute).padStart(2, '0')}`}
+                  onChange={(e) => {
+                    const [h, mi] = e.target.value.split(':').map((n) => Number(n));
+                    if (!Number.isNaN(h) && h <= 23) setDraft({ ...draft, hour: h });
+                    if (!Number.isNaN(mi) && mi <= 59) setDraft({ ...draft, minute: mi });
+                  }}
+                  className="w-full border border-line rounded px-2 py-1 bg-surface-2 text-ink text-sm mt-0.5"
+                />
+              </label>
+              <label className="text-muted block">
+                gender
+                <select
+                  value={draftGender}
+                  onChange={(e) => setDraftGender(e.target.value as 'male' | 'female')}
+                  className="w-full border border-line rounded px-2 py-1 bg-surface-2 text-ink text-sm mt-0.5"
+                >
+                  <option value="male">male</option>
+                  <option value="female">female</option>
+                </select>
+              </label>
+            </div>
+            <div className="mt-3 flex gap-2">
+              <button
+                onClick={() => void confirmSaveToAtlas()}
+                className="bg-accent text-on-accent rounded px-4 py-1.5 text-sm font-medium"
+              >
+                confirm — save to the atlas
+              </button>
+              <button
+                onClick={() => setDraft(null)}
+                className="text-xs underline text-muted hover:text-accent px-2"
+              >
+                not now
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* composer */}
         <div className="mt-3">
@@ -387,7 +656,7 @@ export function ChatPanel({ facts, events }: { facts: Fact[]; events: LifeEvent[
                 }
               }}
               disabled={sending}
-              placeholder={cfg ? 'ask anything about this reading…' : 'set your model above, then ask'}
+              placeholder={cfg ? 'tell the reader your birth data, or ask anything…' : 'set your model above, then ask'}
               className="flex-1 border border-line rounded px-3 py-2 bg-surface-2 text-ink text-sm"
             />
             <button

@@ -1,143 +1,236 @@
-import Link from 'next/link';
-import { ClickableCJK } from '@/components/ClickableCJK';
+'use client';
 
-export const metadata = {
-  title: 'Bazilionaire — read the map, follow the Lion',
-  description:
-    'A free, open-source Bazi (八字) learning center and research commons. A language and framework for understanding character — your own and other people’s — so each person can be given the medicine they actually need. The chart is a map, never a verdict.',
+/**
+ * The home page IS the reading room (Peter, 2026-08-27: land on the chat).
+ * /reading redirects here. The chat is the page: a list of conversations on the left,
+ * one thread in the main pane, the model composing a full reading of the person's life
+ * and destiny from the computed fact sheet, their logged events, and any atlas profiles
+ * imported into the room.
+ *
+ * The editorial fence was deleted the same day. Below the chat sits the FLOOR, unchanged:
+ * the computed 解盘, composed by template with no model, pinned against a golden file in
+ * CI — the same words every time, working with no key and no network, forever.
+ *
+ * Chart context: the last research record queued by /chart (entry-as-consent), or a
+ * chart saved here through the chat's own birth-data confirmation, which lands in the
+ * atlas. Logged events come from the matching atlas profile.
+ */
+
+import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { computeChart, type Chart } from '@bazilionaire/engine';
+import { ChatPanel } from '@/components/ChatPanel';
+import { ClickableCJK } from '@/components/ClickableCJK';
+import { listProfiles, type LifeEvent } from '@/lib/atlas';
+import { factsheet, type Fact, type FactLayer } from '@/lib/factsheet';
+import { reading } from '@/lib/reading';
+import { queuedContributions, type ResearchRecord } from '@/lib/research';
+
+const LAYER_LABEL: Record<FactLayer, string> = {
+  frame: 'frame',
+  standing: '强弱 standing',
+  shape: '格局 shape',
+  medicine: '用神 medicine',
+  tension: '关系 tension',
+  imagery: '纳音 imagery',
+  weather: '大运 weather',
 };
 
-export default function LandingPage() {
+const LAYER_ORDER: FactLayer[] = ['frame', 'standing', 'shape', 'medicine', 'tension', 'imagery', 'weather'];
+
+export default function HomePage() {
+  // undefined = still reading storage (SSR/first paint), null = nothing stored.
+  const [record, setRecord] = useState<ResearchRecord | null | undefined>(undefined);
+  const [year, setYear] = useState<number | null>(null);
+  const [events, setEvents] = useState<LifeEvent[]>([]);
+  const [showFacts, setShowFacts] = useState(false);
+  const [showTemplate, setShowTemplate] = useState(false);
+
+  useEffect(() => {
+    const queue = queuedContributions();
+    setRecord(queue.length > 0 ? queue[queue.length - 1] : null);
+    setYear(new Date().getFullYear());
+  }, []);
+
+  // The matching atlas profile supplies the person's own record: logged events and
+  // remedies, matched on the birth data itself (date/time/gender/hour school).
+  useEffect(() => {
+    if (!record) return;
+    const b = record.birth;
+    void (async () => {
+      const profiles = await listProfiles();
+      const match = profiles.find(
+        (p) =>
+          p.birth.year === b.year &&
+          p.birth.month === b.month &&
+          p.birth.day === b.day &&
+          p.birth.hour === b.hour &&
+          p.birth.minute === b.minute &&
+          p.birth.gender === b.gender &&
+          p.birth.hourSchool === b.hourSchool,
+      );
+      setEvents(match?.events ?? []);
+    })();
+  }, [record]);
+
+  const chart: Chart | null = useMemo(() => {
+    if (!record) return null;
+    const b = record.birth;
+    const location = b.lon !== null && b.tz !== null ? { lonDeg: b.lon, tzHours: b.tz } : undefined;
+    return computeChart(
+      b.year, b.month, b.day, b.hour, b.minute,
+      location,
+      b.gender === 'male' ? 1 : 0,
+      b.hourSchool,
+    );
+  }, [record]);
+
+  const facts: Fact[] = useMemo(
+    () => (chart && year ? factsheet(chart, { year }) : []),
+    [chart, year],
+  );
+  const movements = useMemo(
+    () => (chart && year ? reading(chart, facts, { year }) : []),
+    [chart, facts, year],
+  );
+
   return (
-    <main className="max-w-3xl mx-auto px-4 py-10">
-      <header className="mb-10 text-center">
-        <h1 className="text-3xl sm:text-4xl font-bold text-ink">bazi·lion·aire</h1>
-        <p className="text-base text-muted mt-3 max-w-xl mx-auto leading-relaxed">
-          A Christian, free, open-source, nonprofit <ClickableCJK text="八字" /> learning center.
-          <br />
-          A language for character: your own, and the people you are trying to love well.
-        </p>
-        <p className="text-sm text-accent-strong mt-3 italic">
-          <ClickableCJK text="善人不为命所缚" /> — the good are not bound by fate
+    <main className="max-w-5xl mx-auto px-4 py-8">
+      <header className="mb-4">
+        <h1 className="text-2xl font-bold text-ink">
+          <ClickableCJK text="解盘" /> — the reading room
+        </h1>
+        <p className="text-sm text-muted mt-1 leading-relaxed">
+          Your chart, your life, one conversation at a time. The engine computed the chart; the
+          reader composes the reading.
         </p>
       </header>
 
-      {/* Character first: language, framework, medicine */}
-      <section className="card p-5 mb-4">
-        <h2 className="text-lg font-semibold text-ink">
-          a language for character — and the medicine it asks for
-        </h2>
-        <p className="mt-3 text-sm text-body leading-relaxed">
-          Bazi usually arrives as fortune-telling. This center is for something else. A chart
-          is a <span className="font-medium text-ink">vocabulary for temperament</span> —{' '}
-          <ClickableCJK text="五行" /> elements, <ClickableCJK text="十神" /> ten gods,{' '}
-          <ClickableCJK text="藏干" /> hidden stems — precise enough to say what a person is
-          actually like, which &ldquo;introvert&rdquo; never manages. Two things follow:
-        </p>
-        <ol className="mt-3 space-y-2 text-sm text-body leading-relaxed list-decimal list-inside">
-          <li>
-            <span className="font-medium text-ink">A framework for character</span> — yours and
-            other people&apos;s, named in the same terms, so difference stops reading as defect.
-            Not to sort people, but to see them.
-          </li>
-          <li>
-            <span className="font-medium text-ink">The medicine each of us needs</span> — what
-            runs hot needs different care from what runs dry, and what steadies you can starve
-            someone else. Not a forecast; a prescription pad for attention.
-          </li>
-        </ol>
-        <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-          <Link href="/curriculum" className="underline hover:text-accent">
-            learn the language — 课程 curriculum
-          </Link>
-        </div>
-      </section>
-
-      {/* Theology second: the frame everything above sits inside */}
-      <section className="card p-5 mb-4">
-        <h2 className="text-lg font-semibold text-ink">
-          a Christian frame, stated up front
-        </h2>
-        <p className="mt-3 text-sm text-body leading-relaxed">
-          God first — before the chart, and over it. Four commitments:
-        </p>
-        <ul className="mt-3 space-y-2 text-sm text-body leading-relaxed list-disc list-inside">
-          <li>
-            <span className="font-medium text-ink">We do not worship the stars.</span> No prayer
-            or offering to a pillar, a planet, or a phase. 2 Kings 18:4: Hezekiah smashed the
-            bronze serpent once people burned incense to it — it had healed, it was never meant
-            to be adored.
-          </li>
-          <li>
-            <span className="font-medium text-ink">We read pattern in creation, nothing
-            more.</span> <ClickableCJK text="气" /> and the <ClickableCJK text="五行" /> it moves
-            through are created substances — like light, like water — not spirits, not powers.
-            The heavens declare the glory of God (Ps 19); they are not God.
-          </li>
-          <li>
-            <span className="font-medium text-ink">The good are not bound by fate.</span>{' '}
-            <ClickableCJK text="善人不为命所缚" />. A chart maps the temperament God gave you;
-            it describes, it does not sentence.
-          </li>
-          <li>
-            <span className="font-medium text-ink">Every chart has a rebirth slot.</span>{' '}
-            <ClickableCJK text="重生" /> — John 3:3. Enter the day you were reborn in Christ and
-            the <ClickableCJK text="大运" /> timeline is marked there: the same weather, falling
-            on a new creation (2 Cor 5:17).
-          </li>
-        </ul>
-        <p className="mt-3 text-sm text-body leading-relaxed">
-          Where chart and Scripture disagree, Scripture wins. Nothing computed here has authority
-          over your standing before God.{' '}
-          <span className="italic">Follow the Lion, not the chart</span> (Rev 5:5).
-        </p>
-      </section>
-
-      {/* What you get + the research aims */}
-      <section className="card p-5 mb-8">
-        <h2 className="text-lg font-semibold text-ink">what the chart page gives you</h2>
-        <ul className="mt-3 space-y-2 text-sm text-body leading-relaxed list-disc list-inside">
-          <li>Your full four-pillar chart, computed in your browser — nothing leaves it until you submit.</li>
-          <li>A rebirth slot: the <ClickableCJK text="大运" /> decade timeline marked at the day you were reborn in Christ.</li>
-          <li><ClickableCJK text="合婚" /> pair reading — two computed layers, no verdict.</li>
-          <li>Every warning the engine can give: boundary honesty near a <ClickableCJK text="节" />, unknown-hour handling, both hour schools.</li>
-        </ul>
-        <p className="mt-4 text-sm text-body leading-relaxed">
-          It also makes the system testable — a thousand years of practice, almost no record of
-          anyone checking whether it works. Every chart is computed deterministically
-          (VSOP87D solar terms, a pinned Python oracle, byte-matched in CI), so the same birth
-          data gives the same chart anywhere. Entering yours joins the commons: each chart becomes
-          a research record, held under covenant, deletable, and disclosed field by field on the
-          research page. If Bazi carries real signal a public commons is how anyone finds out; if
-          it doesn&apos;t, it should say so plainly.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-          <Link href="/trust/research" className="underline hover:text-accent">
-            how the chart is computed
-          </Link>
-        </div>
-      </section>
-
-      <div className="text-center">
-        <Link
-          href="/chart"
-          className="inline-block bg-accent text-on-accent rounded px-8 py-3 font-medium text-base hover:opacity-90"
-        >
-          Compute my chart →
-        </Link>
-        <p className="text-xs text-muted mt-3">
-          Entering your birth data is consent to the research commons.{' '}
-          <Link href="/trust/research" className="underline hover:text-accent">
-            what that means
-          </Link>
-        </p>
+      <div className="card p-4 text-xs text-muted leading-relaxed mb-4">
+        <span className="font-medium text-body">The reading is the tradition speaking, on your own key.</span>{' '}
+        The engine computes no meaning, no fortune, no verdict — that promise still holds for the
+        computation. The reader below is a model you configured: it receives the computed fact
+        sheet, your logged events, the imported profiles, and the conversation, and it composes
+        the tradition&apos;s full reading of your life and destiny from them — predictions
+        included, in the tradition&apos;s own vocabulary. Where a sentence draws on a computed
+        fact it carries that fact&apos;s chip; made-up citations are labelled. Read it as the
+        tradition&apos;s claim, weigh it against your own life, and remember{' '}
+        <ClickableCJK text="善人不为命所缚" /> — the good are not bound by fate.
       </div>
 
-      <footer className="text-xs text-faint text-center pt-10 space-y-1">
+      <ChatPanel facts={facts} events={events} />
+
+      <div className="card p-4 mt-4 flex items-center justify-between gap-3 flex-wrap">
+        <span className="text-sm text-muted">
+          the computed reading — composed by template, no model, the same words every time
+        </span>
+        <button
+          onClick={() => setShowTemplate((v) => !v)}
+          className="text-xs underline hover:text-accent shrink-0"
+        >
+          {showTemplate ? 'hide the computed reading' : 'show the computed reading'}
+        </button>
+      </div>
+
+      {showTemplate &&
+        movements.map((m) => (
+          <section key={m.id} className="card p-4">
+            <h2 className="text-base font-semibold text-ink">
+              <ClickableCJK text={m.zh} />{' '}
+              <span className="text-xs text-faint font-normal">{m.pinyin}</span>
+              <span className="text-muted font-normal"> — {m.title}</span>
+            </h2>
+            <div className="mt-2 space-y-2 text-sm text-body leading-relaxed">
+              {m.paragraphs.map((p, i) => (
+                <p key={i}>
+                  <ClickableCJK text={p} />
+                </p>
+              ))}
+            </div>
+            {m.cites.length > 0 && (
+              <div className="mt-3 pt-2 border-t border-line-soft flex flex-wrap gap-1">
+                <span className="text-[10px] text-faint mr-1">composed from</span>
+                {m.cites.map((c) => (
+                  <span key={c} className="text-[10px] px-1.5 py-0.5 rounded bg-surface-2 text-muted font-mono">
+                    {c}
+                  </span>
+                ))}
+              </div>
+            )}
+          </section>
+        ))}
+
+      <div className="card p-4 mt-4">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <span className="text-sm text-muted">
+            the fact sheet — {facts.length} computed facts, the reader cites these
+          </span>
+          <button
+            onClick={() => setShowFacts((v) => !v)}
+            className="text-xs underline hover:text-accent shrink-0"
+          >
+            {showFacts ? 'hide the facts' : 'show the facts'}
+          </button>
+        </div>
+
+        {showFacts && (
+          <div className="mt-3 space-y-3">
+            {LAYER_ORDER.map((layer) => {
+              const inLayer = facts.filter((f) => f.layer === layer);
+              if (inLayer.length === 0) return null;
+              return (
+                <div key={layer} className="border-t border-line pt-2">
+                  <div className="text-xs text-faint mb-1">
+                    <ClickableCJK text={LAYER_LABEL[layer]} />
+                  </div>
+                  <dl className="space-y-1.5">
+                    {inLayer.map((f) => (
+                      <div key={f.id} className="text-xs">
+                        <dt className="flex flex-wrap items-baseline gap-1.5">
+                          <span className="font-mono text-[10px] text-faint">{f.id}</span>
+                          {f.term && (
+                            <span className="text-accent-strong">
+                              <ClickableCJK text={f.term} />
+                            </span>
+                          )}
+                          <span className="text-muted">{f.label}</span>
+                        </dt>
+                        <dd className="text-body">
+                          <ClickableCJK text={f.value} />
+                          {f.detail && (
+                            <span className="text-muted">
+                              {' — '}
+                              <ClickableCJK text={f.detail} />
+                            </span>
+                          )}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <footer className="text-xs text-faint text-center pt-6 space-y-1">
         <div>
-          <Link href="/trust/research" className="underline hover:text-accent">methodology</Link>
+          <Link href="/atlas" className="underline hover:text-accent">
+            the atlas
+          </Link>
           {' · '}
-          <Link href="/curriculum" className="underline hover:text-accent">curriculum</Link>
+          <Link href="/chart" className="underline hover:text-accent">
+            the plate
+          </Link>
+          {' · '}
+          <Link href="/curriculum" className="underline hover:text-accent">
+            curriculum
+          </Link>
+          {' · '}
+          <Link href="/trust/research" className="underline hover:text-accent">
+            research
+          </Link>
         </div>
         <div>MIT · open source · bazilionaire.org · the chart is a map; Christ is the way</div>
       </footer>

@@ -137,6 +137,17 @@
     outline: none;
   }
 
+  /* Ruby pinyin above matched terms (Peter, 2026-08-27). The annotation is muted and
+     non-selectable so it reads as a pronunciation aid, not as content; the click gloss
+     still opens for the meaning. */
+  .cjk-ruby rt {
+    font-size: 0.55em;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+    user-select: none;
+    opacity: 0.85;
+  }
+
   .gloss-popover {
     position: fixed;
     z-index: 50;

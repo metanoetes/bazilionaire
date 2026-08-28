@@ -23,7 +23,19 @@ function isCJK(ch: string): boolean {
   return CJK_RE.test(ch);
 }
 
-export function ClickableCJK({ text, className }: { text: string; className?: string }) {
+export function ClickableCJK({
+  text,
+  className,
+  ruby = true,
+}: {
+  text: string;
+  className?: string;
+  /** Render pinyin above every glossary-matched term (Peter, 2026-08-27: "all Chinese
+   *  should be printed in a font that has pinyin attached"). Unmatched CJK stays bare —
+   *  the same honest-gap contract as the click gloss. Set false where the extra line
+   *  height would hurt (dense tables). */
+  ruby?: boolean;
+}) {
   const [open, setOpen] = useState<{ term: string; el: HTMLElement } | null>(null);
 
   // Click anywhere outside the term or the open popover dismisses it — the
@@ -93,7 +105,14 @@ export function ClickableCJK({ text, className }: { text: string; className?: st
             }
           }}
         >
-          {term}
+          {ruby && GLOSSARY[term] ? (
+            <ruby className="cjk-ruby">
+              {term}
+              <rt>{GLOSSARY[term].pinyin}</rt>
+            </ruby>
+          ) : (
+            term
+          )}
         </span>,
       );
       i += term.length;

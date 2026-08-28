@@ -111,6 +111,13 @@ const EXTRA: Array<[string, string, string]> = [
   ['绝', 'jué', 'severance — the emptiest of the twelve stages, the phase cut off from support'],
   ['胎', 'tāi', 'conception — the stage of what has been conceived but not yet born'],
   ['养', 'yǎng', 'nurture — the last stage, gestation completing before 长生 begins again'],
+  // 2026-08-27 — the four systems the reader now works with (Peter's home-page call),
+  // plus the atlas section name, so every Chinese term on the landing chat gets ruby pinyin.
+  ['紫微斗数', 'zǐ wēi dǒu shù', 'Purple Star astrology — the star-based system read alongside 八字'],
+  ['奇门遁甲', 'qí mén dùn jiǎ', 'Mysterious Door — the divination system of gates and hidden armor'],
+  ['大六壬', 'dà liù rén', 'Great Six Ren — the oldest of the three divination systems, the six-water-method'],
+  ['命谱', 'mìng pǔ', 'the register of fates — the atlas, each person with their chart and notes'],
+  ['解盘', 'jiě pán', 'unpacking the plate — the reading'],
 ];
 for (const [term, pinyin, gloss] of EXTRA) add(term, pinyin, gloss);
 
