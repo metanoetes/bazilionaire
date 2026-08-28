@@ -291,7 +291,7 @@ export interface TutorConfig {
  * the right choice for reading a chart that is not your own.
  */
 export const TUTOR_PRESETS: Array<{ label: string; baseUrl: string; model: string; needsKey: boolean }> = [
-  { label: 'DeepSeek', baseUrl: 'https://api.deepseek.com/v1', model: 'deepseek-chat', needsKey: true },
+  { label: 'DeepSeek', baseUrl: 'https://api.deepseek.com/v1', model: 'deepseek-v4-pro', needsKey: true },
   { label: 'Ollama (local)', baseUrl: 'http://localhost:11434/v1', model: 'llama3.1', needsKey: false },
   { label: 'LM Studio (local)', baseUrl: 'http://localhost:1234/v1', model: 'local-model', needsKey: false },
   { label: 'OpenAI', baseUrl: 'https://api.openai.com/v1', model: 'gpt-4o-mini', needsKey: true },
@@ -375,6 +375,55 @@ export function endpointProblem(baseUrl: string): string | null {
   return null;
 }
 
+/**
+ * Ask the endpoint what models this key can actually use. Best-effort and bounded:
+ * every failure returns undefined, because this only ever runs to make ANOTHER error
+ * message more useful and must never replace it or hang.
+ */
+export async function fetchAvailableModels(cfg: TutorConfig): Promise<string[] | undefined> {
+  try {
+    const url = `${cfg.baseUrl.replace(/\/+$/, '')}/models`;
+    const headers: Record<string, string> = {};
+    if (cfg.apiKey.trim().length > 0) headers.Authorization = `Bearer ${cfg.apiKey.trim()}`;
+    const res = await fetch(url, { headers, signal: AbortSignal.timeout(15_000) });
+    if (!res.ok) return undefined;
+    const body = (await res.json()) as { data?: Array<{ id?: string }> };
+    const ids = (body.data ?? []).map((m) => m.id).filter((id): id is string => Boolean(id));
+    return ids.length > 0 ? ids : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Failure text for a non-OK response. Pure, so the gate can assert it offline.
+ *
+ * Why this exists: the app once reported a bare "api.deepseek.com returned 404" for a
+ * stale model id (deepseek-chat), which sends a reader hunting the base URL — the one
+ * thing that was correct. On an OpenAI-compatible endpoint the path is fixed, and a bad
+ * key answers 401 long before anything is looked up, so **a 404 is almost always the
+ * model id.** Say that, name the id, and list what the key can really use.
+ */
+export function describeHttpFailure(args: {
+  host: string;
+  status: number;
+  detail: string;
+  model: string;
+  available?: string[];
+}): string {
+  const { host, status, detail, model, available } = args;
+  let msg = `${host} returned ${status}${detail ? ` — ${detail}` : ''}`;
+  if (status === 404 || /model/i.test(detail)) {
+    msg +=
+      `. The model id "${model}" is the likeliest cause: the request path is fixed, and a bad key ` +
+      `would have answered 401 instead of 404.`;
+    if (available && available.length > 0) {
+      msg += ` This key can use: ${available.join(', ')}.`;
+    }
+  }
+  return msg;
+}
+
 export async function runTutor(
   cfg: TutorConfig,
   payload: TutorPayload,
@@ -428,11 +477,23 @@ export async function runTutor(
     let detail = '';
     try {
       const body = (await res.json()) as { error?: { message?: string } };
-      detail = body?.error?.message ? ` — ${body.error.message}` : '';
+      detail = body?.error?.message ? `${body.error.message}` : '';
     } catch {
       /* non-JSON error body */
     }
-    throw new TutorError(`${endpointHost(cfg.baseUrl)} returned ${res.status}${detail}`);
+    // A 404 (or any complaint mentioning the model) earns one extra round trip so the
+    // message can name the models that actually exist instead of leaving the reader to guess.
+    const available =
+      res.status === 404 || /model/i.test(detail) ? await fetchAvailableModels(cfg) : undefined;
+    throw new TutorError(
+      describeHttpFailure({
+        host: endpointHost(cfg.baseUrl),
+        status: res.status,
+        detail,
+        model: cfg.model,
+        available,
+      }),
+    );
   }
 
   const body = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };

@@ -22,7 +22,7 @@
 import { computeChart } from '@bazilionaire/engine';
 import { factsheet } from '../lib/factsheet';
 import { reading } from '../lib/reading';
-import { auditTutorText, hasReadingModel, redactFacts, tutorPayload, TUTOR_CFG_KEY, TUTOR_KEY_KEY, TUTOR_PRESETS, TUTOR_SYSTEM_PROMPT } from '../lib/tutor';
+import { auditTutorText, describeHttpFailure, hasReadingModel, redactFacts, tutorPayload, TUTOR_CFG_KEY, TUTOR_KEY_KEY, TUTOR_PRESETS, TUTOR_SYSTEM_PROMPT } from '../lib/tutor';
 
 const PINNED_YEAR = 2026;
 
@@ -246,6 +246,69 @@ if (/\b(1[6-9]\d{2}|20\d{2})\b/.test(TUTOR_SYSTEM_PROMPT)) {
   // …and a local, leak-free option must remain offered.
   if (!TUTOR_PRESETS.some((p) => !p.needsKey)) {
     problems.push('presets: no key-free local endpoint is offered any more');
+  }
+
+  // No preset may ship a model id that is known-dead. `deepseek-chat` shipped as the
+  // default on 2026-08-27 and produced a bare 404 in the app — the failure this whole
+  // block exists to stop recurring silently.
+  const DEAD_MODEL_IDS = ['deepseek-chat'];
+  for (const p of TUTOR_PRESETS) {
+    if (DEAD_MODEL_IDS.includes(p.model)) {
+      problems.push(`presets: "${p.label}" ships a retired model id (${p.model})`);
+    }
+  }
+}
+
+// ---- describeHttpFailure: a 404 must accuse the MODEL, not the base URL ----
+//
+// The bug this pins: the app reported "api.deepseek.com returned 404" and nothing else, so
+// the base URL looked guilty when it was correct (unauthenticated probes answer 401 on that
+// exact path, and the CORS preflight answers 200). The message must name the model id.
+{
+  const notFound = describeHttpFailure({
+    host: 'api.deepseek.com',
+    status: 404,
+    detail: '',
+    model: 'deepseek-chat',
+  });
+  if (!notFound.includes('deepseek-chat')) {
+    problems.push('describeHttpFailure: a 404 message must name the model id that was sent');
+  }
+  if (!/401/.test(notFound)) {
+    problems.push('describeHttpFailure: a 404 message must explain that a bad key answers 401');
+  }
+
+  const withList = describeHttpFailure({
+    host: 'api.deepseek.com',
+    status: 404,
+    detail: '',
+    model: 'deepseek-chat',
+    available: ['deepseek-v4-pro', 'deepseek-reasoner'],
+  });
+  if (!withList.includes('deepseek-v4-pro')) {
+    problems.push('describeHttpFailure: available models must be listed when known');
+  }
+
+  // A 500 is not a model problem — it must NOT blame the model id.
+  const serverErr = describeHttpFailure({
+    host: 'api.deepseek.com',
+    status: 500,
+    detail: 'internal error',
+    model: 'deepseek-v4-pro',
+  });
+  if (/likeliest cause/.test(serverErr)) {
+    problems.push('describeHttpFailure: a 500 must not be blamed on the model id');
+  }
+
+  // …but an explicit model complaint at any status should still name it.
+  const modelComplaint = describeHttpFailure({
+    host: 'api.deepseek.com',
+    status: 400,
+    detail: 'Model Not Exist',
+    model: 'deepseek-chat',
+  });
+  if (!modelComplaint.includes('deepseek-chat')) {
+    problems.push('describeHttpFailure: a model complaint must name the model id at any status');
   }
 }
 
