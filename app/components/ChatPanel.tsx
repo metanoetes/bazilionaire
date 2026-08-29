@@ -56,11 +56,12 @@ const KICKOFF =
   'childhood, education, relationships, work, health, faith. Then walk the decades ahead one by ' +
   'one through the 大运, and read my logged events and remedies against the pattern as you go.';
 
-/** The greeting every new conversation opens with — fixed local prose, not model output. */
+/** The greeting every new conversation opens with — fixed local prose, not model output.
+ *  Minimal by design (Peter, 2026-08-27): one line of identity, then the ask — the five
+ *  things a chart needs. */
 const GREETING: Array<string> = [
-  'I am the reader. I interpret Chinese astrology — 八字 (the eight characters), 紫微斗数 (Purple Star), 奇门遁甲 (the Mysterious Door), and 大六壬 (the Great Six Ren) — as ways of reading God\u2019s creation, never of worshipping it. The stars rule no one. We read the map, and we follow Jesus Christ.',
-  'The tradition rests on a monist, fractal cosmos: one pattern repeated at every scale — the year, the season, the day, the hour — all pulsing through 阴阳 and 五行. At the moment of birth, that larger pattern resonates into the infant\u2019s internal structure, and the chart is a snapshot of the resonance. A description, not a cage: 善人不为命所缚 — the good are not bound by fate.',
-  'To begin, tell me your birth data — year, month, day, and hour (and the place, if you know it) — and your name. I will compute your pillars, and with your confirmation, save them into the atlas. Then I will read your life with you.',
+  'I am the reader. I interpret Chinese astrology — 八字, 紫微斗数, 奇门遁甲, 大六壬 — as a way of reading God\u2019s creation; the stars rule no one, and we follow Jesus Christ.',
+  'To begin, tell me: your name · your birthday (year, month, day) · your birth hour (and minute if you know it) · the place you were born (city is enough) · your sex.',
 ];
 
 const BIRTH_RE =
@@ -106,6 +107,7 @@ export function ChatPanel({ facts, events }: { facts: Fact[]; events: LifeEvent[
   // Birth-data capture: a draft detected in the user's last message, awaiting confirmation.
   const [draft, setDraft] = useState<BirthDraft | null>(null);
   const [draftName, setDraftName] = useState('');
+  const [draftCity, setDraftCity] = useState('');
   const [draftGender, setDraftGender] = useState<'male' | 'female'>('male');
   const [savedSelf, setSavedSelf] = useState<{ profile: Profile; facts: Fact[] } | null>(null);
 
@@ -313,6 +315,7 @@ export function ChatPanel({ facts, events }: { facts: Fact[]; events: LifeEvent[
       name: draftName.trim() || 'me',
       isSelf: true,
       birth,
+      city: draftCity.trim() || null,
       isMinor: false,
     });
     const ok = await saveProfile(profile);
@@ -572,6 +575,15 @@ export function ChatPanel({ facts, events }: { facts: Fact[]; events: LifeEvent[
                   value={draftName}
                   onChange={(e) => setDraftName(e.target.value)}
                   placeholder="your name"
+                  className="w-full border border-line rounded px-2 py-1 bg-surface-2 text-ink text-sm mt-0.5"
+                />
+              </label>
+              <label className="text-muted block">
+                birth place (city)
+                <input
+                  value={draftCity}
+                  onChange={(e) => setDraftCity(e.target.value)}
+                  placeholder="e.g. Manila"
                   className="w-full border border-line rounded px-2 py-1 bg-surface-2 text-ink text-sm mt-0.5"
                 />
               </label>
