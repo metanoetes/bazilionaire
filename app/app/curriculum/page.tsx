@@ -29,7 +29,7 @@ export default function CurriculumPage() {
           fifteen modules, adept depth — the full technical system, taught as if you were going to
           read charts for real: not a folk simplification, but the machinery serious readers use,
           with honest notes on where schools disagree and where the app does not yet compute what
-          a book teaches. <span className="italic">read the map, follow the Lion</span>
+          a book teaches. <span className="italic">read the map, follow Jesus Christ</span>
         </p>
         <p className="mt-2 text-xs text-faint">
           click any underlined Chinese term for its pinyin and gloss

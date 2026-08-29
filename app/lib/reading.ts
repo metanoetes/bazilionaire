@@ -417,7 +417,7 @@ export function reading(chart: Chart, facts: Fact[], opts: { year: number }): Mo
     paragraphs: [
       `This chart does not bind you.`,
       `Everything above is structure: a temperament named precisely enough to be useful, and a moving layer over it. It describes; it does not sentence. Where the map and Scripture disagree, Scripture wins, and nothing computed here carries authority over your standing before God.`,
-      `Every chart here has a rebirth slot for exactly this reason — 重生, John 3:3: the same weather still falls, and it falls on a new creation. The instrument carries its own dethroning (2 Kings 18:4). Read the map, follow the Lion (Rev 5:5).`,
+      `Every chart here has a rebirth slot for exactly this reason — 重生, John 3:3: the same weather still falls, and it falls on a new creation. The instrument carries its own dethroning (2 Kings 18:4). Read the map, follow Jesus Christ (Rev 5:5).`,
       `What to do with any of this stays with people: a teacher, a friend, and finally Christ. The engine computed a map, and a map has never once told anyone where to go.`,
     ],
   });

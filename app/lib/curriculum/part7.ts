@@ -125,7 +125,7 @@ export const TRANSITS_AND_FRAME: CurriculumModule[] = [
         heading: 'the anti-idol clause',
         paragraphs: [
           '2 Kings 18:4 — Hezekiah "broke in pieces the bronze serpent that Moses had made, for until those days the people of Israel had made offerings to it." The serpent had healed them once, at God\'s command. It was never meant to be adored. The people turned the medicine into a god, and the good king smashed it.',
-          'Charts are like the serpent: useful in their place, fatal on the altar. Read the map. Follow the Lion. (Rev 5:5)',
+          'Charts are like the serpent: useful in their place, fatal on the altar. Read the map. Follow Jesus Christ. (Rev 5:5)',
         ],
       },
       {

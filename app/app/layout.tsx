@@ -4,7 +4,7 @@ import { Navbar } from '@/components/Navbar';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 export const metadata: Metadata = {
-  title: 'Bazilionaire — read the map, follow the Lion',
+  title: 'Bazilionaire — read the map, follow Jesus Christ',
   description:
     'A free, open-source Bazi (八字 bā zì) learning center. The chart is a map; Christ is the way. 善人不为命所缚 (shàn rén bù wéi mìng suǒ fù) — the good are not bound by fate.',
 };

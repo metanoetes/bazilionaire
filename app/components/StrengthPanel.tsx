@@ -12,7 +12,7 @@ import { ClickableCJK } from './ClickableCJK';
  * silent overwrites: the tradition's most argued-over calls stay visibly
  * contestable. This panel computes the vocabulary and shows its work; it
  * still never tells you what to do with the answer — see the site's own
- * "follow the Lion, not the chart" line on the landing page.
+ * "follow Jesus Christ, not the chart" line on the landing page.
  */
 export function StrengthPanel({ chart }: { chart: Chart }) {
   const [expanded, setExpanded] = useState(false);
@@ -185,7 +185,7 @@ export function StrengthPanel({ chart }: { chart: Chart }) {
         Computed structure, not a prescription: the tradition itself argues over 从格 thresholds and
         whether 十二长生 truly reverses for yin stems (curriculum modules 9-11). This panel shows every
         factor so you can weigh, check, or reject the computed reading — the discernment of what to do
-        with it stays with people: a teacher, a friend, and finally Christ. <span className="italic">Follow the Lion, not the chart</span> (Rev 5:5).
+        with it stays with people: a teacher, a friend, and finally Christ. <span className="italic">Follow Jesus Christ, not the chart</span> (Rev 5:5).
       </div>
     </div>
   );

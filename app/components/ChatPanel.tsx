@@ -58,7 +58,7 @@ const KICKOFF =
 
 /** The greeting every new conversation opens with — fixed local prose, not model output. */
 const GREETING: Array<string> = [
-  'I am the reader. I interpret Chinese astrology — 八字 (the eight characters), 紫微斗数 (Purple Star), 奇门遁甲 (the Mysterious Door), and 大六壬 (the Great Six Ren) — as ways of reading God\u2019s creation, never of worshipping it. The stars rule no one. We read the map, and we follow the Lion.',
+  'I am the reader. I interpret Chinese astrology — 八字 (the eight characters), 紫微斗数 (Purple Star), 奇门遁甲 (the Mysterious Door), and 大六壬 (the Great Six Ren) — as ways of reading God\u2019s creation, never of worshipping it. The stars rule no one. We read the map, and we follow Jesus Christ.',
   'The tradition rests on a monist, fractal cosmos: one pattern repeated at every scale — the year, the season, the day, the hour — all pulsing through 阴阳 and 五行. At the moment of birth, that larger pattern resonates into the infant\u2019s internal structure, and the chart is a snapshot of the resonance. A description, not a cage: 善人不为命所缚 — the good are not bound by fate.',
   'To begin, tell me your birth data — year, month, day, and hour (and the place, if you know it) — and your name. I will compute your pillars, and with your confirmation, save them into the atlas. Then I will read your life with you.',
 ];

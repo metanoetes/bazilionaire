@@ -228,7 +228,7 @@ export default function ChartPage() {
             <Link href="/curriculum" className="underline hover:text-accent">
               课程 curriculum
             </Link>{' '}
-            · <span className="italic">read the map, follow the Lion</span> (Rev 5:5)
+            · <span className="italic">read the map, follow Jesus Christ</span> (Rev 5:5)
           </p>
         </header>
 
